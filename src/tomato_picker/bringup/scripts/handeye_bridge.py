@@ -2,6 +2,7 @@
 
 import math
 import os
+import time
 from typing import Optional, Tuple
 
 import numpy as np
@@ -21,6 +22,8 @@ CLEAR_FAULT_SERVICE = "/handeye/fault/clear"
 COMPLIANT_RECOVERY_SERVICE = "/handeye/fault/compliant_recovery"
 RIGID_HOLD_SERVICE = "/handeye/fault/rigid_hold"
 ENABLE_DRAG_SERVICE = "/handeye/drag/enable"
+RESUME_DRAG_SERVICE = "/handeye/drag/resume"
+RESUME_DRAG_TIMEOUT_S = 5.0
 
 
 def transform_matrix_to_pose(transform: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -79,6 +82,11 @@ def _resource_path_list(value: str):
     """Parse an os.pathsep-separated resource path string for SerialArm-Core v0.5.2."""
     return [item.strip() for item in value.split(os.pathsep) if item.strip()]
 
+def _is_cycle_timeout_fault(message: str) -> bool:
+    """Accept only the specific recoverable control-period fault from the active Core contract."""
+    return "RobotErr=20;" in message and "SafetyErr=2;" in message
+
+
 def _optional_baudrate(value: str) -> Optional[int]:
     value = value.strip()
     if not value:
@@ -136,6 +144,8 @@ class HandeyeBridge(Node):
         self._snapshot_error_logged = ""
         self._worker_stopped_logged = False
         self._last_robot_state = None
+        self._resume_drag_pending = False
+        self._resume_drag_started_at = 0.0
 
         self._base_frame = session.config.dynamics.base_frame
         self._tool_frame = session.config.dynamics.tool_frame
@@ -157,6 +167,9 @@ class HandeyeBridge(Node):
         self._enable_drag_service = self.create_service(
             Trigger, ENABLE_DRAG_SERVICE, self._enable_drag
         )
+        self._resume_drag_service = self.create_service(
+            Trigger, RESUME_DRAG_SERVICE, self._resume_drag
+        )
 
         try:
             session.start()
@@ -176,7 +189,8 @@ class HandeyeBridge(Node):
             f"clear={CLEAR_FAULT_SERVICE}, "
             f"compliant_recovery={COMPLIANT_RECOVERY_SERVICE}, "
             f"rigid_hold={RIGID_HOLD_SERVICE}, "
-            f"enable_drag={ENABLE_DRAG_SERVICE}"
+            f"enable_drag={ENABLE_DRAG_SERVICE}, "
+            f"resume_drag={RESUME_DRAG_SERVICE}"
         )
 
     def _log_state_transition(self, state) -> None:
@@ -208,6 +222,7 @@ class HandeyeBridge(Node):
         state = self._session.state
         snapshot = self._session.snapshot
         self._log_state_transition(state)
+        self._complete_pending_drag_resume(state, snapshot)
 
         if not self._session.running:
             if not self._worker_stopped_logged:
@@ -260,6 +275,99 @@ class HandeyeBridge(Node):
         message.pose.orientation.w = float(quaternion[3])
         self._publisher.publish(message)
 
+    def _complete_pending_drag_resume(self, state, snapshot) -> None:
+        """Finish a single operator-authorized recovery after a new valid control cycle."""
+        if not self._resume_drag_pending:
+            return
+
+        if not self._session.running or state != RobotState.ACTIVE or snapshot.last_error:
+            self._resume_drag_pending = False
+            self.get_logger().error(
+                "Drag resume cancelled because the session stopped, faulted again or reported an error"
+            )
+            return
+
+        if time.monotonic() - self._resume_drag_started_at > RESUME_DRAG_TIMEOUT_S:
+            self._resume_drag_pending = False
+            self.get_logger().error(
+                "Drag resume timed out waiting for a fresh ACTIVE snapshot; inspect the robot"
+            )
+            return
+
+        if not snapshot.valid:
+            return
+
+        self._resume_drag_pending = False
+        try:
+            self._session.set_impedance_mode(JointImpedanceMode.COMPLIANT_DRAG)
+        except Exception as error:
+            self.get_logger().error(f"Operator-requested drag resume failed: {error}")
+            return
+
+        self.get_logger().info(
+            "Fresh ACTIVE snapshot received; operator-requested COMPLIANT_DRAG submitted"
+        )
+
+    def _resume_drag(self, _request, response):
+        """One explicit request to recover a transient cycle fault and resume drag."""
+        if not self._session.running:
+            response.success = False
+            response.message = "RobotSession worker is not running"
+            return response
+        if self._resume_drag_pending:
+            response.success = False
+            response.message = "Drag resume is already pending"
+            return response
+
+        state = self._session.state
+        snapshot = self._session.snapshot
+
+        if state == RobotState.ACTIVE:
+            if not snapshot.valid or snapshot.last_error:
+                response.success = False
+                response.message = "A fresh, error-free ACTIVE snapshot is required"
+                return response
+            try:
+                self._session.set_impedance_mode(JointImpedanceMode.COMPLIANT_DRAG)
+            except Exception as error:
+                response.success = False
+                response.message = f"COMPLIANT_DRAG rejected: {error}"
+                return response
+            response.success = True
+            response.message = "COMPLIANT_DRAG request submitted"
+            return response
+
+        if state != RobotState.FAULT:
+            response.success = False
+            response.message = "Robot must be ACTIVE or in a recoverable FAULT"
+            return response
+
+        if not _is_cycle_timeout_fault(str(snapshot.last_error)):
+            response.success = False
+            response.message = (
+                "Only the known control-cycle INVALID_DT fault supports one-step drag resume; "
+                "inspect other faults and use the explicit recovery services"
+            )
+            return response
+
+        try:
+            # Core checks live actuator state, velocity and fault-hold stability.
+            # Never soften fault hold while the robot is still in FAULT.
+            self._session.clear_fault()
+        except Exception as error:
+            response.success = False
+            response.message = f"Safety-controlled fault clear was rejected: {error}"
+            return response
+
+        self._resume_drag_pending = True
+        self._resume_drag_started_at = time.monotonic()
+        response.success = True
+        response.message = (
+            "Fault cleared by Core; waiting for a fresh ACTIVE snapshot before "
+            "submitting COMPLIANT_DRAG. Another fault cancels this request"
+        )
+        return response
+
     def _clear_fault(self, _request, response):
         """Clear a recoverable FAULT without automatically re-entering drag mode."""
         if not self._session.running:
@@ -271,6 +379,7 @@ class HandeyeBridge(Node):
             response.message = "Robot is not in FAULT"
             return response
 
+        self._resume_drag_pending = False
         try:
             self._session.clear_fault()
         except Exception as error:
@@ -358,6 +467,7 @@ class HandeyeBridge(Node):
             )
             return response
 
+        self._resume_drag_pending = False
         try:
             self._session.set_impedance_mode(JointImpedanceMode.COMPLIANT_DRAG)
         except Exception as error:
@@ -376,6 +486,7 @@ class HandeyeBridge(Node):
         if self._stopped:
             return
         self._stopped = True
+        self._resume_drag_pending = False
         if not getattr(self, "_session_started", False):
             return
         try:
