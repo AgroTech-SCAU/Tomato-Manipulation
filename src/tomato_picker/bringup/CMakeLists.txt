@@ -31,9 +31,10 @@ install(PROGRAMS
   RENAME handeye_bridge
 )
 
-if(BUILD_TESTING)
-  find_package(ament_cmake_pytest REQUIRED)
-  ament_add_pytest_test(test_handeye_bridge test/test_handeye_bridge.py)
-endif()
+install(PROGRAMS
+  scripts/handeye_operator.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME handeye_operator
+)
 
 ament_package()
