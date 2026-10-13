@@ -223,7 +223,7 @@ ros2 launch tomato_picker_bringup handeye.launch.py
 默认：
 
 ```text
-robot_profile = dm_arm_gray
+robot_profile = tomato_picker
 pose_topic    = /arm/pose
 publish_rate  = 30 Hz
 start mode    = COMPLIANT_DRAG
@@ -233,7 +233,7 @@ start mode    = COMPLIANT_DRAG
 
 ```bash
 ros2 launch tomato_picker_bringup handeye.launch.py \
-  robot_profile:=dm_arm_gray \
+  robot_profile:=tomato_picker \
   serial_port:=/dev/ttyACM0 \
   baudrate:=921600 \
   bus:=main_can
@@ -270,6 +270,7 @@ SerialArm-Core `v0.5.2` 继承并保持 v0.5.1 引入的在线 FAULT 恢复语�
 /handeye/fault/compliant_recovery  std_srvs/srv/Trigger
 /handeye/fault/rigid_hold           std_srvs/srv/Trigger
 /handeye/drag/enable                std_srvs/srv/Trigger
+/handeye/drag/resume                std_srvs/srv/Trigger
 ```
 
 普通瞬态可恢复 FAULT，例如偶发 `INVALID_DT`，推荐流程：
@@ -298,6 +299,20 @@ COMPLIANT_DRAG
 ros2 service call /handeye/fault/clear std_srvs/srv/Trigger "{}"
 ros2 service call /handeye/drag/enable std_srvs/srv/Trigger "{}"
 ```
+
+遇到控制周期偶发超时 `SafetyErr=2` 且人工确认机械臂没有异常运动时，可使用单次请求完成安全清故障和拖拽恢复
+
+```bash
+ros2 service call /handeye/drag/resume std_srvs/srv/Trigger "{}"
+```
+
+服务仅针对已识别的控制周期超时故障，先由 Core 检查当前状态和故障保持情况，成功清故障后等待新鲜有效的 ACTIVE 位姿，再请求 COMPLIANT_DRAG
+
+本操作必须由操作员主动执行，不会自动重试，也不会忽略电机、通信或关节保护错误
+
+如果再次触发 FAULT，本次恢复请求立即取消并保留 Core 原有安全处理
+
+该服务只简化恢复操作，不解决周期超时本身，频繁出现时应检查调度延迟、通信链路和系统负载
 
 `clear_fault()` **不会自动重新进入拖拽模式**；这是安全设计：清故障后先保持 `ACTIVE + RIGID_HOLD`，必须由操作员在确认机械臂和新位姿正常后显式调用 `/handeye/drag/enable`
 
