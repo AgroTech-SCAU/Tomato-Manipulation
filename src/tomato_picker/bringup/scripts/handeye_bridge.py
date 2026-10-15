@@ -92,6 +92,46 @@ def _state_name(state):
     return getattr(state, "name", str(state).split(".")[-1])
 
 
+def _infer_command_mode(snapshot, controller_config):
+    """Infer the generated joint command mode from its gain vectors
+
+    This is command feedback, not a hardware readback or the FAULT hold mode
+    """
+    if not snapshot.valid or snapshot.last_error:
+        return "UNKNOWN"
+    try:
+        command = snapshot.cycle.joint_cmd
+        kp = np.asarray(command.kp, dtype=float)
+        kd = np.asarray(command.kd, dtype=float)
+        if kp.ndim != 1 or kd.shape != kp.shape or not kp.size:
+            return "UNKNOWN"
+        if not np.all(np.isfinite(kp)) or not np.all(np.isfinite(kd)):
+            return "UNKNOWN"
+        candidates = (
+            ("COMPLIANT_DRAG", "compliant_drag_gains"),
+            ("RIGID_HOLD", "rigid_hold_gains"),
+            ("COMPLIANT_HOLD", "compliant_hold_gains"),
+            ("RIGID_TRACKING", "rigid_tracking_gains"),
+            ("COMPLIANT_TRACKING", "compliant_tracking_gains"),
+        )
+        matches = []
+        for label, attribute in candidates:
+            gains = getattr(controller_config, attribute)
+            expected_kp = np.asarray(gains.kp, dtype=float)
+            expected_kd = np.asarray(gains.kd, dtype=float)
+            if expected_kp.shape != kp.shape or expected_kd.shape != kd.shape:
+                continue
+            if np.allclose(kp, expected_kp, rtol=1e-4, atol=1e-5) and np.allclose(
+                kd, expected_kd, rtol=1e-4, atol=1e-5
+            ):
+                matches.append(label)
+        if len(matches) == 1:
+            return matches[0]
+        return "AMBIGUOUS" if matches else "UNKNOWN"
+    except (AttributeError, TypeError, ValueError):
+        return "UNKNOWN"
+
+
 class HandeyeBridge(Node):
     """Exclusive hardware owner for hand-eye calibration"""
 
@@ -138,6 +178,7 @@ class HandeyeBridge(Node):
         self._last_error = None
         self._worker_stopped_logged = False
         self._drag_requested = False
+        self._requested_mode = "RIGID_HOLD"
         self._session = None
 
         profile = load_robot_profile_core(profile_name, profile_file or "", resource_paths)
@@ -169,6 +210,7 @@ class HandeyeBridge(Node):
             self._session_started = True
             self._session.set_impedance_mode(JointImpedanceMode.COMPLIANT_DRAG)
             self._drag_requested = True
+            self._requested_mode = "COMPLIANT_DRAG"
         except BaseException:
             self.stop_session()
             raise
@@ -198,6 +240,7 @@ class HandeyeBridge(Node):
             self._last_robot_state = state
             if state == RobotState.FAULT:
                 self._drag_requested = False
+                self._requested_mode = "RIGID_HOLD"
                 self.get_logger().warning(
                     f"FAULT | {error or 'Inspect robot safety state'} | press r in handeye_operator to recover"
                 )
@@ -213,15 +256,22 @@ class HandeyeBridge(Node):
         if self._shutting_down or self._session is None:
             return
         snapshot = self._session.snapshot
-        self._log_state_transition(self._session.state, str(snapshot.last_error or ""))
+        state = self._session.state
+        error = str(snapshot.last_error or "")
+        self._log_state_transition(state, error)
+        active = state == RobotState.ACTIVE and self._session.running and not error
+        observed = _infer_command_mode(snapshot, self._session.config.ctrller) if active else "UNKNOWN"
         msg = String()
         msg.data = json.dumps({
-            "state": _state_name(self._session.state),
+            "state": _state_name(state),
             "running": bool(self._session.running),
             "snapshot_valid": bool(snapshot.valid),
-            "error": str(snapshot.last_error or ""),
-            "fault_hold_mode": _state_name(self._session.fault_hold_mode),
-            "drag_requested": bool(self._drag_requested),
+            "pose_ready": bool(active and snapshot.valid),
+            "error": error,
+            "fault_hold_mode": _state_name(self._session.fault_hold_mode) if state == RobotState.FAULT else None,
+            "requested_mode": self._requested_mode if active else "RIGID_HOLD",
+            "observed_command_mode": observed,
+            "drag_requested": bool(self._drag_requested and active),
         }, ensure_ascii=False)
         self._status_publisher.publish(msg)
 
@@ -262,6 +312,7 @@ class HandeyeBridge(Node):
         except Exception as error:
             return self._respond(response, False, f"Core rejected fault clear: {error}")
         self._drag_requested = False
+        self._requested_mode = "RIGID_HOLD"
         return self._respond(response, True, "FAULT cleared | wait for fresh ACTIVE snapshot before resuming drag")
 
     def _enter_fault_compliant_recovery(self, _request, response):
@@ -293,6 +344,7 @@ class HandeyeBridge(Node):
         except Exception as error:
             return self._respond(response, False, f"Core rejected drag: {error}")
         self._drag_requested = True
+        self._requested_mode = "COMPLIANT_DRAG"
         return self._respond(response, True, "COMPLIANT_DRAG requested | continue hand-eye sampling")
 
     def _enable_drag(self, _request, response):
@@ -313,6 +365,7 @@ class HandeyeBridge(Node):
                     f"Core rejected fault clear: {error} | inspect limits and motor state | use restricted recovery only when Core allows it",
                 )
             self._drag_requested = False
+            self._requested_mode = "RIGID_HOLD"
         elif self._session.state != RobotState.ACTIVE:
             return self._respond(response, False, "Robot must be ACTIVE or in a recoverable FAULT")
 
@@ -371,6 +424,8 @@ class HandeyeBridge(Node):
                 "Ctrl+C | returning to configured shutdown joint zero | do not cut power during movement"
             )
             self._session.set_impedance_mode(JointImpedanceMode.COMPLIANT_TRACKING)
+            self._requested_mode = "COMPLIANT_TRACKING"
+            self._drag_requested = False
             # Mode requests and trajectory execution run in the independent C++ control worker
             self._session.move_to(target, speed)
             deadline = time.monotonic() + timeout
