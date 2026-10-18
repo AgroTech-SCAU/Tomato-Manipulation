@@ -235,6 +235,7 @@ ros2 launch tomato_picker_bringup handeye.launch.py
 ```text
 robot_profile = tomato_picker
 pose_topic    = /arm/pose
+joint_state_topic = /arm/joint_states
 publish_rate  = 30 Hz
 start mode    = COMPLIANT_DRAG
 ```
@@ -266,10 +267,17 @@ RobotState == ACTIVE
 AND snapshot.valid == true
 AND snapshot.last_error is empty
         ↓
-发布 /arm/pose
+发布 /arm/pose、/arm/tool_transform、/arm/joint_states（同一快照、同一发布时刻）
 ```
 
 因此 FAULT 期间以及 `clear_fault()` 后第一个新有效控制周期到来之前都不会发布旧位姿
+
+用于手眼标定诊断的关节反馈来自同一 `RobotSession.snapshot.cycle.joint_state`，标准话题为 `/arm/joint_states`，消息类型为 `sensor_msgs/msg/JointState`，`name` 按 Profile 中的 `joint_names` 顺序，`position` 是弧度、`velocity` 是弧度每秒、`effort` 是关节反馈力矩（Nm）。这三个话题携带相同的 **ROS 发布时刻** 时间戳，便于记录和对应；它不是电机反馈的原始采样时间戳。拖拽标定时不要同时启动 ros2_control 以获取另一个 `/joint_states`。
+
+```bash
+ros2 topic echo /arm/joint_states
+ros2 bag record -o handeye_diagnosis /arm/pose /arm/tool_transform /arm/joint_states
+```
 
 ### FAULT 在线恢复
 

@@ -564,6 +564,8 @@ snapshot.valid == true
 snapshot.last_error == empty
 ```
 
+关节反馈 `/arm/joint_states` 使用 `sensor_msgs/msg/JointState`，包含 Profile 定义的 `joint1`～`joint6` 的 `position`（rad）、`velocity`（rad/s）和 `effort`（Nm）。和 `/arm/pose`、`/arm/tool_transform` 由同一 RobotSession 快照生成，三者 Header 使用相同的 ROS 发布时间戳（非电机原始采样时刻）。可通过 `joint_state_topic` 启动参数修改话题名称。
+
 ### 10.2 Online FAULT Recovery
 
 ```text

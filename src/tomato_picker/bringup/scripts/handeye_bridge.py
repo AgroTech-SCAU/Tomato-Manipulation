@@ -14,6 +14,7 @@ import rclpy
 from geometry_msgs.msg import PoseStamped, TransformStamped
 from rclpy.node import Node
 from rclpy.signals import SignalHandlerOptions
+from sensor_msgs.msg import JointState
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 
@@ -30,6 +31,7 @@ RIGID_HOLD_SERVICE = "/handeye/fault/rigid_hold"
 ENABLE_DRAG_SERVICE = "/handeye/drag/enable"
 RECOVER_DRAG_SERVICE = "/handeye/recover_drag"
 STATUS_TOPIC = "/handeye/status"
+JOINT_STATE_TOPIC = "/arm/joint_states"
 
 
 def transform_matrix_to_pose(transform: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -146,6 +148,7 @@ class HandeyeBridge(Node):
             ("bus", ""),
             ("pose_topic", "/arm/pose"),
             ("transform_topic", "/arm/tool_transform"),
+            ("joint_state_topic", JOINT_STATE_TOPIC),
             ("publish_rate", 30.0),
             ("recovery_wait_s", 3.0),
             ("park_on_shutdown", True),
@@ -160,11 +163,13 @@ class HandeyeBridge(Node):
         resource_paths = _resource_path_list(str(param("resource_paths")))
         pose_topic = str(param("pose_topic")).strip()
         transform_topic = str(param("transform_topic")).strip()
+        joint_state_topic = str(param("joint_state_topic")).strip()
         rate = float(param("publish_rate"))
         self._recovery_wait_s = float(param("recovery_wait_s"))
         self._park_on_shutdown = bool(param("park_on_shutdown"))
-        if not profile_name or not pose_topic or not transform_topic or pose_topic == transform_topic or not math.isfinite(rate) or rate <= 0:
-            raise ValueError("Invalid robot profile, unique pose/transform topics or publish rate")
+        topics = (pose_topic, transform_topic, joint_state_topic)
+        if not profile_name or any(not topic for topic in topics) or len(set(topics)) != len(topics) or not math.isfinite(rate) or rate <= 0:
+            raise ValueError("Invalid robot profile, unique pose/transform/joint-state topics or publish rate")
         if not math.isfinite(self._recovery_wait_s) or not (0.25 <= self._recovery_wait_s <= 15.0):
             raise ValueError("recovery_wait_s must be within 0.25 and 15 seconds")
 
@@ -192,10 +197,14 @@ class HandeyeBridge(Node):
         )
         self._base_frame = self._session.config.dynamics.base_frame
         self._tool_frame = self._session.config.dynamics.tool_frame
+        self._joint_names = list(self._session.config.joint_names)
         if not self._base_frame or not self._tool_frame:
             raise RuntimeError("Missing base or tool frame in Robot Profile")
+        if not self._joint_names or len(set(self._joint_names)) != len(self._joint_names):
+            raise RuntimeError("Missing or duplicate joint names in Robot Profile")
         self._publisher = self.create_publisher(PoseStamped, pose_topic, 10)
         self._transform_publisher = self.create_publisher(TransformStamped, transform_topic, 10)
+        self._joint_state_publisher = self.create_publisher(JointState, joint_state_topic, 10)
         self._status_publisher = self.create_publisher(String, STATUS_TOPIC, 10)
         self._services = [
             self.create_service(Trigger, CLEAR_FAULT_SERVICE, self._clear_fault),
@@ -217,7 +226,7 @@ class HandeyeBridge(Node):
         self._pose_timer = self.create_timer(1.0 / rate, self._publish_pose)
         self._status_timer = self.create_timer(0.5, self._publish_status)
         self.get_logger().info(
-            f"Hand-eye ready | profile={profile_name} | {self._base_frame}->{self._tool_frame} | transform={transform_topic} | pose={pose_topic}"
+            f"Hand-eye ready | profile={profile_name} | {self._base_frame}->{self._tool_frame} | transform={transform_topic} | pose={pose_topic} | joints={joint_state_topic}"
         )
         self.get_logger().info(
             f"Recovery: ros2 service call {RECOVER_DRAG_SERVICE} std_srvs/srv/Trigger '{{}}'"
@@ -283,10 +292,19 @@ class HandeyeBridge(Node):
             return
         try:
             position, quaternion = transform_matrix_to_pose(snapshot.dynamics.tool_pose)
-        except ValueError as error:
+            joint = snapshot.cycle.joint_state
+            positions = np.asarray(joint.pos, dtype=float)
+            velocities = np.asarray(joint.vel, dtype=float)
+            efforts = np.asarray(joint.tor, dtype=float)
+            expected = len(self._joint_names)
+            if any(vector.shape != (expected,) or not np.all(np.isfinite(vector))
+                   for vector in (positions, velocities, efforts)):
+                raise ValueError("Invalid joint feedback vector in robot snapshot")
+        except (AttributeError, TypeError, ValueError) as error:
             self.get_logger().error(str(error))
             return
-        # Publish one kinematics snapshot with an identical timestamp on both interfaces
+        # All three messages contain data from one RobotSession snapshot.
+        # This is a ROS publication timestamp, not the motor feedback acquisition time.
         stamp = self.get_clock().now().to_msg()
         transform = TransformStamped()
         transform.header.stamp = stamp
@@ -303,6 +321,14 @@ class HandeyeBridge(Node):
         msg.pose.position.x, msg.pose.position.y, msg.pose.position.z = map(float, position)
         msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w = map(float, quaternion)
         self._publisher.publish(msg)
+
+        joints = JointState()
+        joints.header.stamp = stamp
+        joints.name = list(self._joint_names)
+        joints.position = positions.tolist()  # rad, mapped joint positions
+        joints.velocity = velocities.tolist()  # rad/s
+        joints.effort = efforts.tolist()  # Nm, joint feedback torque
+        self._joint_state_publisher.publish(joints)
 
     def _clear_fault(self, _request, response):
         if not self._ready() or self._session.state != RobotState.FAULT:

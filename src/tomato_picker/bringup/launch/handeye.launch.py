@@ -9,7 +9,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     names = (
         "robot_profile", "profile_file", "resource_paths", "serial_port",
-        "baudrate", "bus", "pose_topic", "transform_topic", "publish_rate", "recovery_wait_s",
+        "baudrate", "bus", "pose_topic", "transform_topic", "joint_state_topic", "publish_rate", "recovery_wait_s",
         "park_on_shutdown",
     )
     config = {name: LaunchConfiguration(name) for name in names}
@@ -41,6 +41,7 @@ def generate_launch_description():
         "bus": "",
         "pose_topic": "/arm/pose",
         "transform_topic": "/arm/tool_transform",
+        "joint_state_topic": "/arm/joint_states",
         "publish_rate": "30.0",
         "recovery_wait_s": "3.0",
         # Ctrl+C parks at the configured shutdown position before deactivation

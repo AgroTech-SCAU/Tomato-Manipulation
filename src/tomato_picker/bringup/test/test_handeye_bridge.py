@@ -18,10 +18,27 @@ def _install_import_stubs():
     geometry_msgs = types.ModuleType("geometry_msgs")
     geometry_msgs_msg = types.ModuleType("geometry_msgs.msg")
 
+    from types import SimpleNamespace
+
     class PoseStamped:
-        pass
+        def __init__(self):
+            self.header = SimpleNamespace(stamp=None, frame_id="")
+            self.pose = SimpleNamespace(
+                position=SimpleNamespace(x=None, y=None, z=None),
+                orientation=SimpleNamespace(x=None, y=None, z=None, w=None),
+            )
+
+    class TransformStamped:
+        def __init__(self):
+            self.header = SimpleNamespace(stamp=None, frame_id="")
+            self.child_frame_id = ""
+            self.transform = SimpleNamespace(
+                translation=SimpleNamespace(x=None, y=None, z=None),
+                rotation=SimpleNamespace(x=None, y=None, z=None, w=None),
+            )
 
     geometry_msgs_msg.PoseStamped = PoseStamped
+    geometry_msgs_msg.TransformStamped = TransformStamped
     geometry_msgs.msg = geometry_msgs_msg
     sys.modules["geometry_msgs"] = geometry_msgs
     sys.modules["geometry_msgs.msg"] = geometry_msgs_msg
@@ -34,6 +51,42 @@ def _install_import_stubs():
 
     rclpy_node.Node = Node
     rclpy.node = rclpy_node
+    rclpy_signals = types.ModuleType("rclpy.signals")
+
+    class SignalHandlerOptions:
+        NO = object()
+
+    rclpy_signals.SignalHandlerOptions = SignalHandlerOptions
+    rclpy.signals = rclpy_signals
+    sys.modules["rclpy.signals"] = rclpy_signals
+
+    sensor_msgs = types.ModuleType("sensor_msgs")
+    sensor_msgs_msg = types.ModuleType("sensor_msgs.msg")
+
+    class JointState:
+        def __init__(self):
+            self.header = SimpleNamespace(stamp=None, frame_id="")
+            self.name = []
+            self.position = []
+            self.velocity = []
+            self.effort = []
+
+    sensor_msgs_msg.JointState = JointState
+    sensor_msgs.msg = sensor_msgs_msg
+    sys.modules["sensor_msgs"] = sensor_msgs
+    sys.modules["sensor_msgs.msg"] = sensor_msgs_msg
+
+    std_msgs = types.ModuleType("std_msgs")
+    std_msgs_msg = types.ModuleType("std_msgs.msg")
+
+    class String:
+        def __init__(self):
+            self.data = ""
+
+    std_msgs_msg.String = String
+    std_msgs.msg = std_msgs_msg
+    sys.modules["std_msgs"] = std_msgs
+    sys.modules["std_msgs.msg"] = std_msgs_msg
     sys.modules["rclpy"] = rclpy
     sys.modules["rclpy.node"] = rclpy_node
 
@@ -106,26 +159,27 @@ class HandeyeBridgeContractTest(unittest.TestCase):
 
     def test_bridge_uses_core_session_drag_and_cached_fk(self):
         source = BRIDGE.read_text(encoding="utf-8")
-        self.assertIn("load_robot_profile_core(robot_profile, profile_file or \"\", resource_paths)", source)
+        self.assertIn("load_robot_profile_core(profile_name, profile_file or \"\", resource_paths)", source)
         self.assertIn("RobotSession(", source)
         self.assertIn("JointImpedanceMode.COMPLIANT_DRAG", source)
         self.assertIn("snapshot.dynamics.tool_pose", source)
-        self.assertIn("session.config.dynamics.base_frame", source)
+        self.assertIn("self._session.config.dynamics.base_frame", source)
         self.assertIn("PoseStamped", source)
         self.assertIn('"/arm/pose"', source)
-        self.assertIn("session.stop()", source)
+        self.assertIn("self._session.stop()", source)
         self.assertNotIn("joint_trajectory_controller", source)
         self.assertNotIn("move_group", source)
 
     def test_handeye_launch_is_dedicated_and_minimal(self):
         self.assertTrue(LAUNCH.is_file())
         source = LAUNCH.read_text(encoding="utf-8")
-        self.assertIn('default_value="tomato_picker"', source)
+        self.assertIn('"robot_profile": "tomato_picker"', source)
         self.assertIn('robot_profiles.yaml', source)
         self.assertIn('resource_paths', source)
-        self.assertIn('default_value="/arm/pose"', source)
-        self.assertIn('default_value="30.0"', source)
+        self.assertIn('"pose_topic": "/arm/pose"', source)
+        self.assertIn('"publish_rate": "30.0"', source)
         self.assertIn('executable="handeye_bridge"', source)
+        self.assertIn('"joint_state_topic": "/arm/joint_states"', source)
         for forbidden in (
             "moveit.launch.py",
             "arm_motion_node",
@@ -154,7 +208,7 @@ class HandeyeBridgeContractTest(unittest.TestCase):
         self.assertIn("RobotState.ACTIVE", source)
         self.assertIn("snapshot.valid", source)
         self.assertIn("snapshot.last_error", source)
-        self.assertIn("if state != RobotState.ACTIVE", source)
+        self.assertIn("self._session.state != RobotState.ACTIVE", source)
 
     def test_fault_clear_does_not_automatically_reenable_drag(self):
         source = BRIDGE.read_text(encoding="utf-8")
@@ -166,23 +220,71 @@ class HandeyeBridgeContractTest(unittest.TestCase):
 
     def test_drag_enable_requires_fresh_active_snapshot(self):
         source = BRIDGE.read_text(encoding="utf-8")
-        drag_start = source.index("def _enable_drag")
-        drag_end = source.index("def stop_session", drag_start)
+        drag_start = source.index("def _request_drag")
+        drag_end = source.index("def _enable_drag", drag_start)
         drag_body = source[drag_start:drag_end]
         self.assertIn("RobotState.ACTIVE", drag_body)
         self.assertIn("snapshot.valid", drag_body)
         self.assertIn("JointImpedanceMode.COMPLIANT_DRAG", drag_body)
+
+    def test_joint_state_uses_same_snapshot_and_timestamp_as_pose(self):
+        module = _load_bridge_module()
+        from types import SimpleNamespace
+
+        class Publisher:
+            def __init__(self):
+                self.messages = []
+
+            def publish(self, message):
+                self.messages.append(message)
+
+        node = module.HandeyeBridge.__new__(module.HandeyeBridge)
+        node._shutting_down = False
+        node._session_started = True
+        node._base_frame = "base_link"
+        node._tool_frame = "tool0"
+        node._joint_names = [f"joint{i}" for i in range(1, 7)]
+        node._publisher = Publisher()
+        node._transform_publisher = Publisher()
+        node._joint_state_publisher = Publisher()
+        stamp = SimpleNamespace(sec=123, nanosec=456)
+        node.get_clock = lambda: SimpleNamespace(now=lambda: SimpleNamespace(to_msg=lambda: stamp))
+        errors = []
+        node.get_logger = lambda: SimpleNamespace(error=errors.append)
+        feedback = SimpleNamespace(pos=[0.1*i for i in range(6)], vel=[0.0]*6, tor=[0.2]*6)
+        snapshot = SimpleNamespace(valid=True, last_error="", dynamics=SimpleNamespace(tool_pose=np.eye(4)),
+                                   cycle=SimpleNamespace(joint_state=feedback))
+        node._session = SimpleNamespace(snapshot=snapshot, state=module.RobotState.ACTIVE, running=True)
+        node._publish_pose()
+
+        self.assertFalse(errors)
+        self.assertEqual(len(node._publisher.messages), 1)
+        self.assertEqual(len(node._transform_publisher.messages), 1)
+        self.assertEqual(len(node._joint_state_publisher.messages), 1)
+        joints = node._joint_state_publisher.messages[0]
+        self.assertEqual(joints.name, ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"])
+        np.testing.assert_allclose(joints.position, feedback.pos)
+        np.testing.assert_allclose(joints.velocity, feedback.vel)
+        np.testing.assert_allclose(joints.effort, feedback.tor)
+        self.assertIs(joints.header.stamp, stamp)
+        self.assertIs(node._publisher.messages[0].header.stamp, stamp)
+        self.assertIs(node._transform_publisher.messages[0].header.stamp, stamp)
+
+        feedback.pos[2] = float("nan")
+        node._publish_pose()
+        self.assertEqual(len(node._joint_state_publisher.messages), 1)
+        self.assertEqual(len(node._publisher.messages), 1)
+        self.assertEqual(len(node._transform_publisher.messages), 1)
 
     def test_build_metadata_installs_bridge_and_declares_direct_dependencies(self):
         cmake = CMAKE.read_text(encoding="utf-8")
         package_xml = PACKAGE_XML.read_text(encoding="utf-8")
         self.assertIn("scripts/handeye_bridge.py", cmake)
         self.assertIn("RENAME handeye_bridge", cmake)
-        self.assertIn("ament_add_pytest_test", cmake)
         self.assertIn("<exec_depend>geometry_msgs</exec_depend>", package_xml)
+        self.assertIn("<exec_depend>sensor_msgs</exec_depend>", package_xml)
         self.assertIn("<exec_depend>serial_arm_core</exec_depend>", package_xml)
         self.assertIn("<exec_depend>python3-numpy</exec_depend>", package_xml)
-        self.assertIn("<test_depend>ament_cmake_pytest</test_depend>", package_xml)
 
 
 if __name__ == "__main__":
