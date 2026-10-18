@@ -244,15 +244,26 @@ class HandeyeBridgeContractTest(unittest.TestCase):
         node._base_frame = "base_link"
         node._tool_frame = "tool0"
         node._joint_names = [f"joint{i}" for i in range(1, 7)]
+        node._joint_state_consistent = None
+        node._joint_discrepancy = None
+        node._joint_mismatch_count = 0
+        node._joint_warn_at = float("-inf")
+        node._last_publish_error = ""
+        node._last_publish_error_at = float("-inf")
+        node._pose_publishing_ok = False
         node._publisher = Publisher()
         node._transform_publisher = Publisher()
         node._joint_state_publisher = Publisher()
         stamp = SimpleNamespace(sec=123, nanosec=456)
         node.get_clock = lambda: SimpleNamespace(now=lambda: SimpleNamespace(to_msg=lambda: stamp))
         errors = []
-        node.get_logger = lambda: SimpleNamespace(error=errors.append)
+        warnings = []
+        node.get_logger = lambda: SimpleNamespace(error=errors.append, warning=warnings.append)
         feedback = SimpleNamespace(pos=[0.1*i for i in range(6)], vel=[0.0]*6, tor=[0.2]*6)
-        snapshot = SimpleNamespace(valid=True, last_error="", dynamics=SimpleNamespace(tool_pose=np.eye(4)),
+        snapshot = SimpleNamespace(valid=True, last_error="", dynamics=SimpleNamespace(tool_pose=np.eye(4),
+                                                                     pos=feedback.pos.copy(),
+                                                                     vel=feedback.vel.copy(),
+                                                                     tor=feedback.tor.copy()),
                                    cycle=SimpleNamespace(joint_state=feedback))
         node._session = SimpleNamespace(snapshot=snapshot, state=module.RobotState.ACTIVE, running=True)
         node._publish_pose()
@@ -269,12 +280,75 @@ class HandeyeBridgeContractTest(unittest.TestCase):
         self.assertIs(joints.header.stamp, stamp)
         self.assertIs(node._publisher.messages[0].header.stamp, stamp)
         self.assertIs(node._transform_publisher.messages[0].header.stamp, stamp)
+        self.assertTrue(node._joint_state_consistent)
+        self.assertTrue(node._pose_publishing_ok)
+        self.assertEqual(node._joint_mismatch_count, 0)
+
+        # A bad cycle buffer must not contaminate the FK-matched ROS topic.
+        feedback.pos = [0.1] * 6
+        feedback.vel = [0.0] * 6
+        feedback.tor = [0.0] * 6
+        node._publish_pose()
+        self.assertEqual(len(node._joint_state_publisher.messages), 2)
+        np.testing.assert_allclose(node._joint_state_publisher.messages[-1].position, [0.1*i for i in range(6)])
+        self.assertFalse(node._joint_state_consistent)
+        self.assertEqual(node._joint_mismatch_count, 1)
+        self.assertEqual(len(warnings), 1)
 
         feedback.pos[2] = float("nan")
         node._publish_pose()
-        self.assertEqual(len(node._joint_state_publisher.messages), 1)
-        self.assertEqual(len(node._publisher.messages), 1)
-        self.assertEqual(len(node._transform_publisher.messages), 1)
+        self.assertEqual(len(node._joint_state_publisher.messages), 2)
+        self.assertEqual(len(node._publisher.messages), 2)
+        self.assertEqual(len(node._transform_publisher.messages), 2)
+        self.assertFalse(node._pose_publishing_ok)
+
+    def test_fk_snapshot_is_authoritative_and_flags_bad_cycle_vectors(self):
+        module = _load_bridge_module()
+        from types import SimpleNamespace
+        dyn = SimpleNamespace(pos=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+                              vel=[0.01, 0.02, 0.03, 0.04, 0.05, 0.06],
+                              tor=[1, 2, 3, 4, 5, 6])
+        cycle = SimpleNamespace(pos=[0.1] * 6, vel=[0.01] * 6, tor=[1] * 6)
+        snap = SimpleNamespace(dynamics=dyn, cycle=SimpleNamespace(joint_state=cycle))
+        vectors, consistent, deltas = module.joint_feedback_from_fk_snapshot(snap, 6)
+        self.assertFalse(consistent)
+        self.assertAlmostEqual(deltas[0], 0.5)
+        self.assertAlmostEqual(deltas[1], 0.05)
+        np.testing.assert_allclose(vectors[0], dyn.pos)
+        np.testing.assert_allclose(vectors[1], dyn.vel)
+        np.testing.assert_allclose(vectors[2], dyn.tor)
+        cycle.pos = dyn.pos.copy()
+        cycle.vel = dyn.vel.copy()
+        cycle.tor = dyn.tor.copy()
+        _, consistent, deltas = module.joint_feedback_from_fk_snapshot(snap, 6)
+        self.assertTrue(consistent)
+        self.assertEqual(deltas, (0.0, 0.0, 0.0))
+
+    def test_invalid_dynamics_refuses_to_publish_and_invalid_cycle_refuses_mixed_data(self):
+        module = _load_bridge_module()
+        from types import SimpleNamespace
+        dyn = SimpleNamespace(pos=[0.1] * 6, vel=[0.0] * 6, tor=[0.0] * 6)
+        cycle = SimpleNamespace(pos=[0.1] * 6, vel=[0.0] * 6, tor=[0.0] * 6)
+        snap = SimpleNamespace(dynamics=dyn, cycle=SimpleNamespace(joint_state=cycle))
+        for bad_values, field in [([0.0] * 5, 'pos'), ([float('nan')] * 6, 'vel')]:
+            setattr(dyn, field, bad_values)
+            with self.assertRaises(ValueError):
+                module.joint_feedback_from_fk_snapshot(snap, 6)
+            setattr(dyn, field, [0.0] * 6)
+        cycle.pos = [float('nan')] * 6
+        with self.assertRaises(ValueError):
+            module.joint_feedback_from_fk_snapshot(snap, 6)
+
+    def test_profile_uses_owned_hardware_config(self):
+        import yaml
+        root = BRIDGE.parents[2]
+        main = yaml.safe_load((BRIDGE.parents[1] / 'config' / 'robot_profiles.yaml').read_text())
+        local = yaml.safe_load((root / 'serial_arm_core_profile' / 'tomato_picker' / 'robot_profiles.yaml').read_text())
+        primary = main['profiles']['tomato_picker']['hardware']
+        backup = local['profiles']['tomato_picker']['hardware']
+        self.assertEqual(primary, backup)
+        self.assertEqual(primary['config_package'], 'tomato_picker_description')
+        self.assertEqual(primary['config'], 'config/serialarm/hardware.yaml')
 
     def test_build_metadata_installs_bridge_and_declares_direct_dependencies(self):
         cmake = CMAKE.read_text(encoding="utf-8")

@@ -4,6 +4,7 @@
 import json
 import math
 import os
+import serial_arm
 import signal
 import threading
 import time
@@ -134,6 +135,29 @@ def _infer_command_mode(snapshot, controller_config):
         return "UNKNOWN"
 
 
+def joint_feedback_from_fk_snapshot(snapshot, joint_count: int):
+    """Publish the joint state used to produce tool_pose, not an independent cache.
+
+    DynamicsState.pos/vel/tor belong to the same Dynamics.update() cycle as
+    DynamicsState.tool_pose. Comparing the robot cycle state catches a binding,
+    backend or snapshot mismatch without corrupting the published FK frame.
+    """
+    dynamics = snapshot.dynamics
+    cycle = snapshot.cycle.joint_state
+
+    def read_vector(owner, member, source):
+        values = np.asarray(getattr(owner, member), dtype=np.float64)
+        if values.shape != (joint_count,) or not np.all(np.isfinite(values)):
+            raise ValueError(f"Invalid {source}.{member} vector in robot snapshot")
+        return values.copy()
+
+    model = tuple(read_vector(dynamics, key, "dynamics") for key in ("pos", "vel", "tor"))
+    measured = tuple(read_vector(cycle, key, "cycle.joint_state") for key in ("pos", "vel", "tor"))
+    deltas = tuple(float(np.max(np.abs(a - b))) for a, b in zip(model, measured))
+    consistent = all(np.allclose(a, b, atol=1e-6, rtol=0) for a, b in zip(model, measured))
+    return model, consistent, deltas
+
+
 class HandeyeBridge(Node):
     """Exclusive hardware owner for hand-eye calibration"""
 
@@ -185,8 +209,24 @@ class HandeyeBridge(Node):
         self._drag_requested = False
         self._requested_mode = "RIGID_HOLD"
         self._session = None
+        self._joint_state_consistent = None
+        self._joint_discrepancy = None
+        self._joint_mismatch_count = 0
+        self._joint_warn_at = float("-inf")
+        self._last_publish_error = ""
+        self._last_publish_error_at = float("-inf")
+        self._pose_publishing_ok = False
 
         profile = load_robot_profile_core(profile_name, profile_file or "", resource_paths)
+        self.get_logger().info(
+            "Hand-eye sources | profile_file={} | core={} | hardware={} | backend={} | serial_arm={}".format(
+                os.path.realpath(profile_file) if profile_file else "<builtin>",
+                os.path.realpath(profile.core_config_path),
+                os.path.realpath(profile.hardware_config_path),
+                profile.hardware_plugin,
+                os.path.realpath(getattr(serial_arm, "__file__", None) or "<unknown>"),
+            )
+        )
         self._session = RobotSession(
             profile.core_config_path,
             profile.hardware_plugin,
@@ -275,34 +315,61 @@ class HandeyeBridge(Node):
             "state": _state_name(state),
             "running": bool(self._session.running),
             "snapshot_valid": bool(snapshot.valid),
-            "pose_ready": bool(active and snapshot.valid),
+            "pose_ready": bool(active and snapshot.valid and self._pose_publishing_ok),
             "error": error,
             "fault_hold_mode": _state_name(self._session.fault_hold_mode) if state == RobotState.FAULT else None,
             "requested_mode": self._requested_mode if active else "RIGID_HOLD",
             "observed_command_mode": observed,
             "drag_requested": bool(self._drag_requested and active),
+            "joint_state_source": "dynamics",
+            "joint_state_consistent": self._joint_state_consistent,
+            "joint_state_max_abs_delta": self._joint_discrepancy,
+            "joint_state_mismatch_count": self._joint_mismatch_count,
         }, ensure_ascii=False)
         self._status_publisher.publish(msg)
 
     def _publish_pose(self):
         if self._shutting_down or not self._ready():
+            self._pose_publishing_ok = False
             return
         snapshot = self._session.snapshot
         if self._session.state != RobotState.ACTIVE or snapshot.last_error or not snapshot.valid:
+            self._pose_publishing_ok = False
             return
         try:
             position, quaternion = transform_matrix_to_pose(snapshot.dynamics.tool_pose)
-            joint = snapshot.cycle.joint_state
-            positions = np.asarray(joint.pos, dtype=float)
-            velocities = np.asarray(joint.vel, dtype=float)
-            efforts = np.asarray(joint.tor, dtype=float)
-            expected = len(self._joint_names)
-            if any(vector.shape != (expected,) or not np.all(np.isfinite(vector))
-                   for vector in (positions, velocities, efforts)):
-                raise ValueError("Invalid joint feedback vector in robot snapshot")
+            # Dynamics.pos/vel/tor and tool_pose were calculated in one FK cycle.
+            # A separate cycle.joint_state may be incorrectly materialized in
+            # a Python binding or mixed runtime; never publish it as the FK state.
+            (positions, velocities, efforts), consistent, deltas = joint_feedback_from_fk_snapshot(
+                snapshot, len(self._joint_names)
+            )
         except (AttributeError, TypeError, ValueError) as error:
-            self.get_logger().error(str(error))
+            now = time.monotonic()
+            if str(error) != self._last_publish_error or now - self._last_publish_error_at >= 5.0:
+                self.get_logger().error(f"Hand-eye snapshot rejected | {error}")
+                self._last_publish_error = str(error)
+                self._last_publish_error_at = now
+            self._joint_state_consistent = False
+            self._joint_discrepancy = None
+            self._pose_publishing_ok = False
             return
+
+        self._last_publish_error = ""
+        self._joint_state_consistent = consistent
+        self._joint_discrepancy = {
+            "position_rad": deltas[0], "velocity_rad_s": deltas[1], "effort_nm": deltas[2]
+        }
+        if not consistent:
+            self._joint_mismatch_count += 1
+            now = time.monotonic()
+            if now - self._joint_warn_at >= 5.0:
+                self._joint_warn_at = now
+                self.get_logger().warning(
+                    "Hand-eye FK/joint cache mismatch | "
+                    f"pos={deltas[0]:.6g}rad vel={deltas[1]:.6g}rad/s "
+                    f"tor={deltas[2]:.6g}Nm | publishing dynamics values coherent with tool_pose"
+                )
         # All three messages contain data from one RobotSession snapshot.
         # This is a ROS publication timestamp, not the motor feedback acquisition time.
         stamp = self.get_clock().now().to_msg()
@@ -325,10 +392,11 @@ class HandeyeBridge(Node):
         joints = JointState()
         joints.header.stamp = stamp
         joints.name = list(self._joint_names)
-        joints.position = positions.tolist()  # rad, mapped joint positions
+        joints.position = positions.tolist()  # rad, FK-matched mapped joint positions
         joints.velocity = velocities.tolist()  # rad/s
         joints.effort = efforts.tolist()  # Nm, joint feedback torque
         self._joint_state_publisher.publish(joints)
+        self._pose_publishing_ok = True
 
     def _clear_fault(self, _request, response):
         if not self._ready() or self._session.state != RobotState.FAULT:

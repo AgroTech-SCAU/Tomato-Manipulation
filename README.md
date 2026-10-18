@@ -86,7 +86,7 @@ Tomato-Picker-ROS2/
 
 ### 1. 获取 SerialArm-Core
 
-当前工作区跟踪 SerialArm-Core 的 `main` 分支；Tomato-Picker 通过外部 `profile_file/resource_paths` 接口持有自己的 Robot Profile。首次获取依赖，在仓库根目录执行：
+当前工作区跟踪 SerialArm-Core 的 `main` 分支；Tomato-Picker 通过外部 `profile_file/resource_paths` 接口持有自己的 Robot Profile；首次获取依赖，在仓库根目录执行：
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -101,21 +101,21 @@ git -C src/SerialArm-Core switch main || git -C src/SerialArm-Core switch --trac
 git -C src/SerialArm-Core pull --ff-only origin main
 ```
 
-SerialArm-Core 的 `main` 自带一个 `tomato_picker_description` 示例包，与本工作区的正式同名包冲突。导入或更新 Core 后，应从工作区根目录执行：
+SerialArm-Core 的 `main` 自带一个 `tomato_picker_description` 示例包，与本工作区的正式同名包冲突；导入或更新 Core 后，应从工作区根目录执行：
 
 ```bash
 touch src/SerialArm-Core/src/robot_supports/robots/tomato_picker/tomato_picker_description/COLCON_IGNORE
 colcon list | grep '^tomato_picker_description[[:space:]]'
 ```
 
-检查输出应只包含 `src/tomato_picker/description` 对应的一个包。`COLCON_IGNORE` 不改动 Core 跟踪的源码，后续拉取更新通常也无需重复执行。如需彻底移除 Core 的内置描述包，可仅删除 `src/SerialArm-Core/src/robot_supports/robots/tomato_picker/tomato_picker_description`，但这会产生 Git 已删除文件状态，并可能在后续更新中恢复
+检查输出应只包含 `src/tomato_picker/description` 对应的一个包；`COLCON_IGNORE` 不改动 Core 跟踪的源码，后续拉取更新通常也无需重复执行；如需彻底移除 Core 的内置描述包，可仅删除 `src/SerialArm-Core/src/robot_supports/robots/tomato_picker/tomato_picker_description`，但这会产生 Git 已删除文件状态，并可能在后续更新中恢复
 
 当前 Robot Profile 所有权：
 
 ```text
 tomato_picker_bringup/config/robot_profiles.yaml
   ├── core       -> tomato_picker_description
-  ├── hardware   -> SerialArm Damiao backend + DM-Arm hardware mapping
+  ├── hardware   -> tomato_picker_description/config/serialarm/hardware.yaml
   ├── description-> tomato_picker_description
   ├── controllers-> tomato_picker_bringup/config/ros2_controllers.yaml
   └── moveit     -> tomato_picker_moveit_config
@@ -272,12 +272,17 @@ AND snapshot.last_error is empty
 
 因此 FAULT 期间以及 `clear_fault()` 后第一个新有效控制周期到来之前都不会发布旧位姿
 
-用于手眼标定诊断的关节反馈来自同一 `RobotSession.snapshot.cycle.joint_state`，标准话题为 `/arm/joint_states`，消息类型为 `sensor_msgs/msg/JointState`，`name` 按 Profile 中的 `joint_names` 顺序，`position` 是弧度、`velocity` 是弧度每秒、`effort` 是关节反馈力矩（Nm）。这三个话题携带相同的 **ROS 发布时刻** 时间戳，便于记录和对应；它不是电机反馈的原始采样时间戳。拖拽标定时不要同时启动 ros2_control 以获取另一个 `/joint_states`。
+用于手眼标定诊断的关节反馈来自同一 `RobotSession.snapshot.dynamics`（与 `tool_pose` 共享 FK 周期），并与 `snapshot.cycle.joint_state` 交叉核对，标准话题为 `/arm/joint_states`，消息类型为 `sensor_msgs/msg/JointState`，`name` 按 Profile 中的 `joint_names` 顺序，`position` 是弧度、`velocity` 是弧度每秒、`effort` 是关节反馈力矩（Nm）；这三个话题携带相同的 **ROS 发布时刻** 时间戳，便于记录和对应；它不是电机反馈的原始采样时间戳；拖拽标定时不要同时启动 ros2_control 以获取另一个 `/joint_states`
 
 ```bash
 ros2 topic echo /arm/joint_states
-ros2 bag record -o handeye_diagnosis /arm/pose /arm/tool_transform /arm/joint_states
+ros2 topic echo /handeye/status
+ros2 bag record -o handeye_diagnosis /arm/pose /arm/tool_transform /arm/joint_states /handeye/status
 ```
+
+`/handeye/status` 提供 `joint_state_source=dynamics`、`joint_state_consistent` 和各关节向量的最大偏差，若 `joint_state_consistent=false`，先记录日志并排查实际安装的 Python 模块及运行配置，机器人姿态仍由同一 FK 快照提供；若动力学快照缺失或无效，桥接节点拒绝发布该周期的全部机器人姿态信息，避免写入错误的标定数据；启动日志的 `Hand-eye sources` 会输出实际加载的 Profile、Core 配置、硬件配置与 Python 模块位置
+
+修正源码后需重新执行工作区 `colcon build --symlink-install` 并 `source install/setup.bash`，启动手眼节点后核对 `Hand-eye sources` 输出确认运行的是最新构建；如 `/arm/pose` 与标定板的运动学仍不满足固定目标一致性，继续检查标定板是否固定、相机与末端连接是否刚性，不能只依据 ROS 关节话题修复就宣布标定完成
 
 ### FAULT 在线恢复
 

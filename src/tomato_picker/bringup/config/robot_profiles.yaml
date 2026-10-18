@@ -8,8 +8,8 @@ profiles:
 
     hardware:
       plugin: serial_arm_hardware_damiao
-      config_package: dm_arm_description
-      config: config/hardware.yaml
+      config_package: tomato_picker_description
+      config: config/serialarm/hardware.yaml
 
     description:
       package: tomato_picker_description
