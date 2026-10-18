@@ -2,4 +2,4 @@ repositories:
   SerialArm-Core:
     type: git
     url: https://github.com/Kaede-Rei/SerialArm-Core.git
-    version: v0.5.2
+    version: main

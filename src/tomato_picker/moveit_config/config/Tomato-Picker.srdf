@@ -4,6 +4,11 @@
     <chain base_link="base_link" tip_link="tool0"/>
   </group>
 
+  <!-- Separate kinematic group: accurate fixed TCP tip for hand-eye servo only -->
+  <group name="handeye_tip">
+    <chain base_link="base_link" tip_link="tip"/>
+  </group>
+
   <group_state name="home" group="arm">
     <joint name="joint1" value="0"/>
     <joint name="joint2" value="0"/>
