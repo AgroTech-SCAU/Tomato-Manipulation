@@ -86,19 +86,29 @@ Tomato-Picker-ROS2/
 
 ### 1. 获取 SerialArm-Core
 
-当前工作区固定使用 **SerialArm-Core `v0.5.2`**；Tomato-Picker 通过 v0.5.2 的外部 `profile_file/resource_paths` 接口持有自己的 Robot Profile；在仓库根目录：
+当前工作区跟踪 SerialArm-Core 的 `main` 分支；Tomato-Picker 通过外部 `profile_file/resource_paths` 接口持有自己的 Robot Profile。首次获取依赖，在仓库根目录执行：
 
 ```bash
 source /opt/ros/humble/setup.bash
 vcs import src < repos/serial_arm.repos
 ```
 
-如果 workspace 已存在旧 Core：
+如果已存在 SerialArm-Core，保留原仓库并切换分支，不必删除重克隆：
 
 ```bash
-rm -rf src/SerialArm-Core
-vcs import src < repos/serial_arm.repos
+git -C src/SerialArm-Core fetch origin main
+git -C src/SerialArm-Core switch main || git -C src/SerialArm-Core switch --track origin/main
+git -C src/SerialArm-Core pull --ff-only origin main
 ```
+
+SerialArm-Core 的 `main` 自带一个 `tomato_picker_description` 示例包，与本工作区的正式同名包冲突。导入或更新 Core 后，应从工作区根目录执行：
+
+```bash
+touch src/SerialArm-Core/src/robot_supports/robots/tomato_picker/tomato_picker_description/COLCON_IGNORE
+colcon list | grep '^tomato_picker_description[[:space:]]'
+```
+
+检查输出应只包含 `src/tomato_picker/description` 对应的一个包。`COLCON_IGNORE` 不改动 Core 跟踪的源码，后续拉取更新通常也无需重复执行。如需彻底移除 Core 的内置描述包，可仅删除 `src/SerialArm-Core/src/robot_supports/robots/tomato_picker/tomato_picker_description`，但这会产生 Git 已删除文件状态，并可能在后续更新中恢复
 
 当前 Robot Profile 所有权：
 
@@ -111,7 +121,7 @@ tomato_picker_bringup/config/robot_profiles.yaml
   └── moveit     -> tomato_picker_moveit_config
 ```
 
-`arm.launch.py` 只负责把这些参数传给 SerialArm-Core v0.5.2 的通用 `moveit.launch.py`，不再重复实现 robot_state_publisher、ros2_control 和 controller spawner
+`arm.launch.py` 只负责把这些参数传给 SerialArm-Core 的通用 `moveit.launch.py`，不再重复实现 robot_state_publisher、ros2_control 和 controller spawner
 
 ### 2. 安装依赖并编译
 
@@ -263,7 +273,7 @@ AND snapshot.last_error is empty
 
 ### FAULT 在线恢复
 
-SerialArm-Core `v0.5.2` 继承并保持 v0.5.1 引入的在线 FAULT 恢复语义：在可恢复 `FAULT + fault_holding` 下 worker 会保持存活并持续维护 fault hold；bridge 提供：
+SerialArm-Core 在可恢复 FAULT 情况下提供在线恢复：在可恢复 `FAULT + fault_holding` 下 worker 会保持存活并持续维护 fault hold；bridge 提供：
 
 ```text
 /handeye/fault/clear               std_srvs/srv/Trigger

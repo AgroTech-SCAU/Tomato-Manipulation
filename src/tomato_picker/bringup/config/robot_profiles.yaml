@@ -1,5 +1,5 @@
 # Tomato-Picker owns the complete downstream Robot Profile.
-# SerialArm-Core v0.5.2 resolves this external file through profile_file/resource_paths.
+# SerialArm-Core resolves this external file through profile_file/resource_paths.
 profiles:
   tomato_picker:
     core:
