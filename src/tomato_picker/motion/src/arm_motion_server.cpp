@@ -1,6 +1,9 @@
 #include <geometry_msgs/msg/pose.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit_msgs/msg/robot_trajectory.hpp>
+#include <moveit/robot_trajectory/robot_trajectory.h>
+#include <moveit/trajectory_processing/iterative_time_parameterization.h>
+#include <cmath>
 #include <rclcpp/parameter_client.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -225,6 +228,16 @@ ArmMotionServer::~ArmMotionServer() {
 rclcpp_action::GoalResponse ArmMotionServer::handle_goal(const rclcpp_action::GoalUUID& uuid, std::shared_ptr<const MoveArm::Goal> goal) {
     static_cast<void>(uuid);
     if(shutting_down_.load()) return rclcpp_action::GoalResponse::REJECT;
+    if(!std::isfinite(goal->velocity_scale) || !std::isfinite(goal->acceleration_scale))
+        return rclcpp_action::GoalResponse::REJECT;
+    if(goal->command_type == MoveArm::Goal::POSE || goal->command_type == MoveArm::Goal::LINE) {
+        const auto& p = goal->target_pose.pose.position;
+        const auto& q = goal->target_pose.pose.orientation;
+        const double norm = std::sqrt(q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w);
+        if(!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z) || !std::isfinite(norm) || std::abs(norm-1.0) > 0.01)
+            return rclcpp_action::GoalResponse::REJECT;
+    }
+    for(double value : goal->joints) if(!std::isfinite(value)) return rclcpp_action::GoalResponse::REJECT;
     if(goal->command_type > MoveArm::Goal::LINE) return rclcpp_action::GoalResponse::REJECT;
     if(goal->command_type == MoveArm::Goal::JOINT && goal->joints.empty()) return rclcpp_action::GoalResponse::REJECT;
     if(goal->command_type == MoveArm::Goal::POSE && goal->target_pose.header.frame_id.empty()) {
@@ -268,7 +281,18 @@ rclcpp_action::CancelResponse ArmMotionServer::handle_cancel(const std::shared_p
  */
 void ArmMotionServer::handle_accepted(const std::shared_ptr<GoalHandleMoveArm> goal_handle) {
     if(execution_thread_.joinable()) execution_thread_.join();
-    execution_thread_ = std::thread(&ArmMotionServer::execute, this, goal_handle);
+    execution_thread_ = std::thread([this, goal_handle]() {
+        try { execute(goal_handle); }
+        catch(const std::exception& error) {
+            move_group_->stop();
+            auto result = std::make_shared<MoveArm::Result>();
+            result->success = false;
+            result->error_code = kExecutionFailed;
+            result->message = error.what();
+            if(goal_handle->is_active()) goal_handle->abort(result);
+            executing_.store(false);
+        }
+    });
 }
 
 /**
@@ -308,7 +332,7 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
             moveit_msgs::msg::RobotTrajectory trajectory;
             publish_feedback(goal_handle, "CARTESIAN_PLAN", 0.3F);
             const double fraction = move_group_->computeCartesianPath(waypoints, cartesian_eef_step_, cartesian_jump_threshold_, trajectory, true);
-            if(fraction < cartesian_min_fraction_) {
+            if(!std::isfinite(fraction) || fraction < cartesian_min_fraction_) {
                 const bool canceled = cancel_requested_.load() || goal_handle->is_canceling();
                 result->error_code = canceled ? kCanceled : kPlanningFailed;
                 result->message = canceled ? "goal canceled during cartesian planning" : "cartesian path fraction below threshold";
@@ -318,6 +342,16 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
                 executing_.store(false);
                 return;
             }
+            auto state = move_group_->getCurrentState(1.0);
+            if(!state) throw std::runtime_error("Current robot state unavailable for Cartesian timing");
+            robot_trajectory::RobotTrajectory timed(move_group_->getRobotModel(), planning_group_);
+            timed.setRobotTrajectoryMsg(*state, trajectory);
+            trajectory_processing::IterativeParabolicTimeParameterization timing;
+            if(!timing.computeTimeStamps(timed,
+                    normalized_scale(goal->velocity_scale, default_velocity_scale_),
+                    normalized_scale(goal->acceleration_scale, default_acceleration_scale_)))
+                throw std::runtime_error("Cartesian trajectory timing failed");
+            timed.getRobotTrajectoryMsg(trajectory);
             plan.trajectory_ = trajectory;
             target_ready = true;
             break;
@@ -361,7 +395,19 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
 
     if(goal->execute) {
         publish_feedback(goal_handle, "EXECUTING", 0.7F);
-        if(move_group_->execute(plan) != moveit::core::MoveItErrorCode::SUCCESS) {
+        std::atomic_bool finished{false};
+        std::thread stop_watch([this, &finished]() {
+            while(!finished.load()) {
+                if(cancel_requested_.load() || shutting_down_.load()) move_group_->stop();
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            }
+        });
+        moveit::core::MoveItErrorCode execution_result;
+        try { execution_result = move_group_->execute(plan); }
+        catch(...) { finished.store(true); stop_watch.join(); throw; }
+        finished.store(true);
+        stop_watch.join();
+        if(execution_result != moveit::core::MoveItErrorCode::SUCCESS) {
             const bool canceled = cancel_requested_.load() || goal_handle->is_canceling();
             result->error_code = canceled ? kCanceled : kExecutionFailed;
             result->message = canceled ? "goal canceled during execution" : "MoveIt 2 execution failed";

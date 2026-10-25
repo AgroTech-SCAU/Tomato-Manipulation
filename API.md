@@ -598,20 +598,19 @@ ros2 service call /handeye/drag/enable std_srvs/srv/Trigger "{}"
 `/handeye/fault/compliant_recovery` 仅包装 Core 的受限 FAULT 柔性恢复能力；不允许的 fault 类型或不满足 Safety 条件时会直接返回失败
 
 
-## 手眼 RGB-D 闭环验证接口
+## 手眼 RGB-D 闭环接口
 
-`handeye_servo.launch.py` 为 Handeye-Calibration-App 提供一个独立、不含第二个 RobotSession 的 MoveIt2 运行环境，不启动采摘业务节点
+整机运行由 AT-System-Integration 读取 `../../Bringup/src/robot-profile` 并准备各子系统节点
+机械臂系统不依赖视觉包或融合启动包
 
 | 能力 | 名称 | 类型 / 说明 |
 | --- | --- | --- |
-| 标准运动执行 | `/move_action` | `moveit_msgs/action/MoveGroup`，由 MoveIt2 `move_group` 提供 |
-| 伺服运动规划组 | `handeye_tip` | SRDF 中 `base_link` 到 `tip` 的 6 轴组 |
-| 当前工具位姿 | `/arm/pose` | `geometry_msgs/msg/PoseStamped`，表示 `base_link -> tool0` |
-| 当前工具变换 | `/arm/tool_transform` | `geometry_msgs/msg/TransformStamped`，表示 `base_link -> tool0` |
-| 模型与关节反馈 | `/robot_description`、`/joint_states`、`/tf`、`/tf_static` | 来自正常 ros2_control 与 robot_state_publisher |
+| 标准运动规划 | `/move_action` | `moveit_msgs/action/MoveGroup` |
+| 工作流使用的运动接口 | `/tomato_picker/servo/move_arm` | `tomato_picker_interfaces/action/MoveArm`，由工程启动参数指定名称 |
+| 规划组 | `handeye_tip` | `base_link` 到 `tip` 的六轴组 |
+| 工具位姿 | `/tf`、`/tf_static` | 按观测时间查询 `base_link -> tool0` |
+| 关节反馈 | `/joint_states` | 用于新鲜度与静止判定 |
 
-**接口边界**：原 `/tomato_picker/motion/move_arm` 类型为 `tomato_picker_interfaces/action/MoveArm`，不能作为 App 的 MoveGroup Action 直接使用；`handeye_tip` 为独立规划组，不修改正常 `arm` 和 `PickTarget` 的 TCP 语义
-
-只规划验证使用 `ros2 run tomato_picker_bringup check_handeye_servo`；App 端选择 `/move_action`、`handeye_tip`、`tip`；机器人位姿仍选择 `/arm/pose`、`base_link`、`tool0`；`tool0 -> tip` 固定偏移以真实 TCP 测量值为准
-
-完整的安全操作和相机连接方法见 [README.md](README.md) 的 RGB-D 手眼闭环定位验证部分
+手眼矩阵保存在机器人工程的 `assets/handeye.yaml`
+`/arm/pose` 与 `/arm/tool_transform` 仍由独立手眼标定入口提供，整机流程直接使用 TF
+`tool0 -> tip` 固定偏移以真实 TCP 测量值为准

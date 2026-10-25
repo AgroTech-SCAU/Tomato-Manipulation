@@ -174,7 +174,6 @@ ARM 的 Robot Profile、阻抗模式、停车逻辑与 ros2_control 生命周期
 | `bus` | `main_can` | 可选共享 bus name 覆盖 |
 | `eef_mode` | `damiao` | `damiao` / `mock` / `off` |
 | `start_perception` | `true` | RGB-D Planning Scene |
-| `start_wrist_camera` | `false` | 启动 Orbbec Gemini 330 系列驱动 |
 | `start_gui` | `false` | 启动腕部相机框选 GUI |
 | `use_sim_time` | `false` | ROS simulation time |
 
@@ -336,111 +335,16 @@ ros2 service call /handeye/fault/clear std_srvs/srv/Trigger "{}"
 
 如果 Core 无法建立/维持 fault hold，worker 会停止，此时不要继续标定，应检查通信、电机和硬件状态后重新启动
 
-## RGB-D 手眼闭环定位验证
+## 手眼伺服集成入口
 
-此入口仅用于 Handeye-Calibration-App 的眼在手上 RGB-D 分步视觉伺服验证，不执行采摘任务、不进入拖拽模式
+本仓库独立提供机械臂驱动、运动规划与执行，不启动视觉系统
+子系统内部 launch 保留供机械臂单独使用，整机运行由 AT-System-Integration 的运行台管理
 
-### 1. 从标定模式切换到运动模式
+在 AT-System-Integration 中打开 `../../Bringup/src/robot-profile`，选择手眼伺服工作流
+启动模块、通信绑定、流程参数和手眼矩阵统一保存在机器人工程中，不再构建融合 Bringup 包
 
-先用 `handeye.launch.py` 完成标定、求解和冻结矩阵，保存手眼结果，再正常停止该进程并确认它已释放机械臂硬件
-
-**不能同时运行 `handeye.launch.py`、`handeye_servo.launch.py` 或其他会创建独立 `RobotSession` 的程序**，同一硬件只允许 ros2_control 或 RobotSession 其中一方持有
-
-机械臂位于安全工作范围、远离障碍物，现场具备物理急停后启动：
-
-```bash
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch tomato_picker_bringup handeye_servo.launch.py
-```
-
-可覆盖当前 Robot Profile 的连接参数：
-
-```bash
-ros2 launch tomato_picker_bringup handeye_servo.launch.py \
-  serial_port:=/dev/ttyACM0 \
-  baudrate:=921600 \
-  bus:=main_can
-```
-
-设备名、波特率和 CAN bus 按实际硬件配置修改，空值由 Robot Profile 使用默认值
-
-该入口只启动 SerialArm-Core ros2_control、`joint_state_broadcaster`、`joint_trajectory_controller`、MoveIt2 `move_group`、一个只读机器人位姿 TF 桥接节点以及可选的 Orbbec 腕部相机；不启动原 `handeye_bridge`、EEF、采摘任务、普通运动能力服务器、Planning Scene 点云预处理或 RViz
-
-相机默认由本入口启动，若已由其他系统启动同一设备，则加 `start_wrist_camera:=false`，不要同时启动两个 Orbbec 驱动；如果关闭则仍必须提供与标定一致的 RGB、已对齐 Depth 和 CameraInfo，且两种图像的 `frame_id` / 分辨率 / 时间戳要满足 App 的校验要求
-
-如果不需要 GUI 相机，仍可以只检查机械臂规划：
-
-```bash
-ros2 launch tomato_picker_bringup handeye_servo.launch.py start_wrist_camera:=false
-```
-
-### 2. 运动 Action、位姿和 TCP
-
-| 用途 | 接口或参数 | 含义 |
-| --- | --- | --- |
-| MoveIt2 Action | `/move_action` | `moveit_msgs/action/MoveGroup`，不是自定义 MoveArm Action |
-| 运动规划组 | `handeye_tip` | 6 轴 `base_link -> tip` 的独立运动学组，不影响正常 `arm` 组 |
-| 伺服 TCP | `tip` | URDF 中 `tool0 -> tip` 的固定偏移，需按真实针尖实测 |
-| 机器人末端姿态 | `/arm/pose` | `geometry_msgs/msg/PoseStamped`，Frame 为 `base_link`，姿态对象为 `tool0` |
-| 机器人末端变换 | `/arm/tool_transform` | `geometry_msgs/msg/TransformStamped`，`base_link -> tool0` |
-| 机器人关节 | `/joint_states` | ros2_control 的真实反馈，供 robot_state_publisher 与 MoveIt2 使用 |
-| 彩色相机 | `/camera/wrist/color/image_raw` | 以实际 ROS2 topic list 为准 |
-| 深度相机 | `/camera/wrist/depth/image_raw` | 须确认实际消息已对齐到彩色光学 Frame |
-| 相机内参 | `/camera/wrist/color/camera_info` | 必须与彩色帧内参和尺寸匹配 |
-
-当前 URDF `tool0 -> tip` 固定变换为 `xyz=0 0 0.101`，它只是模型配置，**不能代替对真实标定指针尖端的物理测量**；未确认针尖坐标之前，不得执行向标定板接近的运动
-
-普通采摘 `arm` 组仍止于 `tool0`；独立 `handeye_tip` 组止于 `tip`，且在 `kinematics.yaml` 中具有自己的 KDL IK 配置，从而让 App 可以向实际工具 Link 发送位置和姿态约束，不需要修改 App 算法
-
-只读姿态桥接从 robot_state_publisher 的 TF 读取 `base_link -> tool0`，保留关节状态派生的时间戳；超过 250 ms 的姿态不发布，避免将旧关节位姿作为新采样；相机时间戳和机器人时间戳需使用可比较的 ROS 时间基准，停稳采样不等于运动中的硬件曝光同步
-
-### 3. 先做无运动检查
-
-启动后另开终端并 `source install/setup.bash`：
-
-```bash
-ros2 control list_controllers
-ros2 action list -t | grep /move_action
-ros2 topic hz /arm/pose
-ros2 run tf2_ros tf2_echo base_link tip
-```
-
-确认关节控制器均为 `active`、MoveGroup Action 存在、真实 TF 持续刷新后进行 **只规划、不执行** 的验证：
-
-```bash
-ros2 run tomato_picker_bringup check_handeye_servo
-```
-
-默认规划当前 `tip` 位姿，不会执行；通过后可测试附近 5mm 偏移的 IK 和规划（仍不执行运动）：
-
-```bash
-ros2 run tomato_picker_bringup check_handeye_servo --offset-x 0.005
-```
-
-检查失败时不要直接在 GUI 点击开始运动，应先确认控制器、TF、`handeye_tip` IK 求解器、MoveGroup Action 和碰撞设置
-
-### 4. 在 Handeye-Calibration-App 配置
-
-在 App 中使用已经完成的 **同一份手眼求解结果**，冻结矩阵并导入包含 `tip` 的真实 Description：
-
-```text
-ROS input type: PoseStamped
-Input topic:    /arm/pose
-Robot base:     base_link
-Robot end:      tool0
-Motion Action:  /move_action
-Planning group: handeye_tip
-Target link:    tip
-```
-
-手眼矩阵的末端 Frame 必须是 `tool0`，相机 Frame 必须与 RGB、对齐深度图一致；在 GUI 中搜索当前正在发布的三路相机话题，不要以预设名称替代真实 `frame_id` 校验
-
-先用计划检查确认配置，再选择稳定、无遮挡的目标点；第一次移动选择安全空间中的静态目标，使用较小步长和高于最低要求的安全距离；机器人周围需要无障碍物或已有可信 Planning Scene，App 的 TCP 安全距离 **不能替代整个机械臂的碰撞检测**
-
-App 运行的是“观察 → 规划 → 小步运动 → 停稳 → 重新观察”的离散闭环；不是持续速度伺服；未验证真机 TCP、跟踪稳定性、控制器取消及急停之前不得用它接触或撞击标定板
-
-此模式仅解决手眼定位验证，**不依赖 Tomato-Perception**，也不改变正常的 `bringup.launch.py` 和采摘接口
+`handeye_tip` 规划组与 `tip` 工具坐标属于本仓库的机器人模型
+`tool0 -> tip` 的固定偏移必须与真实工具一致
 
 ## 采摘阶段
 
@@ -524,26 +428,18 @@ ros2 action send_goal \
 
 GUI 是暂未接入视觉模型时的人工目标入口，仅保留一台腕部 RGB-D 相机
 
-### Gemini 335L
+### 外部图像输入
 
-可选安装官方 Orbbec ROS 2 driver：
-
-```bash
-sudo apt install ros-humble-orbbec-camera ros-humble-orbbec-description
-```
-
-使用一个 bringup 同时启动相机与 GUI：
+相机驱动及相机到机械臂的标定变换由 Bringup 统一组织，机械臂启动入口不再提供相机启动或默认零位挂载选项
+框选 GUI 和 Planning Scene 作为机械臂侧的数据消费者，使用外部提供的 RGB-D 数据与 TF
 
 ```bash
-python3 -m pip install PySide6
-
 ros2 launch tomato_picker_bringup bringup.launch.py \
-  start_wrist_camera:=true \
   start_gui:=true \
   start_perception:=false
 ```
 
-默认相机 topics：
+GUI 当前默认读取以下话题，使用其他来源时需通过其参数配置对应输入
 
 ```text
 /camera/wrist/color/image_raw
@@ -551,15 +447,7 @@ ros2 launch tomato_picker_bringup bringup.launch.py \
 /camera/wrist/depth/camera_info
 ```
 
-GUI 要求 depth 已对齐到 color；`start_wrist_camera:=true` 会以 `depth_registration:=true` 启动 Gemini 330 系列 driver
-
-如果当前 Orbbec TF tree 的 `camera_link` 尚未连接到机械臂 URDF 中的 `camera` frame，并且两者已经确认使用同一物理原点，可额外启用：
-
-```bash
-publish_wrist_camera_mount_tf:=true
-```
-
-已有手眼标定 TF 时不要重复发布该默认连接
+输入深度应与彩色图像对齐，图像坐标系到机械臂基坐标的 TF 应来自实际标定结果
 
 ### GUI 操作
 

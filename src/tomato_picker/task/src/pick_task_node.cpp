@@ -123,7 +123,7 @@ private:
      */
     rclcpp_action::GoalResponse handle_goal(const rclcpp_action::GoalUUID& uuid, std::shared_ptr<const PickTarget::Goal> goal) {
         static_cast<void>(uuid);
-        if(shutting_down_.load()) return rclcpp_action::GoalResponse::REJECT;
+        if(shutting_down_.load() || motion_pending()) return rclcpp_action::GoalResponse::REJECT;
         if(goal->target_pose.header.frame_id.empty()) return rclcpp_action::GoalResponse::REJECT;
         if(goal->use_pre_pick_pose && goal->pre_pick_pose.header.frame_id.empty()) return rclcpp_action::GoalResponse::REJECT;
         if(goal->use_approach_pose && goal->approach_pose.header.frame_id.empty()) return rclcpp_action::GoalResponse::REJECT;
@@ -154,7 +154,17 @@ private:
      */
     void handle_accepted(const std::shared_ptr<GoalHandlePickTarget> goal_handle) {
         if(execution_thread_.joinable()) execution_thread_.join();
-        execution_thread_ = std::thread(&PickTaskNode::execute, this, goal_handle);
+        execution_thread_ = std::thread([this, goal_handle]() {
+            try { execute(goal_handle); }
+            catch(const std::exception& error) {
+                cancel_active_motion_goal();
+                std::shared_ptr<PendingMotion> pending;
+                { std::lock_guard<std::mutex> lock(active_motion_goal_mutex_); pending = pending_motion_; }
+                if(pending) stop_and_wait(pending);
+                auto result = std::make_shared<PickTarget::Result>();
+                finish_failed(goal_handle, result, kMotionFailed, error.what(), 0);
+            }
+        });
     }
 
     /**
@@ -259,7 +269,7 @@ private:
         motion_goal.execute = true;
 
         for(std::uint16_t attempt = 0; attempt <= retry_times; ++attempt) {
-            if(cancel_requested_.load()) return false;
+            if(cancel_requested_.load() || motion_pending()) return false;
             publish_feedback(goal_handle, stage_id, completed, total_steps, attempt == 0 ? stage : stage + "_RETRY");
             if(run_motion(motion_goal)) return true;
         }
@@ -284,44 +294,85 @@ private:
      * @param motion_goal MoveArm goal
      * @return 子 Action 成功返回 true
      */
+    struct PendingMotion {
+        std::mutex mutex;
+        GoalHandleMoveArm::SharedPtr handle;
+        std::atomic_bool abandoned{false};
+        std::atomic_bool terminal{false};
+    };
+
+    bool motion_pending() {
+        std::lock_guard<std::mutex> lock(active_motion_goal_mutex_);
+        return pending_motion_ && !pending_motion_->terminal.load();
+    }
+
+    bool stop_and_wait(const std::shared_ptr<PendingMotion>& pending) {
+        pending->abandoned.store(true);
+        GoalHandleMoveArm::SharedPtr handle;
+        { std::lock_guard<std::mutex> lock(pending->mutex); handle = pending->handle; }
+        if(handle && !pending->terminal.load()) {
+            try { motion_client_->async_cancel_goal(handle); }
+            catch(const std::exception& error) {
+                RCLCPP_WARN(get_logger(), "Motion cancellation is unconfirmed: %s", error.what());
+            }
+        }
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+        while(!pending->terminal.load() && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        return pending->terminal.load();
+    }
+
     bool run_motion(const MoveArm::Goal& motion_goal) {
         if(cancel_requested_.load() || shutting_down_.load()) return false;
 
-        auto send_future = motion_client_->async_send_goal(motion_goal);
-        const auto send_deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(motion_timeout_sec_);
-        while(send_future.wait_for(std::chrono::milliseconds(50)) != std::future_status::ready) {
-            if(cancel_requested_.load() || shutting_down_.load() || std::chrono::steady_clock::now() >= send_deadline) return false;
-        }
-        GoalHandleMoveArm::SharedPtr active_goal = send_future.get();
-        if(!active_goal) return false;
-        if(cancel_requested_.load() || shutting_down_.load()) {
-            motion_client_->async_cancel_goal(active_goal);
-            return false;
-        }
+        if(motion_pending()) return false;
+        auto pending = std::make_shared<PendingMotion>();
         {
             std::lock_guard<std::mutex> lock(active_motion_goal_mutex_);
-            active_motion_goal_ = active_goal;
+            pending_motion_ = pending;
         }
-
-        auto result_future = motion_client_->async_get_result(active_goal);
-        const auto result_deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(motion_timeout_sec_);
-        while(result_future.wait_for(std::chrono::milliseconds(50)) != std::future_status::ready) {
-            if(cancel_requested_.load() || shutting_down_.load() || std::chrono::steady_clock::now() >= result_deadline) {
-                motion_client_->async_cancel_goal(active_goal);
-                {
-                    std::lock_guard<std::mutex> lock(active_motion_goal_mutex_);
-                    active_motion_goal_.reset();
+        rclcpp_action::Client<MoveArm>::SendGoalOptions options;
+        std::weak_ptr<rclcpp_action::Client<MoveArm>> client = motion_client_;
+        options.goal_response_callback = [pending, client](GoalHandleMoveArm::SharedPtr handle) {
+            { std::lock_guard<std::mutex> lock(pending->mutex); pending->handle = handle; }
+            if(!handle) { pending->terminal.store(true); return; }
+            if(pending->abandoned.load()) {
+                if(auto locked = client.lock()) {
+                    try { locked->async_cancel_goal(handle); }
+                    catch(const std::exception& error) {
+                        RCLCPP_ERROR(rclcpp::get_logger("pick_task_node"), "Late motion cancellation is unconfirmed: %s", error.what());
+                    }
                 }
+            }
+        };
+        options.result_callback = [pending](const GoalHandleMoveArm::WrappedResult&) {
+            pending->terminal.store(true);
+        };
+        auto send_future = motion_client_->async_send_goal(motion_goal, options);
+        const auto send_deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(motion_timeout_sec_);
+        while(send_future.wait_for(std::chrono::milliseconds(20)) != std::future_status::ready) {
+            if(cancel_requested_.load() || shutting_down_.load() || std::chrono::steady_clock::now() >= send_deadline) {
+                stop_and_wait(pending);
                 return false;
             }
         }
-
-        const auto wrapped_result = result_future.get();
-        {
-            std::lock_guard<std::mutex> lock(active_motion_goal_mutex_);
-            active_motion_goal_.reset();
+        auto active_goal = send_future.get();
+        if(!active_goal) return false;
+        if(cancel_requested_.load() || shutting_down_.load()) {
+            stop_and_wait(pending);
+            return false;
         }
-        if(wrapped_result.code != rclcpp_action::ResultCode::SUCCEEDED || !wrapped_result.result->success) return false;
+        auto result_future = motion_client_->async_get_result(active_goal);
+        const auto result_deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(motion_timeout_sec_);
+        while(result_future.wait_for(std::chrono::milliseconds(20)) != std::future_status::ready) {
+            if(cancel_requested_.load() || shutting_down_.load() || std::chrono::steady_clock::now() >= result_deadline) {
+                stop_and_wait(pending);
+                return false;
+            }
+        }
+        pending->terminal.store(true);
+        const auto wrapped_result = result_future.get();
+        if(wrapped_result.code != rclcpp_action::ResultCode::SUCCEEDED || !wrapped_result.result || !wrapped_result.result->success) return false;
         last_pose_ = wrapped_result.result->final_pose;
         return true;
     }
@@ -348,17 +399,16 @@ private:
      * @brief 请求取消当前 MoveArm 子 goal
      */
     void cancel_active_motion_goal() {
-        GoalHandleMoveArm::SharedPtr active_goal;
-        {
-            std::lock_guard<std::mutex> lock(active_motion_goal_mutex_);
-            active_goal = active_motion_goal_;
-        }
-        if(!active_goal) return;
-        try {
-            motion_client_->async_cancel_goal(active_goal);
-        }
+        std::shared_ptr<PendingMotion> pending;
+        { std::lock_guard<std::mutex> lock(active_motion_goal_mutex_); pending = pending_motion_; }
+        if(!pending) return;
+        pending->abandoned.store(true);
+        GoalHandleMoveArm::SharedPtr handle;
+        { std::lock_guard<std::mutex> lock(pending->mutex); handle = pending->handle; }
+        if(!handle || pending->terminal.load()) return;
+        try { motion_client_->async_cancel_goal(handle); }
         catch(const std::exception& error) {
-            RCLCPP_WARN(get_logger(), "Failed to cancel active MoveArm goal: %s", error.what());
+            RCLCPP_WARN(get_logger(), "Motion stop not confirmed: %s", error.what());
         }
     }
 
@@ -394,7 +444,11 @@ private:
         result->error_code = cancel_requested_.load() ? kCanceled : error_code;
         result->message = cancel_requested_.load() ? "pick task canceled" : message;
         result->completed_steps = completed;
-        result->canceled = cancel_requested_.load();
+        result->canceled = cancel_requested_.load() && !motion_pending();
+        if(motion_pending()) {
+            result->error_code = kMotionFailed;
+            result->message = "Motion stop is unconfirmed; new goals remain blocked until the child action terminates";
+        }
         result->final_pose = last_pose_;
         if(result->canceled) goal_handle->canceled(result);
         else goal_handle->abort(result);
@@ -405,7 +459,7 @@ private:
     rclcpp_action::Server<PickTarget>::SharedPtr action_server_;  ///< PickTarget Action Server
     rclcpp_action::Client<MoveArm>::SharedPtr motion_client_;     ///< MoveArm capability client
     rclcpp::Client<CommandEef>::SharedPtr eef_client_;            ///< EEF capability client
-    GoalHandleMoveArm::SharedPtr active_motion_goal_;             ///< 当前 MoveArm 子 goal
+    std::shared_ptr<PendingMotion> pending_motion_;             ///< 当前 MoveArm 子 goal
     std::mutex active_motion_goal_mutex_;                         ///< 子 goal handle 访问锁
     std::thread execution_thread_;                                ///< 单个 PickTarget 执行线程
 

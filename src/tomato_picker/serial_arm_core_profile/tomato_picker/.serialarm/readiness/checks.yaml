@@ -42,11 +42,11 @@ stages:
     recorded_at: 1792379934.3300877
   gravity_verification:
     result: recorded
-    scope: 4612ccc8da3f2266e643b91ed0df6c98bf643abc898707a6ff90d78e1a153818
+    scope: e04ad13259eea1de6c972acc05a6f63fb78c421706d61129a066b2b04b686c65
     kind: operator_note
     note: ''
     observations:
       distinct_poses: true
       support: true
       restored: true
-    recorded_at: 1792317528.4587615
+    recorded_at: 1792504130.7090974

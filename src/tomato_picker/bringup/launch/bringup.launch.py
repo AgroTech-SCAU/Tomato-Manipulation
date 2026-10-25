@@ -1,7 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    GroupAction,
     IncludeLaunchDescription,
     LogInfo,
     RegisterEventHandler,
@@ -11,7 +10,7 @@ from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
@@ -129,39 +128,6 @@ def generate_launch_description():
         ],
     )
 
-    wrist_camera = GroupAction(
-        condition=IfCondition(LaunchConfiguration("start_wrist_camera")),
-        actions=[
-            PushRosNamespace("camera"),
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    PathJoinSubstitution(
-                        [FindPackageShare("orbbec_camera"), "launch", "gemini_330_series.launch.py"]
-                    )
-                ),
-                launch_arguments={
-                    "camera_name": "wrist",
-                    "depth_registration": "true",
-                    "enable_point_cloud": "false",
-                    "enable_colored_point_cloud": "false",
-                }.items(),
-            ),
-        ],
-    )
-
-    wrist_camera_mount_tf = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        output="screen",
-        condition=IfCondition(LaunchConfiguration("publish_wrist_camera_mount_tf")),
-        arguments=[
-            "--x", "0", "--y", "0", "--z", "0",
-            "--roll", "0", "--pitch", "0", "--yaw", "0",
-            "--frame-id", LaunchConfiguration("wrist_camera_mount_frame"),
-            "--child-frame-id", LaunchConfiguration("wrist_camera_base_frame"),
-        ],
-    )
-
     gui = Node(
         package="tomato_picker_gui",
         executable="wrist_target_gui",
@@ -225,18 +191,12 @@ def generate_launch_description():
             DeclareLaunchArgument("bus", default_value=""),
             DeclareLaunchArgument("eef_mode", default_value="damiao"),
             DeclareLaunchArgument("start_perception", default_value="true"),
-            DeclareLaunchArgument("start_wrist_camera", default_value="false"),
-            DeclareLaunchArgument("publish_wrist_camera_mount_tf", default_value="false"),
-            DeclareLaunchArgument("wrist_camera_mount_frame", default_value="Link6"),
-            DeclareLaunchArgument("wrist_camera_base_frame", default_value="camera_link"),
             DeclareLaunchArgument("start_gui", default_value="false"),
             DeclareLaunchArgument("use_sim_time", default_value="false"),
             SetEnvironmentVariable("TOMATO_PICKER_SERIAL_PORT", serial_port),
             SetEnvironmentVariable("TOMATO_PICKER_BAUDRATE", baudrate),
             SetEnvironmentVariable("TOMATO_PICKER_BUS", bus),
             arm_stack,
-            wrist_camera,
-            wrist_camera_mount_tf,
             arm_ready_gate,
             RegisterEventHandler(OnProcessExit(target_action=arm_ready_gate, on_exit=after_arm_ready)),
             RegisterEventHandler(OnProcessExit(target_action=eef_spawner, on_exit=after_eef_spawn)),

@@ -37,16 +37,4 @@ install(PROGRAMS
   RENAME handeye_operator
 )
 
-install(PROGRAMS
-  scripts/handeye_servo_pose.py
-  DESTINATION lib/${PROJECT_NAME}
-  RENAME handeye_servo_pose
-)
-
-install(PROGRAMS
-  scripts/check_handeye_servo.py
-  DESTINATION lib/${PROJECT_NAME}
-  RENAME check_handeye_servo
-)
-
 ament_package()

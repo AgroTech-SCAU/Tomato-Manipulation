@@ -5,6 +5,8 @@ log/
 .vscode/
 .cache/
 
+.serialarm/
+
 __pycache__/
 *.pyc
 *.bag
