@@ -24,4 +24,13 @@
   <disable_collisions link1="Link3" link2="Link4" reason="Adjacent"/>
   <disable_collisions link1="Link4" link2="Link5" reason="Adjacent"/>
   <disable_collisions link1="Link5" link2="Link6" reason="Adjacent"/>
+
+  <!-- The wrist housing carries the pinion and both sliding jaw/rack assemblies.
+       Their mounting/guide contacts are internal to the gripper assembly. -->
+  <disable_collisions link1="Link6" link2="Link7" reason="Adjacent"/>
+  <disable_collisions link1="Link6" link2="Link7-1" reason="Adjacent"/>
+  <disable_collisions link1="Link6" link2="Link7-2" reason="Adjacent"/>
+  <!-- Pinion/rack tooth contact is part of the drive, not an arm collision. -->
+  <disable_collisions link1="Link7" link2="Link7-1" reason="GripperTransmission"/>
+  <disable_collisions link1="Link7" link2="Link7-2" reason="GripperTransmission"/>
 </robot>

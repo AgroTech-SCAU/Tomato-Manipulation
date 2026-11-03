@@ -7,7 +7,7 @@ install(DIRECTORY config launch
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(FILES .setup_assistant
+install(FILES .setup_assistant README.md
   DESTINATION share/${PROJECT_NAME}
 )
 

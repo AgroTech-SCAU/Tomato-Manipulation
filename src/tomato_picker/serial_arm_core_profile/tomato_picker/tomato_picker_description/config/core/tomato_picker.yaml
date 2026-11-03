@@ -69,19 +69,19 @@ control:
     allow_full_cmd: false
     rigid_hold:
       kp:
-        joint1: 80
-        joint2: 200
-        joint3: 200
-        joint4: 50
-        joint5: 30
-        joint6: 10
+        joint1: 34.5
+        joint2: 44.5
+        joint3: 83.5
+        joint4: 22.5
+        joint5: 15
+        joint6: 17.5
       kd:
-        joint1: 1.6
-        joint2: 4
-        joint3: 4
-        joint4: 1
-        joint5: 0.6
-        joint6: 0.2
+        joint1: 0.9
+        joint2: 2.2
+        joint3: 3.9
+        joint4: 1.1
+        joint5: 0.5
+        joint6: 0.13
     rigid_tracking:
       kp:
         joint1: 52
@@ -142,6 +142,21 @@ control:
         joint4: 1
         joint5: 0.2
         joint6: 0.1
+    identification_tracking:
+      kp:
+        joint1: 34.5
+        joint2: 44.5
+        joint3: 83.5
+        joint4: 22.5
+        joint5: 15
+        joint6: 17.5
+      kd:
+        joint1: 1
+        joint2: 2.4
+        joint3: 4.2
+        joint4: 1.2
+        joint5: 0.8
+        joint6: 0.16
 safety_policy:
   position_margin: 0
   cmd_vel_scale: 1
@@ -319,3 +334,4 @@ capability:
         joint4: 2
         joint5: 2
         joint6: 2
+    reference_behavior: NATIVE_IMPEDANCE

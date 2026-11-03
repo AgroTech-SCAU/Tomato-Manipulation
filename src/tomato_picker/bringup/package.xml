@@ -6,6 +6,7 @@
   <maintainer email="kaerei@foxmail.com">Kaede Rei</maintainer>
   <license>MIT</license>
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>controller_manager_msgs</exec_depend>
@@ -15,6 +16,7 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>moveit_msgs</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>serial_arm_core</exec_depend>

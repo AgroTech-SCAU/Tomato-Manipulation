@@ -4,49 +4,49 @@ source_urdf_fingerprint: ce5e35b7131d7cc52bfae0efcbb17c94dbcddd22df95a610dd7a203
 stages:
   model_check:
     result: recorded
-    scope: e615df2e36414ec8287d6e024fbf5c32e49cd49589a7be36a185074162761548
+    scope: 70948fd51d4ff82d8569db29a27eae76f5993744ecdfbe355da671b0b5c30d7e
     kind: operator_note
     note: ''
     observations:
       chain: true
       limits: true
       inertial: true
-    recorded_at: 1792379930.1111019
+    recorded_at: 1793598434.4633687
   bringup:
     result: recorded
-    scope: b9dd0a78c2ccabf2376480c40736489881afc81fe402d53230a562328cecdf2b
+    scope: b0625ad2a0b2a2a4b03175c1ed849708dd54c452d712d2e6e4cc91d9a39fb16b
     kind: operator_note
     note: ''
     observations:
       connection: true
-    recorded_at: 1792317514.5694952
+    recorded_at: 1793598438.0854008
   mapping_calibration:
     result: recorded
-    scope: c805a2696f8c63a4054d866e5c80c7a405d2265a41026d5ff813d023cd1c32d1
+    scope: 5ada75e8c4f33c277e6a6eb6fbcbff23c14d32d19b69d5a375b4940f92dec59d
     kind: operator_note
     note: ''
     observations:
       joint_ids: true
       directions: true
       offsets: true
-    recorded_at: 1792379932.824026
+    recorded_at: 1793598439.4419184
   geometry_calibration:
     result: recorded
-    scope: eb335149b0bc239e5b2c0de62dc4dad554040650d74a8a44d88e47060abbb01a
+    scope: 3efe5b358b6850f720be8f59dbfa2007c17ce89b2dc1bef63f706dd3d5cb7334
     kind: operator_note
     note: ''
     observations:
       frames: true
       zero_pose: true
       tool_pose: true
-    recorded_at: 1792379934.3300877
+    recorded_at: 1793598440.6668408
   gravity_verification:
     result: recorded
-    scope: e04ad13259eea1de6c972acc05a6f63fb78c421706d61129a066b2b04b686c65
+    scope: eef1e96958a63b42fc192f0c706ea3fcae5b0226f5558919c97cfa08d8333f40
     kind: operator_note
     note: ''
     observations:
       distinct_poses: true
       support: true
       restored: true
-    recorded_at: 1792504130.7090974
+    recorded_at: 1793626329.9429402
