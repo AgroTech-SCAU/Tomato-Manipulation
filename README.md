@@ -346,6 +346,30 @@ ros2 service call /handeye/fault/clear std_srvs/srv/Trigger "{}"
 `handeye_tip` 规划组与 `tip` 工具坐标属于本仓库的机器人模型
 `tool0 -> tip` 的固定偏移必须与真实工具一致
 
+## 手眼伺服运动学仿真
+
+完整工作流使用 Bringup 仓库的 `src/robot-profile-sim/robot.json`；它运行真实伺服计算、MoveIt 和轨迹控制器，将硬件替换为 `mock_components/GenericSystem`，目标由 Perception 的虚拟观测节点提供
+
+需要单独查看机械臂与碰撞场景时，在本仓库完成编译后运行：
+
+```bash
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+export ROS_DOMAIN_ID=231
+export ROS_LOCALHOST_ONLY=1
+ros2 launch tomato_picker_bringup servo_simulation.launch.py
+```
+
+此入口不连接串口，也不启动采摘任务；`rviz:=false` 可关闭可视化，运动 Action 为 `/tomato_picker/servo/move_arm`
+
+- 初始关节值：`tomato_picker_description/config/simulation_initial_positions.yaml`，可用 `initial_positions_file:=绝对路径` 覆盖；默认起点及 TCP 正 Z 方向 100 mm 的完整直线路径经过碰撞检查，全零关节姿态有自碰撞，不作仿真起点
+- 障碍物：`tomato_picker_bringup/config/servo_simulation/scene.yaml`，通过 `scene_file:=绝对路径` 覆盖；盒体位置和尺寸以米为单位，坐标系默认 `base_link`；修改后重启场景节点，`enabled: false` 会移除对应物体
+- 场景节点：`ros2 run tomato_picker_bringup servo_simulation_scene`，参数为 `scene_file`；只有 MoveIt 接受场景后才开放 `/tomato_picker/simulation/scene_ready` (`std_srvs/srv/Trigger`)
+- RViz 配置：`tomato_picker_bringup/config/servo_simulation/servo.rviz`，显示机械臂、规划轨迹、碰撞场景及 `/simulation/targets` 目标 Marker
+- 全链使用系统实时时钟，`use_sim_time=false`，不发布 `/clock`
+
+这是关节轨迹与视觉观测几何的运动学仿真；GenericSystem 不模拟惯性、接触或电机动力学
+
 ## 采摘阶段
 
 默认阶段机：

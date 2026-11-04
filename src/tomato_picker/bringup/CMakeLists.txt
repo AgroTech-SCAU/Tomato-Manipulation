@@ -40,4 +40,10 @@ install(PROGRAMS
   RENAME handeye_operator
 )
 
+install(PROGRAMS
+  scripts/servo_simulation_scene.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME servo_simulation_scene
+)
+
 ament_package()

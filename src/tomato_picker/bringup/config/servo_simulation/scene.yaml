@@ -1,0 +1,8 @@
+# Boxes are in metres in the robot base frame; restart the scene node after edits.
+# Place an enabled box across the approach to exercise collision rejection.
+frame_id: base_link
+boxes:
+  - id: simulation_obstacle
+    enabled: true
+    position: [0.65, 0.65, 0.30]
+    dimensions: [0.10, 0.10, 0.50]

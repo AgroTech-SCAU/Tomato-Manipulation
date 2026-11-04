@@ -1,0 +1,8 @@
+# Radians; collision-free preposition with a complete 100 mm TCP +Z approach.
+initial_positions:
+  joint1: -1.8944
+  joint2: 1.190842
+  joint3: 4.324582
+  joint4: -1.248767
+  joint5: 0.125099
+  joint6: -1.8944

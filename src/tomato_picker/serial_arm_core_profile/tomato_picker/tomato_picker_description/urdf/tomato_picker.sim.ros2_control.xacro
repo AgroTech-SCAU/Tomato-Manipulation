@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Tomato-Picker">
+  <xacro:arg name="initial_positions_file" default="$(find tomato_picker_description)/config/simulation_initial_positions.yaml"/>
+  <xacro:include filename="$(find tomato_picker_description)/urdf/tomato_picker.urdf.xacro"/>
+  <xacro:property name="initial_positions" value="${xacro.load_yaml('$(arg initial_positions_file)')['initial_positions']}"/>
+
+  <ros2_control name="tomato_picker_simulated_arm" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+    </hardware>
+    <xacro:macro name="simulated_joint" params="name">
+      <joint name="${name}">
+        <command_interface name="position"/>
+        <command_interface name="velocity"/>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions[name]}</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+      </joint>
+    </xacro:macro>
+    <xacro:simulated_joint name="joint1"/>
+    <xacro:simulated_joint name="joint2"/>
+    <xacro:simulated_joint name="joint3"/>
+    <xacro:simulated_joint name="joint4"/>
+    <xacro:simulated_joint name="joint5"/>
+    <xacro:simulated_joint name="joint6"/>
+    <!-- The servo workflow holds the gripper open; publish its passive state so
+         both RViz and MoveIt know the complete end-effector geometry. -->
+    <xacro:macro name="stationary_gripper_joint" params="name">
+      <joint name="${name}">
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+      </joint>
+    </xacro:macro>
+    <xacro:stationary_gripper_joint name="joint7"/>
+    <xacro:stationary_gripper_joint name="joint7-1"/>
+    <xacro:stationary_gripper_joint name="joint7-2"/>
+  </ros2_control>
+</robot>
