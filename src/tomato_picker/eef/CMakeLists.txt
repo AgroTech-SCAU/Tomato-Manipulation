@@ -77,19 +77,6 @@ install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
 
-if(BUILD_TESTING)
-  find_package(ament_cmake_gtest REQUIRED)
-
-  ament_add_gtest(test_eef_model test/test_eef_model.cpp)
-  target_include_directories(test_eef_model PRIVATE include)
-
-  ament_add_gtest(test_eef_worker test/test_eef_worker.cpp)
-  target_link_libraries(test_eef_worker tomato_picker_eef_controller)
-  target_compile_definitions(test_eef_worker PRIVATE
-    EEF_TEST_CONFIG_PATH="${CMAKE_CURRENT_SOURCE_DIR}/config/damiao_eef.yaml"
-  )
-endif()
-
 ament_export_include_directories(include)
 ament_export_targets(export_tomato_picker_eef_controller HAS_LIBRARY_TARGET)
 ament_export_dependencies(

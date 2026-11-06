@@ -33,7 +33,7 @@ constexpr std::int32_t kOutOfRange = 2;       ///< 位置超出范围
 // ! ========================= 接 口 类 方 法 / 函 数 实 现 ========================= ! //
 
 /**
- * @brief 为 Task 离线测试提供 CommandEef contract 的纯 ROS mock
+ * @brief 为无硬件运行提供 CommandEef contract 的纯 ROS mock
  */
 class EefMockNode final : public rclcpp::Node {
 public:

@@ -17,9 +17,9 @@ ROS 2 Humble + MoveIt 2 + SerialArm-Core tomato picking application stack
 
 Tomato-Picker-ROS2 是构建在 [SerialArm-Core](https://github.com/Kaede-Rei/SerialArm-Core) 之上的番茄采摘应用层
 
-SerialArm-Core 负责机械臂模型、控制、安全、Hardware Backend、Robot Profile、ros2_control 与 MoveIt 2；Tomato-Picker 不重复实现机械臂底层
+SerialArm-Core 负责机械臂模型、控制、安全、Hardware Backend、Robot Profile、ros2_control 与 MoveIt 2
 
-Tomato-Picker 负责：
+Tomato-Picker 负责
 
 - EEF 末端执行器
 - MoveIt 2 运动能力封装
@@ -86,14 +86,14 @@ Tomato-Picker-ROS2/
 
 ### 1. 获取 SerialArm-Core
 
-当前工作区跟踪 SerialArm-Core 的 `main` 分支；Tomato-Picker 通过外部 `profile_file/resource_paths` 接口持有自己的 Robot Profile；首次获取依赖，在仓库根目录执行：
+当前工作区跟踪 SerialArm-Core 的 `main` 分支；Tomato-Picker 通过外部 `profile_file/resource_paths` 接口持有自己的 Robot Profile；首次获取依赖，在仓库根目录执行
 
 ```bash
 source /opt/ros/humble/setup.bash
 vcs import src < repos/serial_arm.repos
 ```
 
-如果已存在 SerialArm-Core，保留原仓库并切换分支，不必删除重克隆：
+已有 SerialArm-Core 仓库时，切换并更新 `main` 分支
 
 ```bash
 git -C src/SerialArm-Core fetch origin main
@@ -101,16 +101,16 @@ git -C src/SerialArm-Core switch main || git -C src/SerialArm-Core switch --trac
 git -C src/SerialArm-Core pull --ff-only origin main
 ```
 
-SerialArm-Core 的 `main` 自带一个 `tomato_picker_description` 示例包，与本工作区的正式同名包冲突；导入或更新 Core 后，应从工作区根目录执行：
+SerialArm-Core 的 `main` 自带一个 `tomato_picker_description` 示例包，与本工作区的正式同名包冲突；导入或更新 Core 后，应从工作区根目录执行
 
 ```bash
 touch src/SerialArm-Core/src/robot_supports/robots/tomato_picker/tomato_picker_description/COLCON_IGNORE
 colcon list | grep '^tomato_picker_description[[:space:]]'
 ```
 
-检查输出应只包含 `src/tomato_picker/description` 对应的一个包；`COLCON_IGNORE` 不改动 Core 跟踪的源码，后续拉取更新通常也无需重复执行；如需彻底移除 Core 的内置描述包，可仅删除 `src/SerialArm-Core/src/robot_supports/robots/tomato_picker/tomato_picker_description`，但这会产生 Git 已删除文件状态，并可能在后续更新中恢复
+检查输出应只包含本仓库 `src/tomato_picker/serial_arm_core_profile/tomato_picker/tomato_picker_description` 对应的一个包；`COLCON_IGNORE` 使 colcon 跳过 Core 内置的同名描述包
 
-当前 Robot Profile 所有权：
+当前 Robot Profile 所有权
 
 ```text
 tomato_picker_bringup/config/robot_profiles.yaml
@@ -121,17 +121,17 @@ tomato_picker_bringup/config/robot_profiles.yaml
   └── moveit     -> tomato_picker_moveit_config
 ```
 
-`arm.launch.py` 只负责把这些参数传给 SerialArm-Core 的通用 `moveit.launch.py`，不再重复实现 robot_state_publisher、ros2_control 和 controller spawner
+`arm.launch.py` 将这些参数传给 SerialArm-Core 的通用 `moveit.launch.py`，由 Core 启动 robot_state_publisher、ros2_control 和 controller spawner
 
 ### 2. 安装依赖并编译
 
-从已有 workspace 更新接口后，建议先清理生成物：
+从已有 workspace 更新接口后，建议先清理生成物
 
 ```bash
 rm -rf build install log
 ```
 
-然后：
+然后
 
 ```bash
 rosdep install \
@@ -150,7 +150,7 @@ source install/setup.bash
 ros2 launch tomato_picker_bringup bringup.launch.py
 ```
 
-启动顺序：
+启动顺序
 
 ```text
 SerialArm hardware / controllers / MoveIt
@@ -164,7 +164,7 @@ Task / Perception / optional GUI
 
 ARM 的 Robot Profile、阻抗模式、停车逻辑与 ros2_control 生命周期全部由 SerialArm-Core 管理
 
-主要参数：
+主要参数
 
 | 参数 | 默认值 | 说明 |
 | --- | --- | --- |
@@ -181,7 +181,7 @@ ARM 的 Robot Profile、阻抗模式、停车逻辑与 ros2_control 生命周期
 
 SerialArm runtime hardware override 会同时作用到 EEF 的共享 CAN 配置，避免 ARM 与 EEF 使用不同串口或 bus
 
-例如机械臂枚举到 `/dev/ttyACM1`：
+例如机械臂枚举到 `/dev/ttyACM1`
 
 ```bash
 ros2 launch tomato_picker_bringup bringup.launch.py \
@@ -197,7 +197,7 @@ ros2 action list | grep tomato_picker
 ros2 service list | grep tomato_picker
 ```
 
-真机模式应看到：
+真机模式应看到
 
 ```text
 joint_state_broadcaster       active
@@ -205,7 +205,7 @@ joint_trajectory_controller   active
 eef_controller                active
 ```
 
-EEF：
+EEF
 
 ```bash
 ros2 service call \
@@ -214,7 +214,7 @@ ros2 service call \
   "{}"
 ```
 
-应返回：
+应返回
 
 ```text
 success: true
@@ -223,13 +223,13 @@ message: READY
 
 ## 手眼标定专用 Bringup
 
-手眼标定不要启动整机 `bringup.launch.py`；专用入口只启动 `RobotSession` bridge，由它独占机械臂 Hardware Backend，并直接发布 SerialArm-Core 已计算的末端位姿：
+手眼标定前先停止整机 `bringup.launch.py`，再通过专用入口启动 `RobotSession` bridge，由它独占机械臂 Hardware Backend，并发布 SerialArm-Core 已计算的末端位姿
 
 ```bash
 ros2 launch tomato_picker_bringup handeye.launch.py
 ```
 
-默认：
+默认
 
 ```text
 robot_profile = tomato_picker
@@ -239,7 +239,7 @@ publish_rate  = 30 Hz
 start mode    = COMPLIANT_DRAG
 ```
 
-可覆盖硬件连接：
+可覆盖硬件连接
 
 ```bash
 ros2 launch tomato_picker_bringup handeye.launch.py \
@@ -251,7 +251,7 @@ ros2 launch tomato_picker_bringup handeye.launch.py \
 
 此入口不会启动 MoveIt、ros2_control、EEF、Task、Perception、GUI 或相机驱动，避免多个节点同时占用机械臂硬件
 
-Handeye-Calibration-App 使用：
+Handeye-Calibration-App 使用
 
 ```text
 ROS2 input type = Pose
@@ -259,7 +259,7 @@ input topic     = /arm/pose
 message         = geometry_msgs/msg/PoseStamped
 ```
 
-发布规则：
+发布规则
 
 ```text
 RobotState == ACTIVE
@@ -281,11 +281,11 @@ ros2 bag record -o handeye_diagnosis /arm/pose /arm/tool_transform /arm/joint_st
 
 `/handeye/status` 提供 `joint_state_source=dynamics`、`joint_state_consistent` 和各关节向量的最大偏差，若 `joint_state_consistent=false`，先记录日志并排查实际安装的 Python 模块及运行配置，机器人姿态仍由同一 FK 快照提供；若动力学快照缺失或无效，桥接节点拒绝发布该周期的全部机器人姿态信息，避免写入错误的标定数据；启动日志的 `Hand-eye sources` 会输出实际加载的 Profile、Core 配置、硬件配置与 Python 模块位置
 
-修正源码后需重新执行工作区 `colcon build --symlink-install` 并 `source install/setup.bash`，启动手眼节点后核对 `Hand-eye sources` 输出确认运行的是最新构建；如 `/arm/pose` 与标定板的运动学仍不满足固定目标一致性，继续检查标定板是否固定、相机与末端连接是否刚性，不能只依据 ROS 关节话题修复就宣布标定完成
+修改源码后执行 `colcon build --symlink-install` 并 `source install/setup.bash`，启动手眼节点后核对 `Hand-eye sources` 中的构建路径；如 `/arm/pose` 与标定板的运动学仍不满足固定目标一致性，继续检查标定板固定状态及相机与末端连接的刚性
 
 ### FAULT 在线恢复
 
-SerialArm-Core 在可恢复 FAULT 情况下提供在线恢复：在可恢复 `FAULT + fault_holding` 下 worker 会保持存活并持续维护 fault hold；bridge 提供：
+可恢复的 `FAULT + fault_holding` 下，SerialArm-Core worker 持续维护 fault hold；bridge 提供以下恢复接口
 
 ```text
 /handeye/fault/clear               std_srvs/srv/Trigger
@@ -294,7 +294,7 @@ SerialArm-Core 在可恢复 FAULT 情况下提供在线恢复：在可恢复 `FA
 /handeye/drag/enable                std_srvs/srv/Trigger
 ```
 
-普通瞬态可恢复 FAULT，例如偶发 `INVALID_DT`，推荐流程：
+普通瞬态可恢复 FAULT，例如偶发 `INVALID_DT`，推荐流程
 
 ```text
 COMPLIANT_DRAG
@@ -314,16 +314,16 @@ ACTIVE + RIGID_HOLD
 COMPLIANT_DRAG
 ```
 
-命令：
+命令
 
 ```bash
 ros2 service call /handeye/fault/clear std_srvs/srv/Trigger "{}"
 ros2 service call /handeye/drag/enable std_srvs/srv/Trigger "{}"
 ```
 
-`clear_fault()` **不会自动重新进入拖拽模式**；这是安全设计：清故障后先保持 `ACTIVE + RIGID_HOLD`，必须由操作员在确认机械臂和新位姿正常后显式调用 `/handeye/drag/enable`
+`clear_fault()` 后保持 `ACTIVE + RIGID_HOLD`；操作员确认机械臂和新位姿正常后，调用 `/handeye/drag/enable` 恢复拖拽
 
-只有在需要人工把机械臂拖离 Core 允许的危险构型时才使用 FAULT compliant recovery：
+只有在需要人工把机械臂拖离 Core 允许的危险构型时才使用 FAULT compliant recovery
 
 ```bash
 ros2 service call /handeye/fault/compliant_recovery std_srvs/srv/Trigger "{}"
@@ -331,7 +331,7 @@ ros2 service call /handeye/fault/rigid_hold std_srvs/srv/Trigger "{}"
 ros2 service call /handeye/fault/clear std_srvs/srv/Trigger "{}"
 ```
 
-是否允许进入 compliant recovery 仍完全由 SerialArm-Core Safety 判定，Tomato-Picker 不绕过 Safety
+FAULT compliant recovery 的允许条件由 SerialArm-Core Safety 判定
 
 如果 Core 无法建立/维持 fault hold，worker 会停止，此时不要继续标定，应检查通信、电机和硬件状态后重新启动
 
@@ -350,7 +350,7 @@ ros2 service call /handeye/fault/clear std_srvs/srv/Trigger "{}"
 
 完整工作流使用 Bringup 仓库的 `src/robot-profile-sim/robot.json`；它运行真实伺服计算、MoveIt 和轨迹控制器，将硬件替换为 `mock_components/GenericSystem`，目标由 Perception 的虚拟观测节点提供
 
-需要单独查看机械臂与碰撞场景时，在本仓库完成编译后运行：
+需要单独查看机械臂与碰撞场景时，在本仓库完成编译后运行
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -373,7 +373,7 @@ ros2 launch tomato_picker_bringup servo_simulation.launch.py
 
 ## 采摘阶段
 
-默认阶段机：
+默认阶段机
 
 ```text
 PRE_PICK
@@ -395,7 +395,7 @@ HOME        optional
 
 `pre_pick_pose`、`approach_pose` 与 `retreat_pose` 都可以显式指定
 
-未显式指定时，Task 会沿最终采摘位姿的 **局部 TCP Z 轴** 自动生成：
+未显式指定时，Task 会沿最终采摘位姿的 **局部 TCP Z 轴** 自动生成
 
 ```text
 pre_pick_distance = 0.15 m
@@ -409,7 +409,7 @@ retreat_distance  = 0.10 m
 
 ### MoveArm HOME
 
-首次真机测试建议先只规划：
+首次真机运行先只规划
 
 ```bash
 ros2 action send_goal \
@@ -437,7 +437,7 @@ ros2 service call \
 
 ### PickTarget
 
-目标位姿必须替换为已经验证的安全值：
+目标位姿必须替换为已经验证的安全值
 
 ```bash
 ros2 action send_goal \

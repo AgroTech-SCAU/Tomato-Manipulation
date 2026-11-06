@@ -52,8 +52,7 @@ const char* damiao_eef_error_string(DamiaoEefError error) noexcept;
 /**
  * @brief Worker 可独占调用的最小 EEF Driver 接口
  *
- * 该接口只用于轻量 Fake Driver 测试与真实 Driver 所有权隔离，不定义新的
- * CAN protocol 或通用硬件 framework
+ * Worker 通过此接口独占 Driver 的硬件操作
  */
 class EefIoDriver {
 public:

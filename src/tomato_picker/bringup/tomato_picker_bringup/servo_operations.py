@@ -44,7 +44,7 @@ def transform_targets(payload,stop,*,context):
     import yaml
     data=payload['observation']
     def refresh(reason):
-        return {'target':{},'ready':False,'attempt':refresh_attempt(payload,reason)}
+        return {'target':{},'ready':False,'attempt':refresh_attempt(payload,reason),'refresh_reason':reason}
     if not data.get('success',True):
         reason=data.get('message') or '观测失败'
         if data.get('status_code') in payload.get('refresh_status_codes',[]):return refresh(reason)
@@ -80,7 +80,7 @@ def transform_targets(payload,stop,*,context):
         if len(nearby)>1:return refresh('关联门限内存在多个候选目标，需要重新观测')
     score,point,label=min(candidates,key=lambda item:item[0])
     if previous is not None and score>payload.get('max_target_jump_m',.03):raise ValueError('目标位置跳变，已拒绝切换目标')
-    return {'target':{'point':point,'frame_id':payload['base_frame'],'stamp':header['stamp'],'label':label},'ready':True,'attempt':int(payload.get('attempt',0))}
+    return {'target':{'point':point,'frame_id':payload['base_frame'],'stamp':header['stamp'],'label':label},'ready':True,'attempt':int(payload.get('attempt',0)),'refresh_reason':''}
 
 
 def bounded_pose_step(payload,stop,*,context):
@@ -107,7 +107,7 @@ def bounded_pose_step(payload,stop,*,context):
     if target_age>payload.get('max_target_age_s',1):
         attempt=refresh_attempt(payload,'目标位姿已过期')
         return {'goal':{},'tracking':dict(payload.get('tracking') or {}),'done':False,'next_step':'refresh',
-                'remaining_distance':distance,'steps':tracking['steps'],'attempt':attempt}
+                'remaining_distance':distance,'steps':tracking['steps'],'attempt':attempt,'refresh_reason':'目标位姿已过期'}
     if first_target and distance>limit+tolerance:
         raise ValueError('目标停距点超出首次接近的累计运动预算，请先预定位')
     confirmations=payload.get('convergence_samples',1);max_cycles=payload.get('max_cycles',100)
@@ -129,4 +129,4 @@ def bounded_pose_step(payload,stop,*,context):
     next_position=position+(delta/distance*length if distance else 0)
     tracking.update(target=target['point'],label=target['label'],travel=travel,steps=tracking['steps']+(0 if within else 1),last_sample_ns=sample_stamp,cycles=cycles,stable_samples=stable)
     goal={'header':{'frame_id':target['frame_id'],'stamp':{'sec':0,'nanosec':0}},'pose':{'position':dict(zip(('x','y','z'),map(float,next_position))),'orientation':tracking['orientation']}}
-    return {'goal':goal,'tracking':tracking,'done':done,'next_step':'complete' if done else 'confirm' if within else 'move','remaining_distance':distance,'steps':tracking['steps'],'attempt':0}
+    return {'goal':goal,'tracking':tracking,'done':done,'next_step':'complete' if done else 'confirm' if within else 'move','remaining_distance':distance,'steps':tracking['steps'],'attempt':0,'refresh_reason':''}

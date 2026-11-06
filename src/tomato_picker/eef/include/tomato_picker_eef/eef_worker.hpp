@@ -77,7 +77,7 @@ public:
     /**
      * @brief 使用指定 Driver 构造 Worker
      * @param logger Worker 日志器
-     * @param driver Worker 独占的 Driver，供真实后端和测试使用
+     * @param driver Worker 独占的 Driver
      */
     EefWorker(rclcpp::Logger logger, std::unique_ptr<EefIoDriver> driver);
 
@@ -150,7 +150,7 @@ public:
     std::optional<double> last_position() const noexcept;
 
     /**
-     * @brief 等待指定状态，供确定性测试和非实时诊断使用
+     * @brief 等待指定状态，供非实时诊断使用
      * @param expected 目标状态
      * @param timeout 最大等待时间
      * @return 在 timeout 前到达目标状态时返回 true

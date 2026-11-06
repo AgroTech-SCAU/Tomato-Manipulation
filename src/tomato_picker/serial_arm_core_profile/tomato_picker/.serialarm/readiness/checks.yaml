@@ -1,6 +1,3 @@
-profile: tomato_picker
-managed_by_launcher: true
-source_urdf_fingerprint: ce5e35b7131d7cc52bfae0efcbb17c94dbcddd22df95a610dd7a203d1c78306c
 stages:
   model_check:
     result: recorded
@@ -14,22 +11,22 @@ stages:
     recorded_at: 1793598434.4633687
   bringup:
     result: recorded
-    scope: b0625ad2a0b2a2a4b03175c1ed849708dd54c452d712d2e6e4cc91d9a39fb16b
+    scope: 54a9b05312d51c84cb2cc647203422a7a40ca3bd9ef54b8672928763b9ea56de
     kind: operator_note
     note: ''
     observations:
       connection: true
-    recorded_at: 1793598438.0854008
+    recorded_at: 1793968223.0131824
   mapping_calibration:
     result: recorded
-    scope: 5ada75e8c4f33c277e6a6eb6fbcbff23c14d32d19b69d5a375b4940f92dec59d
+    scope: 5e831da63b3d92a2713707ca87ec147ead9b04c0754a7dcb7f8b2885025f753a
     kind: operator_note
     note: ''
     observations:
       joint_ids: true
       directions: true
       offsets: true
-    recorded_at: 1793598439.4419184
+    recorded_at: 1793968214.5877435
   geometry_calibration:
     result: recorded
     scope: 3efe5b358b6850f720be8f59dbfa2007c17ce89b2dc1bef63f706dd3d5cb7334
@@ -42,11 +39,24 @@ stages:
     recorded_at: 1793598440.6668408
   gravity_verification:
     result: recorded
-    scope: eef1e96958a63b42fc192f0c706ea3fcae5b0226f5558919c97cfa08d8333f40
+    scope: 5abb922182baf15afe2ede3b92764a3d3134227a0db2096955fa1cad35e730b6
     kind: operator_note
     note: ''
     observations:
       distinct_poses: true
       support: true
       restored: true
-    recorded_at: 1793626329.9429402
+    recorded_at: 1793968234.1795526
+  validation:
+    result: recorded
+    scope: 1bb7fc2fd84cc86780bca71882d547d8054bf476f408a7fa98b3e0496df3b979
+    kind: operator_note
+    note: ''
+    observations:
+      tracking: true
+      stopping: true
+      faults: true
+    recorded_at: 1793968230.4782255
+profile: tomato_picker
+managed_by_launcher: true
+source_urdf_fingerprint: ce5e35b7131d7cc52bfae0efcbb17c94dbcddd22df95a610dd7a203d1c78306c

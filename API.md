@@ -18,7 +18,7 @@
 | 手眼 FAULT 清除 | `/handeye/fault/clear` | `std_srvs/srv/Trigger` |
 | 手眼重新拖拽 | `/handeye/drag/enable` | `std_srvs/srv/Trigger` |
 
-`bringup.launch.py` 按以下顺序提供这些接口：
+`bringup.launch.py` 按以下顺序提供这些接口
 
 ```text
 SerialArm READY
@@ -71,7 +71,7 @@ tomato_picker_interfaces/action/MoveArm
 | `final_pose` | 结束时末端位姿 |
 | `final_joints` | 结束时关节位置 |
 
-错误码：
+错误码
 
 | 值 | 说明 |
 | --- | --- |
@@ -89,7 +89,7 @@ float32 progress
 geometry_msgs/PoseStamped current_pose
 ```
 
-常见阶段：
+常见阶段
 
 ```text
 SET_TARGET
@@ -101,7 +101,7 @@ DONE
 
 ### 2.5. HOME
 
-只规划：
+只规划
 
 ```bash
 ros2 action send_goal \
@@ -111,7 +111,7 @@ ros2 action send_goal \
   --feedback
 ```
 
-执行：
+执行
 
 ```bash
 ros2 action send_goal \
@@ -173,7 +173,7 @@ tomato_picker_interfaces/srv/CommandEef
 | `2` | `STOP` | 忽略 | 停止当前 EEF 动作 |
 | `3` | `SET_POSITION` | `[0, 1]` | 归一化位置 |
 
-`SET_POSITION`：
+`SET_POSITION`
 
 ```text
 0.0 = open_position
@@ -307,7 +307,7 @@ HOME            go_home_after_finish=true
 
 未提供显式位姿时，三个位姿都从 `target_pose` 沿其 **局部 Z 轴** 自动生成
 
-默认值来自 `task.yaml`：
+默认值来自 `task.yaml`
 
 ```text
 pre_pick_distance = 0.15 m
@@ -330,7 +330,7 @@ motion_acceleration_scale = 0.15
 | `7` | `STAGE_EEF_OPEN` | `EEF_OPEN` |
 | `8` | `STAGE_HOME` | `HOME` |
 
-其余反馈字段：
+其余反馈字段
 
 ```text
 uint32 completed_steps
@@ -359,7 +359,7 @@ geometry_msgs/PoseStamped final_pose
 
 ### 5.5. 最小请求
 
-自动生成 PRE_PICK / APPROACH / RETREAT：
+自动生成 PRE_PICK / APPROACH / RETREAT
 
 ```bash
 ros2 action send_goal \
@@ -398,21 +398,21 @@ ros2 action send_goal \
 tomato_picker_interfaces/srv/SetSceneEnabled
 ```
 
-Request：
+Request
 
 ```text
 bool enabled
 bool clear_octomap
 ```
 
-Response：
+Response
 
 ```text
 bool success
 string message
 ```
 
-关闭并清空：
+关闭并清空
 
 ```bash
 ros2 service call \
@@ -421,7 +421,7 @@ ros2 service call \
   "{enabled: false, clear_octomap: true}"
 ```
 
-重新开启：
+重新开启
 
 ```bash
 ros2 service call \
@@ -445,13 +445,13 @@ float32 confidence
 geometry_msgs/PoseStamped pose
 ```
 
-当前腕部 GUI 发布：
+当前腕部 GUI 发布
 
 ```text
 /tomato_picker/gui/selected_target
 ```
 
-GUI 默认值：
+GUI 默认值
 
 ```text
 id         = gui_target
@@ -460,7 +460,7 @@ confidence = 1.0
 pose       = ROI 深度反投影并 TF 到 base_link 后的目标
 ```
 
-查看：
+查看
 
 ```bash
 ros2 topic echo /tomato_picker/gui/selected_target
@@ -472,20 +472,20 @@ ros2 topic echo /tomato_picker/gui/selected_target
 
 ## 8. Wrist GUI
 
-启动：
+启动
 
 ```bash
 ros2 launch tomato_picker_bringup bringup.launch.py \
   start_gui:=true
 ```
 
-或单独启动：
+或单独启动
 
 ```bash
 ros2 run tomato_picker_gui wrist_target_gui
 ```
 
-默认订阅：
+默认订阅
 
 ```text
 /camera/wrist/color/image_raw
@@ -493,7 +493,7 @@ ros2 run tomato_picker_gui wrist_target_gui
 /camera/wrist/depth/camera_info
 ```
 
-处理链：
+处理链
 
 ```text
 polygon ROI
@@ -512,7 +512,7 @@ GUI 要求 depth 已对齐到 color 且 TF 能从图像 `frame_id` 转换到 `ba
 
 ## 9. Bringup Runtime Hardware Override
 
-最新 SerialArm-Core 支持从 ROS 2 launch 覆盖：
+最新 SerialArm-Core 支持从 ROS 2 launch 覆盖
 
 ```text
 serial_port
@@ -522,7 +522,7 @@ bus
 
 Tomato 顶层入口原样透传，并将同一组覆盖值传给 EEF 共享 CAN runtime
 
-示例：
+示例
 
 ```bash
 ros2 launch tomato_picker_bringup bringup.launch.py \
@@ -539,7 +539,7 @@ ros2 launch tomato_picker_bringup bringup.launch.py \
 
 ## 10. Hand-eye Calibration Bringup
 
-专用入口：
+专用入口
 
 ```bash
 ros2 launch tomato_picker_bringup handeye.launch.py
@@ -556,7 +556,7 @@ geometry_msgs/msg/PoseStamped
 
 `header.frame_id` 使用当前 Robot Profile 的 `dynamics.base_frame`，`pose` 为 SerialArm-Core `snapshot.dynamics.tool_pose` 对应的 `base_frame -> tool_frame` 位姿
 
-只有以下条件同时成立才发布：
+只有以下条件同时成立才发布
 
 ```text
 RobotState.ACTIVE
@@ -575,19 +575,19 @@ snapshot.last_error == empty
 /handeye/drag/enable
 ```
 
-全部使用：
+全部使用
 
 ```text
 std_srvs/srv/Trigger
 ```
 
-普通可恢复 FAULT：
+普通可恢复 FAULT
 
 ```bash
 ros2 service call /handeye/fault/clear std_srvs/srv/Trigger "{}"
 ```
 
-成功后 Robot 保持 `ACTIVE + RIGID_HOLD`；等 `/arm/pose` 恢复为新的有效样本后，由操作员显式恢复拖拽：
+成功后 Robot 保持 `ACTIVE + RIGID_HOLD`；等 `/arm/pose` 恢复为新的有效样本后，由操作员显式恢复拖拽
 
 ```bash
 ros2 service call /handeye/drag/enable std_srvs/srv/Trigger "{}"
