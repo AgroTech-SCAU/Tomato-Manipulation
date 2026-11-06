@@ -26,20 +26,7 @@
     <xacro:simulated_joint name="joint4"/>
     <xacro:simulated_joint name="joint5"/>
     <xacro:simulated_joint name="joint6"/>
-    <!-- The servo workflow holds the gripper open; publish its passive state so
-         both RViz and MoveIt know the complete end-effector geometry. -->
-    <xacro:macro name="stationary_gripper_joint" params="name">
-      <joint name="${name}">
-        <state_interface name="position">
-          <param name="initial_value">0.0</param>
-        </state_interface>
-        <state_interface name="velocity">
-          <param name="initial_value">0.0</param>
-        </state_interface>
-      </joint>
-    </xacro:macro>
-    <xacro:stationary_gripper_joint name="joint7"/>
-    <xacro:stationary_gripper_joint name="joint7-1"/>
-    <xacro:stationary_gripper_joint name="joint7-2"/>
+    <!-- EEF publishes joint7/joint7-1/joint7-2 independently; do not overwrite
+         its animated joint feedback with stationary GenericSystem values -->
   </ros2_control>
 </robot>

@@ -43,6 +43,8 @@ def setup(context):
                        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'])
     trajectory = Node(package='controller_manager', executable='spawner', output='screen',
                       arguments=['joint_trajectory_controller', '--controller-manager', '/controller_manager'])
+    eef = Node(package='tomato_picker_eef', executable='eef_mock_node', output='screen',
+               parameters=[{'publish_joint_states': True, 'use_sim_time': False}])
     move_group = Node(package='moveit_ros_move_group', executable='move_group', output='screen',
                       parameters=[parameters])
     ready = Node(package='tomato_picker_bringup', executable='wait_for_arm_ready', output='screen',
@@ -63,8 +65,8 @@ def setup(context):
 
     critical = [RegisterEventHandler(OnProcessExit(
         target_action=node, on_exit=[EmitEvent(event=Shutdown(reason='Simulation component exited'))]))
-        for node in (manager, state_publisher, move_group, scene, motion)]
-    return [*critical, manager, state_publisher, broadcaster, trajectory, move_group, scene, rviz,
+        for node in (manager, state_publisher, move_group, scene, motion, eef)]
+    return [*critical, manager, state_publisher, broadcaster, trajectory, eef, move_group, scene, rviz,
             RegisterEventHandler(OnProcessExit(target_action=ready, on_exit=after_ready)), ready]
 
 

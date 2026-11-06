@@ -355,7 +355,11 @@ FAULT compliant recovery 的允许条件由 SerialArm-Core Safety 判定
 
 仿真流程为静态目标保留 3 秒观测有效期，以覆盖服务与流程调度耗时；运动后新帧屏障、视觉闭环中实时 TCP 的 0.25 秒有效期、控制器停止确认与夹取前的三帧确认仍生效，真实机器人仍使用独立的 1 秒观测预算
 
-夹取与释放通过控制器反馈更新的 TF 检查工具距离，果实夹取后跟随工具，释放后留在果篮；采摘业务由 Robot 工程提供，AT-System-Integration 保持通用任务调度
+仿真入口启动现有 `tomato_picker_eef/eef_mock_node`，独立发布 `joint7`、`joint7-1`、`joint7-2` 的连续位置与速度，六轴 GenericSystem 不再发布夹爪的恒零状态；RViz 和 MoveIt 因此可同步显示齿轮转动与双指开合
+
+流程预张开后展开；到果实中心先闭爪并等待运动完成，再校验新鲜双指反馈与 TCP 距离后附着；到篮后先张开并等待完成，再校验反馈后释放与计数；`/tomato_picker/eef/stop` 提供停止并确认服务，采摘业务由 Robot 工程提供，AT-System-Integration 保持通用任务调度
+
+派生仿真模型将 TCP 向夹指几何中点修正 2.54842 mm，并允许双指从张开位 `0` 移至夹持位 `-0.007145` m，使 50 mm 果实位于两侧夹面之间；齿轮使用 4.3 mm 等效半径作运动学同步，单次完整开合耗时约 1.2 秒；这些参数用于 RViz 运动学显示，真实 URDF 与电机标定保持独立，接触力与重力落果留待物理仿真接入
 
 完整运行步骤与阶段图见 [Bringup 使用说明](../../Bringup/README.md)
 
@@ -363,16 +367,16 @@ FAULT compliant recovery 的允许条件由 SerialArm-Core Safety 判定
 
 ```bash
 source /opt/ros/humble/setup.bash
-colcon build --packages-up-to tomato_picker_description tomato_picker_motion --cmake-clean-cache
+colcon build --packages-up-to tomato_picker_description tomato_picker_motion tomato_picker_eef tomato_picker_bringup --cmake-clean-cache
 ```
 
-仿真初始与最终关节角均为 `[0,0,0,0,0,0]`，观察位为 `[0,0.4,0.4,0,0,0]` rad；底座与腕部保持零位，肩肘在纵向平面自然展开，观察位 TCP 约为 `base_link` 下的 `[0,-0.26984,0.25961]` m，夹爪水平朝前方 `base -Y`
+仿真初始与最终关节角均为 `[0,0,0,0,0,0]`，观察位为 `[0,0.4,0.4,0,0,0]` rad；底座与腕部保持零位，肩肘在纵向平面自然展开，观察位 TCP 约为 `base_link` 下的 `[-0.00255,-0.26984,0.25961]` m，夹爪水平朝前方 `base -Y`
 
 仿真工程将关节目标容差设为 `1e-6` rad，展开、每果空手返回观察位和末次回零均使用固定关节目标；侧篮的逐槽上方关节目标由 Robot 流程定义，携果撤离、下降投放和抬升离篮保持完整笛卡尔路径检查；运动节点的 `goal_joint_tolerance` 未配置时沿用 MoveIt 原值
 
-三果在机器人纵向工作区，果篮位于侧方；Bringup 仿真工程的 `assets/harvest_scene.yaml` 统一定义篮底中心、尺寸、槽位与释放姿态，视觉 Marker 和 MoveIt 碰撞场景读取同一文件；篮底实际加入规划场景，投放前后各保留 45 mm 垂直过渡，工具留出 15 mm 释放间隙，释放后果实落至篮底
+三果在机器人纵向工作区，果篮位于侧方；Bringup 仿真工程的 `assets/harvest_scene.yaml` 统一定义篮底中心、尺寸、槽位与释放姿态，视觉 Marker 和 MoveIt 碰撞场景读取同一文件；共享篮位补偿仿真 TCP 的几何中点偏移，以沿用既有无碰撞六轴路径；篮底实际加入规划场景，投放前后各保留 45 mm 垂直过渡，工具留出 15 mm 释放间隙，释放后果实落至篮底
 
-底座上的固定 L 块完整保留并保持固定；仿真碰撞网格仅为其肩部圆弧、腕部收纳圆弧与后侧贴合平面分别增加 100、250、1 µm 的局部间隙，保存后的最大顶点位移为 0.250006 mm；构建时从原始 URDF 派生仿真描述，视觉网格、运动链、真实 URDF、标定与碰撞检查对保持原样
+底座上的固定 L 块完整保留并保持固定；仿真碰撞网格仅为其肩部圆弧、腕部收纳圆弧与后侧贴合平面分别增加 100、250、1 µm 的局部间隙，保存后的最大顶点位移为 0.250006 mm；构建时从原始 URDF 派生仿真描述，视觉网格、六轴运动链、真实 URDF、真实标定与碰撞检查对保持原样
 
 需要单独查看机械臂与碰撞场景时，在本仓库完成编译后运行
 

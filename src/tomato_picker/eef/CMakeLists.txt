@@ -16,6 +16,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(serial_arm_core CONFIG REQUIRED)
 find_package(serial_arm_hardware_damiao REQUIRED)
 find_package(serial_arm_protocol_damiao_usb2can CONFIG REQUIRED)
@@ -59,7 +60,7 @@ target_link_libraries(tomato_picker_eef_controller
 )
 
 add_executable(eef_mock_node src/eef_mock_node.cpp)
-ament_target_dependencies(eef_mock_node rclcpp std_srvs tomato_picker_interfaces)
+ament_target_dependencies(eef_mock_node rclcpp sensor_msgs std_srvs tomato_picker_interfaces)
 
 pluginlib_export_plugin_description_file(controller_interface eef_controller_plugin.xml)
 

@@ -12,6 +12,7 @@
   <depend>controller_interface</depend>
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
   <depend>serial_arm_core</depend>
   <depend>serial_arm_hardware_damiao</depend>
   <depend>serial_arm_protocol_damiao_usb2can</depend>
