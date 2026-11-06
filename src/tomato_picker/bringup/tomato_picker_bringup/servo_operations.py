@@ -100,14 +100,17 @@ def bounded_pose_step(payload,stop,*,context):
     if not tracking:tracking={'origin':position.tolist(),'orientation':pose['pose']['orientation'],'travel':0.,'steps':0}
     standoff=finite(payload.get('standoff_m',.1),'安全距离');tolerance=finite(payload.get('tolerance_m',.005),'误差阈值')
     step=finite(payload.get('max_step_m',.01),'单步距离');limit=finite(payload.get('max_travel_m',.25),'总距离')
-    if not 0<tolerance<standoff or standoff<payload.get('min_standoff_m',.05) or min(step,limit)<=0:raise ValueError('距离约束不合法')
+    minimum_standoff=finite(payload.get('min_standoff_m',.05),'最小安全距离')
+    centre_approach=standoff==0 and minimum_standoff==0
+    if not (tolerance>0 and (centre_approach or tolerance<standoff)) or minimum_standoff<0 or standoff<minimum_standoff or min(step,limit)<=0:raise ValueError('距离约束不合法')
     direction=matrix_quaternion(tracking['orientation'])[:,2]
     delta=point-direction*standoff-position;distance=float(np.linalg.norm(delta))
+    target_distance=float(np.linalg.norm(point-position))
     within=distance<=tolerance or math.isclose(distance,tolerance,rel_tol=0,abs_tol=1e-12)
     if target_age>payload.get('max_target_age_s',1):
         attempt=refresh_attempt(payload,'目标位姿已过期')
         return {'goal':{},'tracking':dict(payload.get('tracking') or {}),'done':False,'next_step':'refresh',
-                'remaining_distance':distance,'steps':tracking['steps'],'attempt':attempt,'refresh_reason':'目标位姿已过期'}
+                'remaining_distance':distance,'target_distance':target_distance,'standoff':standoff,'steps':tracking['steps'],'attempt':attempt,'refresh_reason':'目标位姿已过期'}
     if first_target and distance>limit+tolerance:
         raise ValueError('目标停距点超出首次接近的累计运动预算，请先预定位')
     confirmations=payload.get('convergence_samples',1);max_cycles=payload.get('max_cycles',100)
@@ -129,4 +132,4 @@ def bounded_pose_step(payload,stop,*,context):
     next_position=position+(delta/distance*length if distance else 0)
     tracking.update(target=target['point'],label=target['label'],travel=travel,steps=tracking['steps']+(0 if within else 1),last_sample_ns=sample_stamp,cycles=cycles,stable_samples=stable)
     goal={'header':{'frame_id':target['frame_id'],'stamp':{'sec':0,'nanosec':0}},'pose':{'position':dict(zip(('x','y','z'),map(float,next_position))),'orientation':tracking['orientation']}}
-    return {'goal':goal,'tracking':tracking,'done':done,'next_step':'complete' if done else 'confirm' if within else 'move','remaining_distance':distance,'steps':tracking['steps'],'attempt':0,'refresh_reason':''}
+    return {'goal':goal,'tracking':tracking,'done':done,'next_step':'complete' if done else 'confirm' if within else 'move','remaining_distance':distance,'target_distance':target_distance,'standoff':standoff,'steps':tracking['steps'],'attempt':0,'refresh_reason':''}

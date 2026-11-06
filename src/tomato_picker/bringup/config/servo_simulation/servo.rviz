@@ -7,21 +7,40 @@ Visualization Manager:
   Displays:
     - Class: rviz_default_plugins/Grid
       Name: Grid
+      Cell Size: 0.1
+      Plane Cell Count: 20
       Value: true
-    - Class: moveit_rviz_plugin/MotionPlanning
-      Name: MotionPlanning
-      Planned Path:
-        Loop Animation: true
-        State Display Time: 0.05 s
-        Trajectory Topic: display_planned_path
+    - Class: rviz_default_plugins/RobotModel
+      Name: Current Robot
+      Alpha: 1
+      Collision Enabled: false
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Visual Enabled: true
+      Value: true
+    - Class: moveit_rviz_plugin/PlanningScene
+      Name: Collision Scene
       Planning Scene Topic: monitored_planning_scene
       Robot Description: robot_description
+      Scene Geometry:
+        Show Scene Geometry: true
+      Scene Robot:
+        Show Robot Visual: false
+        Show Robot Collision: false
       Value: true
     - Class: rviz_default_plugins/Marker
-      Name: Simulated Targets
+      Name: Harvest Scene
       Topic:
         Value: /simulation/targets
+        Depth: 64
         Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
       Value: true
   Global Options:
     Fixed Frame: base_link
@@ -32,5 +51,11 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.5
+      Distance: 1.7
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.35
+      Pitch: 0.45
+      Yaw: 0.8
       Target Frame: base_link

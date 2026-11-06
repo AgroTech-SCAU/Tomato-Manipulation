@@ -61,6 +61,7 @@ Tomato-Picker
 | EEF OPEN / CLOSE / STOP / SET_POSITION | `/tomato_picker/eef/command` |
 | EEF 就绪状态 | `/tomato_picker/eef/ready` |
 | 单目标采摘 | `/tomato_picker/task/pick` |
+| 连续采摘运动学仿真 | Bringup `src/robot-profile-sim` |
 | Planning Scene 开关 | `/tomato_picker/perception/set_scene_enabled` |
 | GUI 框选目标 | `/tomato_picker/gui/selected_target` |
 
@@ -346,9 +347,15 @@ FAULT compliant recovery 的允许条件由 SerialArm-Core Safety 判定
 `handeye_tip` 规划组与 `tip` 工具坐标属于本仓库的机器人模型
 `tool0 -> tip` 的固定偏移必须与真实工具一致
 
-## 手眼伺服运动学仿真
+## 连续采摘运动学仿真
 
-完整工作流使用 Bringup 仓库的 `src/robot-profile-sim/robot.json`；它运行真实伺服计算、MoveIt 和轨迹控制器，将硬件替换为 `mock_components/GenericSystem`，目标由 Perception 的虚拟观测节点提供
+完整工作流使用 Bringup 仓库的 `src/robot-profile-sim/robot.json`，运行台选择「连续采摘（仿真）」；它运行伺服计算、MoveIt 和轨迹控制器，将硬件替换为 `mock_components/GenericSystem`，目标由 Perception 的虚拟观测节点提供
+
+流程依次完成选果、80 mm 停距粗接近、采摘中心精接近、仿真夹取、100 mm 撤离、搬运至果篮、释放计数与回观察位，循环采摘 3 个果实；精接近要求 3 mm 误差内连续确认 3 个新帧
+
+夹取与释放通过控制器反馈更新的 TF 检查工具距离，果实夹取后跟随工具，释放后留在果篮；采摘业务由 Robot 工程提供，AT-System-Integration 保持通用任务调度
+
+完整运行步骤与阶段图见 [Bringup 使用说明](../../Bringup/README.md)
 
 需要单独查看机械臂与碰撞场景时，在本仓库完成编译后运行
 
@@ -362,14 +369,14 @@ ros2 launch tomato_picker_bringup servo_simulation.launch.py
 
 此入口不连接串口，也不启动采摘任务；`rviz:=false` 可关闭可视化，运动 Action 为 `/tomato_picker/servo/move_arm`
 
-- 初始关节值：`tomato_picker_description/config/simulation_initial_positions.yaml`，可用 `initial_positions_file:=绝对路径` 覆盖；默认起点及 TCP 正 Z 方向 100 mm 的完整直线路径经过碰撞检查，全零关节姿态有自碰撞，不作仿真起点
+- 初始关节值：`tomato_picker_description/config/simulation_initial_positions.yaml`，可用 `initial_positions_file:=绝对路径` 覆盖；全零关节姿态有自碰撞，不作仿真起点，实际移动逐段经过完整路径与碰撞检查
 - 障碍物：`tomato_picker_bringup/config/servo_simulation/scene.yaml`，通过 `scene_file:=绝对路径` 覆盖；盒体位置和尺寸以米为单位，坐标系默认 `base_link`；修改后重启场景节点，`enabled: false` 会移除对应物体
 - 场景节点：`ros2 run tomato_picker_bringup servo_simulation_scene`，参数为 `scene_file`；只有 MoveIt 接受场景后才开放 `/tomato_picker/simulation/scene_ready` (`std_srvs/srv/Trigger`)
-- RViz 配置：`tomato_picker_bringup/config/servo_simulation/servo.rviz`，显示机械臂、规划轨迹、碰撞场景及 `/simulation/targets` 目标 Marker
+- RViz 配置：`tomato_picker_bringup/config/servo_simulation/servo.rviz`，`Current Robot` 显示当前 TF 的机械臂，`Harvest Scene` 显示 `/simulation/targets` 的果实、工具与果篮标记；`Collision Scene` 显示 MoveIt 碰撞场景，直接观察当前关节状态对应的移动
 - 独立运行 `ros2 launch tomato_picker_moveit_config moveit_rviz.launch.py` 时会直接加载 URDF/SRDF；实际关节状态和目标仍需 AT 启动仿真模块后提供，可用 `rviz_config:=绝对路径` 选择上述仿真视图
 - 全链使用系统实时时钟，`use_sim_time=false`，不发布 `/clock`
 
-这是关节轨迹与视觉观测几何的运动学仿真；GenericSystem 不模拟惯性、接触或电机动力学
+这是关节轨迹与视觉观测几何的运动学仿真，夹取、附着与释放由仿真场景管理；GenericSystem 不模拟惯性、接触、电机动力学、Gazebo 物理夹爪或真实果实切断
 
 ## 采摘阶段
 
