@@ -366,6 +366,7 @@ ros2 launch tomato_picker_bringup servo_simulation.launch.py
 - 障碍物：`tomato_picker_bringup/config/servo_simulation/scene.yaml`，通过 `scene_file:=绝对路径` 覆盖；盒体位置和尺寸以米为单位，坐标系默认 `base_link`；修改后重启场景节点，`enabled: false` 会移除对应物体
 - 场景节点：`ros2 run tomato_picker_bringup servo_simulation_scene`，参数为 `scene_file`；只有 MoveIt 接受场景后才开放 `/tomato_picker/simulation/scene_ready` (`std_srvs/srv/Trigger`)
 - RViz 配置：`tomato_picker_bringup/config/servo_simulation/servo.rviz`，显示机械臂、规划轨迹、碰撞场景及 `/simulation/targets` 目标 Marker
+- 独立运行 `ros2 launch tomato_picker_moveit_config moveit_rviz.launch.py` 时会直接加载 URDF/SRDF；实际关节状态和目标仍需 AT 启动仿真模块后提供，可用 `rviz_config:=绝对路径` 选择上述仿真视图
 - 全链使用系统实时时钟，`use_sim_time=false`，不发布 `/clock`
 
 这是关节轨迹与视觉观测几何的运动学仿真；GenericSystem 不模拟惯性、接触或电机动力学

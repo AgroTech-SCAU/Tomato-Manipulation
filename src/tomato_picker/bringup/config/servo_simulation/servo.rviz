@@ -19,7 +19,7 @@ Visualization Manager:
       Value: true
     - Class: rviz_default_plugins/Marker
       Name: Simulated Targets
-      Marker Topic:
+      Topic:
         Value: /simulation/targets
         Durability Policy: Transient Local
       Value: true
