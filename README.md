@@ -351,28 +351,46 @@ FAULT compliant recovery 的允许条件由 SerialArm-Core Safety 判定
 
 完整工作流使用 Bringup 仓库的 `src/robot-profile-sim/robot.json`，运行台选择「连续采摘（仿真）」；它运行伺服计算、MoveIt 和轨迹控制器，将硬件替换为 `mock_components/GenericSystem`，目标由 Perception 的虚拟观测节点提供
 
-流程依次完成选果、80 mm 停距粗接近、采摘中心精接近、仿真夹取、100 mm 撤离、搬运至果篮、释放计数与回观察位，循环采摘 3 个果实；精接近要求 3 mm 误差内连续确认 3 个新帧
+流程从六轴全零收纳位出发，先展开到观察位，再完成选果、连续预接近至果前 20 mm、末段视觉修正至采摘中心、仿真夹取、撤离、关节转向侧篮上方、直线下降投放、释放计数、抬升离篮与回观察位，循环采摘 3 个果实后回零；预接近轨迹单次上限 150 mm，末段修正单次上限 20 mm，夹取前要求 3 mm 误差内连续确认 3 个新帧；仿真速度与加速度缩放分别为 `0.35` 和 `0.30`，真实机器人配置不变
+
+仿真流程为静态目标保留 3 秒观测有效期，以覆盖服务与流程调度耗时；运动后新帧屏障、视觉闭环中实时 TCP 的 0.25 秒有效期、控制器停止确认与夹取前的三帧确认仍生效，真实机器人仍使用独立的 1 秒观测预算
 
 夹取与释放通过控制器反馈更新的 TF 检查工具距离，果实夹取后跟随工具，释放后留在果篮；采摘业务由 Robot 工程提供，AT-System-Integration 保持通用任务调度
 
 完整运行步骤与阶段图见 [Bringup 使用说明](../../Bringup/README.md)
+
+更新后需要重新构建模型与运动包，再停止并重启已有仿真子系统，使新的初始关节和回零精度配置生效
+
+```bash
+source /opt/ros/humble/setup.bash
+colcon build --packages-up-to tomato_picker_description tomato_picker_motion --cmake-clean-cache
+```
+
+仿真初始与最终关节角均为 `[0,0,0,0,0,0]`，观察位为 `[0,0.4,0.4,0,0,0]` rad；底座与腕部保持零位，肩肘在纵向平面自然展开，观察位 TCP 约为 `base_link` 下的 `[0,-0.26984,0.25961]` m，夹爪水平朝前方 `base -Y`
+
+仿真工程将关节目标容差设为 `1e-6` rad，展开、每果空手返回观察位和末次回零均使用固定关节目标；侧篮的逐槽上方关节目标由 Robot 流程定义，携果撤离、下降投放和抬升离篮保持完整笛卡尔路径检查；运动节点的 `goal_joint_tolerance` 未配置时沿用 MoveIt 原值
+
+三果在机器人纵向工作区，果篮位于侧方；Bringup 仿真工程的 `assets/harvest_scene.yaml` 统一定义篮底中心、尺寸、槽位与释放姿态，视觉 Marker 和 MoveIt 碰撞场景读取同一文件；篮底实际加入规划场景，投放前后各保留 45 mm 垂直过渡，工具留出 15 mm 释放间隙，释放后果实落至篮底
+
+底座上的固定 L 块完整保留并保持固定；仿真碰撞网格仅为其肩部圆弧、腕部收纳圆弧与后侧贴合平面分别增加 100、250、1 µm 的局部间隙，保存后的最大顶点位移为 0.250006 mm；构建时从原始 URDF 派生仿真描述，视觉网格、运动链、真实 URDF、标定与碰撞检查对保持原样
 
 需要单独查看机械臂与碰撞场景时，在本仓库完成编译后运行
 
 ```bash
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-export ROS_DOMAIN_ID=231
-export ROS_LOCALHOST_ONLY=1
+source /home/kaede-rei/AgroTech/repos/ROS2-Workspace/Tomato-Picker-Robot/Bringup/src/robot-profile-sim/setup.bash
 ros2 launch tomato_picker_bringup servo_simulation.launch.py
 ```
 
+AT 子系统会通过工程执行环境入口自动加载仿真 `setup.bash`，独立 RViz 使用 Bringup 的 `assets/setup_manipulation.bash`；这份通信配置统一设置 ROS 域 231、本机通信与 CycloneDDS 配置，将参与者索引上限设为 32，避免旧配置在创建第 10 个 DDS 参与者时名额不足导致节点启动失败
+
 此入口不连接串口，也不启动采摘任务；`rviz:=false` 可关闭可视化，运动 Action 为 `/tomato_picker/servo/move_arm`
 
-- 初始关节值：`tomato_picker_description/config/simulation_initial_positions.yaml`，可用 `initial_positions_file:=绝对路径` 覆盖；全零关节姿态有自碰撞，不作仿真起点，实际移动逐段经过完整路径与碰撞检查
+- 初始关节值：`tomato_picker_description/config/simulation_initial_positions.yaml`，可用 `initial_positions_file:=绝对路径` 覆盖；默认六轴全零，实际移动逐段经过完整路径与碰撞检查
 - 障碍物：`tomato_picker_bringup/config/servo_simulation/scene.yaml`，通过 `scene_file:=绝对路径` 覆盖；盒体位置和尺寸以米为单位，坐标系默认 `base_link`；修改后重启场景节点，`enabled: false` 会移除对应物体
 - 场景节点：`ros2 run tomato_picker_bringup servo_simulation_scene`，参数为 `scene_file`；只有 MoveIt 接受场景后才开放 `/tomato_picker/simulation/scene_ready` (`std_srvs/srv/Trigger`)
-- RViz 配置：`tomato_picker_bringup/config/servo_simulation/servo.rviz`，`Current Robot` 显示当前 TF 的机械臂，`Harvest Scene` 显示 `/simulation/targets` 的果实、工具与果篮标记；`Collision Scene` 显示 MoveIt 碰撞场景，直接观察当前关节状态对应的移动
+- RViz 配置：`tomato_picker_bringup/config/servo_simulation/servo.rviz`，`Current Robot` 显示当前 TF 的机械臂，`Harvest Scene` 的 Marker 显示保持 `/simulation/targets` 配置，并接收 `/simulation/targets_array` 的整帧果实、标签、工具、果篮和计数；`Collision Scene` 显示 MoveIt 碰撞场景，直接观察当前关节状态对应的移动
 - 独立运行 `ros2 launch tomato_picker_moveit_config moveit_rviz.launch.py` 时会直接加载 URDF/SRDF；实际关节状态和目标仍需 AT 启动仿真模块后提供，可用 `rviz_config:=绝对路径` 选择上述仿真视图
 - 全链使用系统实时时钟，`use_sim_time=false`，不发布 `/clock`
 

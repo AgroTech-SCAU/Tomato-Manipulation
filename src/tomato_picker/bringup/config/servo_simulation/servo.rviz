@@ -51,11 +51,11 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.7
+      Distance: 1.1
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0.35
+        X: 0.0
+        Y: -0.10
+        Z: 0.20
       Pitch: 0.45
-      Yaw: 0.8
+      Yaw: -0.8
       Target Frame: base_link

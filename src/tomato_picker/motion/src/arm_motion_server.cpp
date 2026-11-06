@@ -190,6 +190,8 @@ ArmMotionServer::ArmMotionServer(const rclcpp::Node::SharedPtr& node)
 
     move_group_ = std::make_unique<moveit::planning_interface::MoveGroupInterface>(node_, planning_group_);
     move_group_->setPlanningTime(planning_time_);
+    move_group_->setGoalJointTolerance(node_->declare_parameter<double>(
+        "goal_joint_tolerance", move_group_->getGoalJointTolerance()));
     if(!end_effector_link_.empty()) move_group_->setEndEffectorLink(end_effector_link_);
 
     action_server_ = rclcpp_action::create_server<MoveArm>(

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Tomato-Picker">
   <xacro:arg name="initial_positions_file" default="$(find tomato_picker_description)/config/simulation_initial_positions.yaml"/>
-  <xacro:include filename="$(find tomato_picker_description)/urdf/tomato_picker.urdf.xacro"/>
+  <xacro:include filename="$(find tomato_picker_description)/urdf/tomato_picker.sim.urdf"/>
   <xacro:property name="initial_positions" value="${xacro.load_yaml('$(arg initial_positions_file)')['initial_positions']}"/>
 
   <ros2_control name="tomato_picker_simulated_arm" type="system">

@@ -55,3 +55,22 @@ def motion_goal(payload, stop, *, context):
     actual = tf['transform']['translation']
     remaining = math.sqrt(sum((position[axis] - finite(actual[axis], '工具位置')) ** 2 for axis in ('x', 'y', 'z')))
     return {'goal': goal, 'remaining_distance': remaining, 'pose_key': pose_key}
+
+
+def basket_approach_goal(payload, stop, *, context):
+    """Select the verified basket-entry joints and the vertical exit pose."""
+    scene = payload['scene']
+    index = scene['fruit_index']
+    rows = payload['joints_by_slot']
+    if type(index) is not int or not 1 <= index <= len(rows):
+        raise ValueError('果篮槽位编号无效')
+    joints = rows[index - 1]
+    if not isinstance(joints, list) or len(joints) != 6:
+        raise ValueError('果篮上方关节目标须包含六轴')
+    joints = [finite(value, '果篮上方关节角') for value in joints]
+    lift = finite(payload['lift_m'], '果篮抬升距离')
+    if lift <= 0:
+        raise ValueError('果篮抬升距离须为正数')
+    goal = motion_goal({**payload, 'pose_key': 'place_pose'}, stop, context=context)['goal']
+    goal['pose']['position']['z'] += lift
+    return {'joints': joints, 'goal': goal}
