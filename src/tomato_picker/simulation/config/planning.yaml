@@ -1,3 +1,9 @@
 ompl.path_tolerance: 0.001
 ompl.resample_dt: 0.02
 ompl.handeye_tip.longest_valid_segment_fraction: 0.001
+ompl.handeye_tip.default_planner_config: RRTConnect
+# MoveIt 2.5 parses this boolean with lexical_cast, which expects 0 or 1
+ompl.planner_configs.RRTConnect.hybridize: 0
+# Return the collision-checked first path without spending the remaining search
+# budget simplifying it; trajectory timing and final collision checks still run
+ompl.planner_configs.RRTConnect.simplify_solutions: 0

@@ -1,0 +1,30 @@
+Subject: [PATCH] Destroy the native viewer adapter on its owning UI thread
+
+Applies to ros-controls/mujoco_ros2_control tag 0.1.2
+
+The native viewer is constructed on ui_thread_, but sim_ is destroyed by
+the controller-manager thread after shutdown joins ui_thread_. Leaving the
+adapter in sim_ therefore calls GlfwAdapter::~GlfwAdapter without its GL
+context current, and mjr_freeContext can crash in libGLdispatch on Linux
+
+Release only the adapter immediately after RenderLoop, while its window
+and GL context still belong to the UI thread. GlfwAdapter can then free
+the MuJoCo rendering context, detach the GL context and destroy the GLFW
+window in the original order. Retain Simulate and the physics state until
+the existing shutdown/join sequence completes
+
+diff --git a/mujoco_ros2_control/src/mujoco_simulation.cpp b/mujoco_ros2_control/src/mujoco_simulation.cpp
+--- a/mujoco_ros2_control/src/mujoco_simulation.cpp
++++ b/mujoco_ros2_control/src/mujoco_simulation.cpp
+@@ -626,6 +626,11 @@ bool MujocoSimulation::initialize(rclcpp::Node::SharedPtr node, const std::string&
+       RCLCPP_INFO(get_logger(), "Starting the MuJoCo rendering thread...");
+       sim_->RenderLoop();
+ 
++      // Destroy GL resources on the thread that owns the current context,
++      // before it exits or ROS shutdown lets another thread destroy sim_.
++      // Physics uses Simulate's state, not its platform UI adapter.
++      sim_->platform_ui.reset();
++
+       if (detail::handle_render_loop_exit(sim_->exitrequest, explicit_shutdown_requested_,
+                                           node_->get_node_base_interface()->get_context()))
+       {

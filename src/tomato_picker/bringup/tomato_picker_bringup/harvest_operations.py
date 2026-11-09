@@ -43,6 +43,8 @@ def motion_goal(payload, stop, *, context):
     if not isinstance(frame, str) or not frame or frame != payload.get('base_frame', frame):
         raise ValueError('采摘路径与基座坐标系不一致')
     position = {axis: finite(goal['pose']['position'][axis], '路径位置') for axis in ('x', 'y', 'z')}
+    if pose_key == 'retreat_pose' and 'min_retreat_height_m' in payload:
+        position['z'] = max(position['z'], finite(payload['min_retreat_height_m'], '撤离通行高度'))
     orientation = {axis: finite(goal['pose']['orientation'][axis], '路径旋转') for axis in ('x', 'y', 'z', 'w')}
     matrix_quaternion(orientation)
     goal['header']['stamp'] = {'sec': 0, 'nanosec': 0}

@@ -18,12 +18,14 @@
 
 需要 ROS 2 Humble、`mujoco_ros2_control`、`mujoco_ros2_control_plugins`、`mujoco_vendor` 以及原项目的 MoveIt / ros2_control 依赖
 
+本机原生窗口退出还需要 `mujoco_ros2_control 0.1.2` 的线程与启动取消修复；从源码重装运行时时，先按 [本地 MuJoCo 运行时修复](../../../patches/README.md) 安装补丁，再编译本包
+
 在 Tomato-Manipulation 中执行
 
 ```bash
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-colcon build --packages-select tomato_picker_interfaces tomato_picker_mujoco \
+colcon build --packages-select tomato_picker_interfaces tomato_picker_motion tomato_picker_bringup tomato_picker_mujoco \
   --cmake-args -DBUILD_TESTING=OFF -DAMENT_CMAKE_SYMLINK_INSTALL=OFF
 ```
 
@@ -48,14 +50,30 @@ colcon build --packages-select vision_target_server
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 source ../Tomato-Perception/install/setup.bash
-ros2 launch tomato_picker_mujoco harvest_mujoco.launch.py
+ros2 launch tomato_picker_mujoco harvest_mujoco.launch.py headless:=false rviz:=false
 ```
 
-默认隐藏 MuJoCo 原生窗口并显示 RViz；添加 `headless:=false` 可同时打开物理引擎窗口，添加 `rviz:=false` 可关闭 RViz
+该命令打开 MuJoCo 原生窗口并关闭 RViz；点击三维画面后，按 `Tab` 显示左侧菜单，按 `Shift+Tab` 显示右侧菜单，按 `F1` 查看操作帮助
 
 所有消费者使用 `use_sim_time=true`，时间来源为 `/clock`；新工程已启用 Studio 的通用仿真时钟选项
 
-关节规划时间预算为 15 秒；规划阶段机械臂保持静止，可在运行台查看规划与执行反馈
+关节运动先尝试同步各轴的 Pilz PTP 直接轨迹，使用完整场景快照按关节空间最大范围的 0.001 细分各段，核对机器人、附着果实与世界碰撞；直接轨迹不可用时回到 OMPL 规划，保留 15 秒搜索上限与 4 路并行搜索，找到首条有效路径后结束搜索
+
+OMPL 关闭多路径混合与耗尽剩余搜索预算的路径简化；运动节点对后备关节路径额外尝试最多 0.25 秒的几何捷径，每个新增段仍按相同 0.001 分辨率核对完整场景，保留原有不可直连段，用 TOTG 按原速度与加速度限制平滑并每 0.02 秒重采样，再对最终轨迹密集核对碰撞与关节边界，仅在安全且至少节省 0.02 秒时替换；直线接近和放置沿用原笛卡尔路径
+
+运动节点日志分别记录规划耗时、轨迹时长、轨迹点数与实际执行耗时，用于区分搜索等待、轨迹运动和任务调度的耗时
+
+本 MuJoCo 工程的空载动作速度与加速度缩放均为 0.75，六轴加速度上限为 4 rad/s²，因此有效加速度为 3 rad/s²；携果撤离、转向和放置采用速度缩放 0.5、加速度缩放 0.25，有效加速度为 1 rad/s²；这些设置只用于 MuJoCo，不修改实际机械臂或其他仿真入口的参数
+
+撤离目标可用 `min_retreat_height_m` 声明基座坐标系 Z 轴的最低通行高度，本 MuJoCo 工程为 0.27 m；已经高于该高度的目标保持不变，低位果实在原撤离 LINE 中同时抬升，保留 XY 和夹爪方向；这样第三果先离开底座附近的低位区域，再转向侧篮，不增加新的等待状态，整条路径继续检查机器人、附着果实和环境碰撞
+
+物理时钟保持 1×，夹持接触、入篮停稳和末段视觉收敛条件保持原配置
+
+本机本次在子系统已就绪、MuJoCo 原生窗口和 1× 物理时间下运行两轮，完整全零出发 → 三果实际入篮 → 全零回收流程为 45.1–45.9 秒；从开始运行请求到结束为 46.9–47.6 秒，冷启动子系统另约 37 秒
+
+MuJoCo 运动节点通过 `harvest_state_topic` 监测实际掉果，发现掉果即停止当前轨迹并返回失败；`harvest_recovery_joints` 声明允许的空载回零和观察位，使故障后重新运行仍可到达观察位并重置场景，其他运动在重置前保持阻止
+
+每次运动后用新鲜关节反馈连续 0.12 秒低速确认停止；已完成停止核对后不重复等待；末段位置收敛仍需三帧时间戳递增的观测，最后一果真实入篮并抬升后，经观察位路点回全零收纳位，跳过无剩果的选择与阶段准备，再确认停稳
 
 ## 状态与接口
 

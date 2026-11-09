@@ -1,0 +1,54 @@
+Subject: [PATCH] Cancel the initial native model load when rendering exits
+
+Applies after mujoco_ros2_control-0.1.2-ui-thread-cleanup.patch
+
+MuJoCo 3.12 Simulate::Load waits only for loadrequest == 0. If rendering
+exits during startup, it can leave the physics thread waiting forever
+while shutdown joins it
+
+Use the same public load handshake with exitrequest as an additional
+cancellation predicate. Serialize the request and exit check under the
+simulation mutex, and notify its waiters on the UI thread when rendering
+has stopped. Do not time out successful model loads or advance physics
+until loading has actually completed
+
+--- a/mujoco_ros2_control/src/mujoco_simulation.cpp
++++ b/mujoco_ros2_control/src/mujoco_simulation.cpp
+@@ -625,6 +625,12 @@
+       // Blocks until terminated
+       RCLCPP_INFO(get_logger(), "Starting the MuJoCo rendering thread...");
+       sim_->RenderLoop();
++
++      // A model load may still be waiting when rendering exits during startup.
++      {
++        const std::unique_lock<std::recursive_mutex> lock(sim_->mtx);
++        sim_->cond_loadrequest.notify_all();
++      }
+ 
+       // Destroy GL resources on the thread that owns the current context,
+       // before it exits or ROS shutdown lets another thread destroy sim_.
+@@ -811,7 +817,23 @@
+     }
+     else
+     {
+-      sim_->Load(mj_model_, mj_data_, model_path_.c_str());
++      // Use Simulate's load handshake, including cancellation if rendering exits.
++      std::unique_lock<std::recursive_mutex> lock(*sim_mutex_);
++      if (sim_->exitrequest.load())
++      {
++        return;
++      }
++      sim_->mnew_ = mj_model_;
++      sim_->dnew_ = mj_data_;
++      mju::strcpy_arr(sim_->filename, model_path_.c_str());
++      sim_->loadrequest = 2;
++      sim_->cond_loadrequest.wait(lock, [this]() {
++        return sim_->loadrequest == 0 || sim_->exitrequest.load();
++      });
++      if (sim_->exitrequest.load())
++      {
++        return;
++      }
+     }
+     // lock the sim mutex
+     {

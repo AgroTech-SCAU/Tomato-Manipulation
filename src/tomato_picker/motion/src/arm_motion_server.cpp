@@ -1,14 +1,18 @@
 #include <geometry_msgs/msg/pose.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit_msgs/msg/robot_trajectory.hpp>
+#include <moveit_msgs/srv/get_planning_scene.hpp>
+#include <moveit/planning_scene/planning_scene.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
+#include <moveit/trajectory_processing/time_optimal_trajectory_generation.h>
 #include <cmath>
 #include <rclcpp/parameter_client.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include "tomato_picker_interfaces/action/move_arm.hpp"
+#include "tomato_picker_interfaces/msg/harvest_physics_state.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -80,6 +84,10 @@ private:
      * @return 目标合法并成功写入时返回 true
      */
     bool set_joint_target(const MoveArm::Goal& goal);
+    bool plan_joint_fast(moveit::planning_interface::MoveGroupInterface::Plan& plan);
+    bool refresh_fast_scene();
+    void shortcut_joint_plan(moveit::planning_interface::MoveGroupInterface::Plan& plan,
+                             double velocity_scale, double acceleration_scale);
     /**
      * @brief 填充 Action 结果中的最终机械臂状态
      * @param result 待写入的结果
@@ -98,6 +106,15 @@ private:
     std::unique_ptr<moveit::planning_interface::MoveGroupInterface> move_group_;  ///< MoveIt 2 接口
     rclcpp_action::Server<MoveArm>::SharedPtr action_server_;                     ///< MoveArm Action Server
 
+    rclcpp::Subscription<tomato_picker_interfaces::msg::HarvestPhysicsState>::SharedPtr harvest_feedback_;
+    std::atomic_uint32_t dropped_fruit_{0};
+    std::atomic_uint32_t held_fruit_{0};
+    std::vector<double> harvest_recovery_joints_;
+    std::string joint_fast_pipeline_, joint_fast_planner_;
+    double fast_path_collision_fraction_{.001};
+    double joint_shortcut_time_{0.0};
+    rclcpp::Client<moveit_msgs::srv::GetPlanningScene>::SharedPtr scene_client_;
+    planning_scene::PlanningScenePtr fast_scene_;
     std::thread execution_thread_;                                               ///< 单个 goal 执行线程
     std::atomic_bool executing_{ false };                                        ///< 是否存在正在执行的 goal
     std::atomic_bool cancel_requested_{ false };                                 ///< 当前 goal 取消标志
@@ -196,6 +213,42 @@ ArmMotionServer::ArmMotionServer(const rclcpp::Node::SharedPtr& node)
     move_group_->setGoalJointTolerance(node_->declare_parameter<double>(
         "goal_joint_tolerance", move_group_->getGoalJointTolerance()));
     if(!end_effector_link_.empty()) move_group_->setEndEffectorLink(end_effector_link_);
+
+    joint_fast_pipeline_ = node_->declare_parameter<std::string>("joint_fast_pipeline", "");
+    joint_fast_planner_ = node_->declare_parameter<std::string>("joint_fast_planner", "PTP");
+    fast_path_collision_fraction_ = node_->declare_parameter<double>("fast_path_collision_fraction", .001);
+    joint_shortcut_time_ = node_->declare_parameter<double>("joint_shortcut_time", 0.0);
+    if(!std::isfinite(fast_path_collision_fraction_) || fast_path_collision_fraction_ <= 0. || fast_path_collision_fraction_ > 1.)
+        throw std::invalid_argument("fast_path_collision_fraction must be within (0, 1]");
+    if(!joint_fast_pipeline_.empty()) {
+        scene_client_ = node_->create_client<moveit_msgs::srv::GetPlanningScene>("/get_planning_scene");
+        const auto started = std::chrono::steady_clock::now();
+        fast_scene_ = std::make_shared<planning_scene::PlanningScene>(move_group_->getRobotModel());
+        RCLCPP_INFO(node_->get_logger(), "Joint collision model prepared in %.3f s",
+                    std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count());
+    }
+
+    const auto harvest_topic = node_->declare_parameter<std::string>("harvest_state_topic", "");
+    if(!harvest_topic.empty()) {
+        harvest_recovery_joints_ = node_->declare_parameter<std::vector<double>>("harvest_recovery_joints", std::vector<double>{});
+        const auto joint_count = move_group_->getJointNames().size();
+        if(!joint_count || harvest_recovery_joints_.size() % joint_count != 0 ||
+            !std::all_of(harvest_recovery_joints_.begin(), harvest_recovery_joints_.end(), [](double value) { return std::isfinite(value); }))
+            throw std::invalid_argument("harvest_recovery_joints must contain complete finite joint targets");
+        using PhysicsState = tomato_picker_interfaces::msg::HarvestPhysicsState;
+        harvest_feedback_ = node_->create_subscription<PhysicsState>(
+            harvest_topic, rclcpp::QoS(1).reliable().transient_local(),
+            [this](const PhysicsState::SharedPtr message) {
+                std::uint32_t dropped = 0;
+                if(message->ready) {
+                    const auto found = std::find(message->fruit_states.begin(), message->fruit_states.end(), PhysicsState::DROPPED);
+                    if(found != message->fruit_states.end()) dropped = static_cast<std::uint32_t>(
+                        std::distance(message->fruit_states.begin(), found) + 1);
+                }
+                held_fruit_.store(message->held_index);
+                dropped_fruit_.store(dropped);
+            });
+    }
 
     action_server_ = rclcpp_action::create_server<MoveArm>(
         node_,
@@ -311,6 +364,31 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
     result->error_code = kInvalidGoal;
 
     const auto goal = goal_handle->get_goal();
+    bool recovering = !held_fruit_.load() && goal->command_type == MoveArm::Goal::HOME;
+    if(!held_fruit_.load() && goal->command_type == MoveArm::Goal::JOINT) {
+        const auto names = move_group_->getJointNames();
+        const auto& requested = goal->joint_names.empty() ? names : goal->joint_names;
+        if(requested.size() == names.size() && goal->joints.size() == names.size()) {
+            for(std::size_t offset = 0; offset < harvest_recovery_joints_.size(); offset += names.size()) {
+                bool matches = true;
+                for(std::size_t i = 0; i < names.size(); ++i) {
+                    const auto found = std::find(requested.begin(), requested.end(), names[i]);
+                    if(found == requested.end() || std::abs(goal->joints[std::distance(requested.begin(), found)] -
+                        harvest_recovery_joints_[offset + i]) > .0001) { matches = false; break; }
+                }
+                if(matches) { recovering = true; break; }
+            }
+        }
+    }
+    const auto dropped_during_motion = [this, recovering]() { return recovering ? 0U : dropped_fruit_.load(); };
+    if(const auto dropped = dropped_during_motion()) {
+        result->error_code = kExecutionFailed;
+        result->message = "Fruit " + std::to_string(dropped) + " dropped; reset the harvest scene before resuming";
+        fill_final_state(*result);
+        goal_handle->abort(result);
+        executing_.store(false);
+        return;
+    }
 
     move_group_->setMaxVelocityScalingFactor(normalized_scale(goal->velocity_scale, default_velocity_scale_));
     move_group_->setMaxAccelerationScalingFactor(normalized_scale(goal->acceleration_scale, default_acceleration_scale_));
@@ -319,6 +397,7 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
 
     bool target_ready = false;
     moveit::planning_interface::MoveGroupInterface::Plan plan;
+    const auto planning_started = std::chrono::steady_clock::now();
 
     publish_feedback(goal_handle, "SET_TARGET", 0.1F);
     switch(goal->command_type) {
@@ -376,7 +455,16 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
 
     if(goal->command_type != MoveArm::Goal::LINE) {
         publish_feedback(goal_handle, "PLANNING", 0.4F);
-        if(move_group_->plan(plan) != moveit::core::MoveItErrorCode::SUCCESS) {
+        bool planned = !joint_fast_pipeline_.empty() &&
+            (goal->command_type == MoveArm::Goal::HOME || goal->command_type == MoveArm::Goal::JOINT) && plan_joint_fast(plan);
+        if(!planned && !cancel_requested_.load() && !shutting_down_.load() && !dropped_during_motion()) {
+            planned = move_group_->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS;
+            if(planned && joint_shortcut_time_ > 0. &&
+               (goal->command_type == MoveArm::Goal::HOME || goal->command_type == MoveArm::Goal::JOINT))
+                shortcut_joint_plan(plan, normalized_scale(goal->velocity_scale, default_velocity_scale_),
+                                    normalized_scale(goal->acceleration_scale, default_acceleration_scale_));
+        }
+        if(!planned) {
             const bool canceled = cancel_requested_.load() || goal_handle->is_canceling();
             result->error_code = canceled ? kCanceled : kPlanningFailed;
             result->message = canceled ? "goal canceled during planning" : "MoveIt 2 planning failed";
@@ -386,6 +474,23 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
             executing_.store(false);
             return;
         }
+    }
+
+    const double planning_seconds = std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - planning_started).count();
+    const auto& trajectory_points = plan.trajectory_.joint_trajectory.points;
+    const double trajectory_seconds = trajectory_points.empty() ? 0.0 :
+        rclcpp::Duration(trajectory_points.back().time_from_start).seconds();
+    RCLCPP_INFO(node_->get_logger(), "MoveArm plan ready: command=%d, planning=%.3f s, trajectory=%.3f s, points=%zu",
+                goal->command_type, planning_seconds, trajectory_seconds, trajectory_points.size());
+
+    if(const auto dropped = dropped_during_motion()) {
+        result->error_code = kExecutionFailed;
+        result->message = "Fruit " + std::to_string(dropped) + " dropped during planning; motion was not started";
+        fill_final_state(*result);
+        goal_handle->abort(result);
+        executing_.store(false);
+        return;
     }
 
     if(cancel_requested_.load() || goal_handle->is_canceling()) {
@@ -400,10 +505,11 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
 
     if(goal->execute) {
         publish_feedback(goal_handle, "EXECUTING", 0.7F);
+        const auto execution_started = std::chrono::steady_clock::now();
         std::atomic_bool finished{false};
-        std::thread stop_watch([this, &finished]() {
+        std::thread stop_watch([this, &finished, &dropped_during_motion]() {
             while(!finished.load()) {
-                if(cancel_requested_.load() || shutting_down_.load()) move_group_->stop();
+                if(cancel_requested_.load() || shutting_down_.load() || dropped_during_motion()) move_group_->stop();
                 std::this_thread::sleep_for(std::chrono::milliseconds(20));
             }
         });
@@ -412,10 +518,15 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
         catch(...) { finished.store(true); stop_watch.join(); throw; }
         finished.store(true);
         stop_watch.join();
-        if(execution_result != moveit::core::MoveItErrorCode::SUCCESS) {
+        RCLCPP_INFO(node_->get_logger(), "MoveArm execution finished: command=%d, execution=%.3f s, result=%d",
+                    goal->command_type, std::chrono::duration<double>(
+                        std::chrono::steady_clock::now() - execution_started).count(), execution_result.val);
+        if(execution_result != moveit::core::MoveItErrorCode::SUCCESS || dropped_during_motion()) {
             const bool canceled = cancel_requested_.load() || goal_handle->is_canceling();
             result->error_code = canceled ? kCanceled : kExecutionFailed;
-            result->message = canceled ? "goal canceled during execution" : "MoveIt 2 execution failed";
+            result->message = dropped_during_motion() ? "Fruit " + std::to_string(dropped_during_motion()) +
+                " dropped during transport; arm trajectory stopped" :
+                canceled ? "goal canceled during execution" : "MoveIt 2 execution failed";
             fill_final_state(*result);
             if(canceled) goal_handle->canceled(result);
             else goal_handle->abort(result);
@@ -440,6 +551,179 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
     fill_final_state(*result);
     goal_handle->succeed(result);
     executing_.store(false);
+}
+
+bool ArmMotionServer::plan_joint_fast(moveit::planning_interface::MoveGroupInterface::Plan& plan) {
+    using Clock = std::chrono::steady_clock;
+    const auto planner_started = Clock::now();
+    const auto pipeline = move_group_->getPlanningPipelineId();
+    const auto planner = move_group_->getPlannerId();
+    moveit::planning_interface::MoveGroupInterface::Plan candidate;
+    move_group_->setPlanningPipelineId(joint_fast_pipeline_);
+    move_group_->setPlannerId(joint_fast_planner_);
+    moveit::core::MoveItErrorCode status;
+    try { status = move_group_->plan(candidate); }
+    catch(...) {
+        move_group_->setPlanningPipelineId(pipeline); move_group_->setPlannerId(planner);
+        throw;
+    }
+    move_group_->setPlanningPipelineId(pipeline); move_group_->setPlannerId(planner);
+    const auto planner_finished = Clock::now();
+    if(status != moveit::core::MoveItErrorCode::SUCCESS) {
+        RCLCPP_INFO(node_->get_logger(), "Joint fast path unavailable (code=%d); using original planner", status.val);
+        return false;
+    }
+    // Pilz samples its timed output at 0.1 s. Validate every geometric segment
+    // against one complete scene snapshot at the configured OMPL resolution.
+    if(!scene_client_->wait_for_service(std::chrono::milliseconds(200))) return false;
+    auto request = std::make_shared<moveit_msgs::srv::GetPlanningScene::Request>();
+    request->components.components = 1023;
+    auto future = scene_client_->async_send_request(request);
+    if(future.wait_for(std::chrono::seconds(2)) != std::future_status::ready) {
+        scene_client_->remove_pending_request(future); return false;
+    }
+    const auto snapshot = future.get();
+    const auto scene_received = Clock::now();
+    const bool cold_scene = !fast_scene_;
+    // Retain the robot's FCL geometry between requests; replace all scene data
+    // from this request's complete snapshot, including attached bodies and ACM.
+    if(!fast_scene_) fast_scene_ = std::make_shared<planning_scene::PlanningScene>(move_group_->getRobotModel());
+    if(!fast_scene_->setPlanningSceneMsg(snapshot->scene)) return false;
+    const auto scene_updated = Clock::now();
+    robot_trajectory::RobotTrajectory trajectory(move_group_->getRobotModel(), planning_group_);
+    trajectory.setRobotTrajectoryMsg(fast_scene_->getCurrentState(), candidate.start_state_, candidate.trajectory_);
+    const auto* group = move_group_->getRobotModel()->getJointModelGroup(planning_group_);
+    const double step = group->getMaximumExtent() * fast_path_collision_fraction_;
+    if(trajectory.getWayPointCount() < 2 || step <= 0.) return false;
+    auto sample = trajectory.getFirstWayPoint();
+    std::size_t checked = 0;
+    const auto log_timing = [&](bool accepted) {
+        const auto elapsed = [](const auto& begin, const auto& end) {
+            return std::chrono::duration<double>(end - begin).count();
+        };
+        RCLCPP_INFO(node_->get_logger(),
+                    "Joint fast path %s: %zu collision samples, trajectory %.3f s; planner=%.3f s, get_scene=%.3f s, scene_%s=%.3f s, validation=%.3f s",
+                    accepted ? "accepted" : "rejected", checked, trajectory.getDuration(),
+                    elapsed(planner_started, planner_finished), elapsed(planner_finished, scene_received),
+                    cold_scene ? "build" : "update", elapsed(scene_received, scene_updated),
+                    elapsed(scene_updated, Clock::now()));
+    };
+    for(std::size_t i = 0; i < trajectory.getWayPointCount(); ++i) {
+        const auto& to = trajectory.getWayPoint(i);
+        const auto& from = trajectory.getWayPoint(i ? i - 1 : 0);
+        const auto segments = std::max<std::size_t>(1, static_cast<std::size_t>(std::ceil(from.distance(to, group) / step)));
+        for(std::size_t j = 0; j <= segments; ++j) {
+            if(cancel_requested_.load() || shutting_down_.load()) return false;
+            from.interpolate(to, static_cast<double>(j) / segments, sample, group);
+            sample.update();
+            ++checked;
+            if(!sample.satisfiesBounds(group) || !fast_scene_->isStateValid(sample, planning_group_)) {
+                log_timing(false);
+                return false;
+            }
+        }
+    }
+    log_timing(true);
+    plan = std::move(candidate);
+    return true;
+}
+
+bool ArmMotionServer::refresh_fast_scene() {
+    if(!scene_client_ || !scene_client_->wait_for_service(std::chrono::milliseconds(200))) return false;
+    auto request = std::make_shared<moveit_msgs::srv::GetPlanningScene::Request>();
+    request->components.components = 1023;
+    auto future = scene_client_->async_send_request(request);
+    if(future.wait_for(std::chrono::seconds(2)) != std::future_status::ready) {
+        scene_client_->remove_pending_request(future);
+        return false;
+    }
+    if(!fast_scene_) fast_scene_ = std::make_shared<planning_scene::PlanningScene>(move_group_->getRobotModel());
+    return fast_scene_->setPlanningSceneMsg(future.get()->scene);
+}
+
+void ArmMotionServer::shortcut_joint_plan(moveit::planning_interface::MoveGroupInterface::Plan& plan,
+                                         double velocity_scale, double acceleration_scale) {
+    if(!refresh_fast_scene()) return;
+    using Clock = std::chrono::steady_clock;
+    const auto started = Clock::now();
+    const auto deadline = started + std::chrono::duration<double>(joint_shortcut_time_);
+    const auto* group = move_group_->getRobotModel()->getJointModelGroup(planning_group_);
+    const double step = group->getMaximumExtent() * fast_path_collision_fraction_;
+    robot_trajectory::RobotTrajectory original(move_group_->getRobotModel(), planning_group_);
+    original.setRobotTrajectoryMsg(fast_scene_->getCurrentState(), plan.start_state_, plan.trajectory_);
+    if(original.getWayPointCount() < 3 || step <= 0.) return;
+    robot_trajectory::RobotTrajectory shortened(move_group_->getRobotModel(), planning_group_);
+    shortened.addSuffixWayPoint(original.getFirstWayPoint(), 0.);
+    auto sample = original.getFirstWayPoint();
+    std::size_t checked = 0, shortcuts = 0, retained_tail = 0;
+    const auto valid_segment = [&](std::size_t from_index, std::size_t to_index) {
+        const auto& from = original.getWayPoint(from_index);
+        const auto& to = original.getWayPoint(to_index);
+        const auto segments = std::max<std::size_t>(1, static_cast<std::size_t>(std::ceil(from.distance(to, group) / step)));
+        for(std::size_t j = 0; j <= segments; ++j) {
+            if(Clock::now() >= deadline || cancel_requested_.load() || shutting_down_.load()) return false;
+            from.interpolate(to, static_cast<double>(j) / segments, sample, group);
+            sample.update();
+            ++checked;
+            if(!sample.satisfiesBounds(group) || !fast_scene_->isStateValid(sample, planning_group_)) return false;
+        }
+        return true;
+    };
+    for(std::size_t i = 0; i + 1 < original.getWayPointCount();) {
+        std::size_t next = i + 1;
+        if(Clock::now() >= deadline && !retained_tail) retained_tail = original.getWayPointCount() - i - 1;
+        if(Clock::now() < deadline) {
+            for(std::size_t candidate = original.getWayPointCount() - 1; candidate > i + 1;
+                candidate = i + (candidate - i) / 2) {
+                if(valid_segment(i, candidate)) { next = candidate; ++shortcuts; break; }
+                if(Clock::now() >= deadline) break;
+            }
+        }
+        // Unchanged adjacent segments retain the original planner's validation.
+        shortened.addSuffixWayPoint(original.getWayPoint(next), 0.);
+        i = next;
+    }
+    if(!shortcuts) return;
+    const auto geometric_length = [group](const robot_trajectory::RobotTrajectory& trajectory) {
+        double length = 0.;
+        for(std::size_t i = 1; i < trajectory.getWayPointCount(); ++i)
+            length += trajectory.getWayPoint(i - 1).distance(trajectory.getWayPoint(i), group);
+        return length;
+    };
+    const auto geometric_knots = shortened.getWayPointCount();
+    const double original_length = geometric_length(original), shortened_length = geometric_length(shortened);
+    // TOTG creates a smooth, densely sampled trajectory instead of handing
+    // sparse corners to the controller; verify its final geometry as well.
+    trajectory_processing::TimeOptimalTrajectoryGeneration timing(.001, .02);
+    if(!timing.computeTimeStamps(shortened, velocity_scale, acceleration_scale)) return;
+    if(original.getDuration() - shortened.getDuration() < .02) {
+        RCLCPP_INFO(node_->get_logger(),
+                    "Joint fallback shortcut retained original: gain %.3f s below 0.020 s; geometric_knots=%zu to %zu, joint_path=%.3f to %.3f, retained_tail=%zu",
+                    original.getDuration() - shortened.getDuration(), original.getWayPointCount(), geometric_knots,
+                    original_length, shortened_length, retained_tail);
+        return;
+    }
+    for(std::size_t i = 0; i < shortened.getWayPointCount(); ++i) {
+        const auto& from = shortened.getWayPoint(i ? i - 1 : 0);
+        const auto& to = shortened.getWayPoint(i);
+        const auto segments = std::max<std::size_t>(1, static_cast<std::size_t>(std::ceil(from.distance(to, group) / step)));
+        for(std::size_t j = 0; j <= segments; ++j) {
+            if(cancel_requested_.load() || shutting_down_.load()) return;
+            from.interpolate(to, static_cast<double>(j) / segments, sample, group);
+            sample.update();
+            ++checked;
+            if(!sample.satisfiesBounds(group) || !fast_scene_->isStateValid(sample, planning_group_)) {
+                RCLCPP_INFO(node_->get_logger(), "Joint fallback shortcut rejected by final trajectory collision validation");
+                return;
+            }
+        }
+    }
+    RCLCPP_INFO(node_->get_logger(),
+                "Joint fallback shortcut: %zu to %zu points, %.3f to %.3f s, %zu collision samples, optimization=%.3f s; geometric_knots=%zu, joint_path=%.3f to %.3f, retained_tail=%zu",
+                original.getWayPointCount(), shortened.getWayPointCount(), original.getDuration(), shortened.getDuration(),
+                checked, std::chrono::duration<double>(Clock::now() - started).count(), geometric_knots,
+                original_length, shortened_length, retained_tail);
+    shortened.getRobotTrajectoryMsg(plan.trajectory_);
 }
 
 /**

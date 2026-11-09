@@ -21,7 +21,7 @@ def setup(context):
         str(share / 'urdf/tomato_picker.mujoco.ros2_control.xacro'),
         mappings={'headless': LaunchConfiguration('headless').perform(context)}).toxml()}
     config = (MoveItConfigsBuilder('Tomato-Picker', package_name='tomato_picker_moveit_config')
-              .planning_pipelines(pipelines=['ompl']).to_moveit_configs())
+              .planning_pipelines(pipelines=['ompl', 'pilz_industrial_motion_planner']).to_moveit_configs())
     parameters = config.to_dict()
     parameters.update(description)
     joint_limits = yaml.safe_load((share / "config/joint_limits.yaml").read_text())

@@ -133,3 +133,20 @@ def bounded_pose_step(payload,stop,*,context):
     tracking.update(target=target['point'],label=target['label'],travel=travel,steps=tracking['steps']+(0 if within else 1),last_sample_ns=sample_stamp,cycles=cycles,stable_samples=stable)
     goal={'header':{'frame_id':target['frame_id'],'stamp':{'sec':0,'nanosec':0}},'pose':{'position':dict(zip(('x','y','z'),map(float,next_position))),'orientation':tracking['orientation']}}
     return {'goal':goal,'tracking':tracking,'done':done,'next_step':'complete' if done else 'confirm' if within else 'move','remaining_distance':distance,'target_distance':target_distance,'standoff':standoff,'steps':tracking['steps'],'attempt':0,'refresh_reason':''}
+
+
+def transform_and_step(payload,stop,*,context):
+    """Localize and calculate one correction without an intermediate dispatch."""
+    if stop.is_set():raise InterruptedError('视觉定位与修正已取消')
+    transformed=transform_targets(payload['transform'],stop,context=context)
+    if stop.is_set():raise InterruptedError('视觉定位与修正已取消')
+    if transformed['ready']:
+        step=bounded_pose_step({**payload['step'],'target':transformed['target']},stop,context=context)
+    else:
+        tracking=dict(payload['step'].get('tracking') or {})
+        # No target means no distance measurement; refresh never counts as a step
+        step={'goal':{},'tracking':tracking,'done':False,'next_step':'refresh',
+              'remaining_distance':0.,'target_distance':0.,'standoff':payload['step'].get('standoff_m',.1),
+              'steps':tracking.get('steps',0),'attempt':transformed['attempt'],'refresh_reason':transformed['refresh_reason']}
+    if stop.is_set():raise InterruptedError('视觉定位与修正已取消')
+    return {'transform':transformed,'step':step}

@@ -6,10 +6,17 @@ arm_motion_node:
     home_named_target: home
     end_effector_link: tip
     planning_time: 15.0
-    velocity_scale: 0.25
-    acceleration_scale: 0.25
+    velocity_scale: 0.75
+    acceleration_scale: 0.75
     cartesian_eef_step: 0.002
     cartesian_jump_threshold: 2.0
     cartesian_min_fraction: 1.0
     goal_joint_tolerance: 0.0001
-    planning_attempts: 10
+    planning_attempts: 4
+    joint_fast_pipeline: pilz_industrial_motion_planner
+    joint_fast_planner: PTP
+    fast_path_collision_fraction: 0.001
+    joint_shortcut_time: 0.25
+    harvest_state_topic: /simulation/physics/state
+    # Whole targets in planning-group joint order: home, then observation
+    harvest_recovery_joints: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.4, 0.4, 0.0, 0.0, 0.0]

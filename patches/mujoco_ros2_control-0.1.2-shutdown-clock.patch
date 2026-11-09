@@ -1,0 +1,42 @@
+Subject: [PATCH] Exit startup clock waits when the ROS context shuts down
+
+Applies to ros-controls/mujoco_ros2_control tag 0.1.2
+
+Stopping while the control thread waits for its first simulated clock tick
+can invalidate the ROS context before the following sleep_for call. The
+uncaught runtime_error terminates the process with SIGABRT
+
+Use the controller manager's context for both waits, leave when startup
+was interrupted, and suppress runtime_error only after that context has
+actually shut down. Rethrow every runtime_error while the context remains
+valid, preserving the existing behavior for genuine startup faults
+
+diff --git a/mujoco_ros2_control/src/mujoco_ros2_control_node.cpp b/mujoco_ros2_control/src/mujoco_ros2_control_node.cpp
+--- a/mujoco_ros2_control/src/mujoco_ros2_control_node.cpp
++++ b/mujoco_ros2_control/src/mujoco_ros2_control_node.cpp
+@@ -140,8 +140,23 @@ int main(int argc, char ** argv)
+       //
+       // TODO: Potentially remove this node depending on what comes out of the upstream PR:
+       // https://github.com/ros-controls/ros2_control/pull/2654
+-      cm->get_clock()->wait_until_started();
+-      cm->get_clock()->sleep_for(rclcpp::Duration::from_seconds(1.0 / cm->get_update_rate()));
++      const auto context = cm->get_node_base_interface()->get_context();
++      try
++      {
++        if (!cm->get_clock()->wait_until_started(context))
++        {
++          return;
++        }
++        cm->get_clock()->sleep_for(rclcpp::Duration::from_seconds(1.0 / cm->get_update_rate()), context);
++      }
++      catch (const std::runtime_error &)
++      {
++        if (context->is_valid())
++        {
++          throw;
++        }
++        return;
++      }
+ 
+       // for calculating sleep time
+       auto const period = std::chrono::nanoseconds(1'000'000'000 / cm->get_update_rate());
