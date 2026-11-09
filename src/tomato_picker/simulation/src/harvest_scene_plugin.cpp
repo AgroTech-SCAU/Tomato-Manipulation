@@ -67,6 +67,20 @@ public:
                 finger_dof_[i] = model_->jnt_dofadr[joint];
             }
             fruits_.resize(offsets_.size() / 3);
+            harvest_order_ = parameter<std::vector<std::int64_t>>(prefix + "harvest_order", {});
+            if (harvest_order_.empty()) {
+                for (std::size_t i = 0; i < fruits_.size(); ++i) harvest_order_.push_back(i + 1);
+            }
+            auto sorted_order = harvest_order_;
+            std::sort(sorted_order.begin(), sorted_order.end());
+            if (sorted_order.size() != fruits_.size()) {
+                throw std::runtime_error("harvest_order must name every fruit exactly once");
+            }
+            for (std::size_t i = 0; i < sorted_order.size(); ++i) {
+                if (sorted_order[i] != static_cast<std::int64_t>(i + 1)) {
+                    throw std::runtime_error("harvest_order must be a permutation of one-based fruit indices");
+                }
+            }
             for (std::size_t i = 0; i < fruits_.size(); ++i) {
                 auto& fruit = fruits_[i];
                 const auto suffix = std::to_string(i + 1);
@@ -315,6 +329,7 @@ private:
             motion_message_ = reason;
         }
         motion_running_ = false;
+        motion_command_ = CommandEef::Request::STOP;
         if (have_feedback_) publish_target(finger_positions_[0]);
         completed_.notify_all();
     }
@@ -324,14 +339,21 @@ private:
         stopping_ = true;
         stop_confirmed_ = false;
         stop_still_since_ = -1.;
-        stop_motion("EEF motion interrupted by STOP");
+        const bool preserve_preload = held_ >= 0 && !motion_running_ &&
+            motion_command_ == CommandEef::Request::CLOSE && motion_success_ &&
+            motion_result_id_ == motion_id_ && motion_grasp_index_ == held_ &&
+            fruits_[held_].state == PhysicsState::HELD && fingers_still();
+        if (preserve_preload) publish_target(motion_target_);
+        else stop_motion("EEF motion interrupted by STOP");
         const auto deadline = std::chrono::steady_clock::now() +
             std::chrono::duration<double>(std::min(service_timeout_, 5.));
         completed_.wait_until(lock, deadline, [this] { return shutdown_ || stop_confirmed_; });
         const bool success = !shutdown_ && stop_confirmed_;
         stopping_ = false;
-        message = success ? "EEF STOP confirmed by stable measured finger feedback" :
-                            "EEF hold was sent, but stable physical STOP feedback was not confirmed";
+        message = success ? (preserve_preload ?
+            "EEF STOP confirmed stationary fingers while retaining completed CLOSE preload" :
+            "EEF STOP confirmed by stable measured finger feedback") :
+            "EEF hold was sent, but stable physical STOP feedback was not confirmed";
         return success;
     }
     void update_motion(const mjData* data) {
@@ -370,6 +392,7 @@ private:
             response->error_code = 3; response->message = "EEF is executing another motion"; return;
         }
         motion_service_busy_ = true;
+        motion_command_ = request->command;
         const auto id = ++motion_id_;
         motion_target_ = open_position_ + fraction * (closed_position_ - open_position_);
         motion_grasp_index_ = fraction >= .99 ? selected_ : -1;
@@ -473,7 +496,8 @@ private:
         if (pending_scene_ == SceneCommand::Select) {
             if (held_ >= 0) { finish_scene(false, "Release the held fruit before selecting another"); return; }
             if (selected_ < 0) {
-                for (std::size_t i = 0; i < fruits_.size(); ++i) {
+                for (const auto index : harvest_order_) {
+                    const auto i = static_cast<std::size_t>(index - 1);
                     if (fruits_[i].state == PhysicsState::AVAILABLE) { selected_ = static_cast<int>(i); break; }
                 }
             }
@@ -554,6 +578,7 @@ private:
     const mjModel* model_{nullptr};
     std::vector<Fruit> fruits_;
     std::vector<double> offsets_;
+    std::vector<std::int64_t> harvest_order_;
     std::string world_frame_, phase_{"Reset the harvest scene at the observation pose"};
     int tip_{-1}, floor_{-1}, selected_{-1}, held_{-1}, release_index_{-1};
     std::array<int, 2> finger_bodies_{}, finger_qpos_{}, finger_dof_{};
@@ -568,6 +593,7 @@ private:
     bool motion_service_busy_{false}, scene_service_busy_{false};
     bool stopping_{false}, stop_confirmed_{false};
     int motion_grasp_index_{-1};
+    std::uint8_t motion_command_{CommandEef::Request::OPEN};
     std::uint64_t revision_{0}, published_revision_{0}, motion_id_{0}, motion_result_id_{0};
     std::uint64_t scene_id_{0}, scene_result_id_{0}, scene_result_revision_{0};
     std::string motion_message_, scene_message_;

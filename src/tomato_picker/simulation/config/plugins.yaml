@@ -4,6 +4,7 @@
       harvest:
         type: tomato_picker_mujoco/HarvestScenePlugin
         fruit_offsets_m: [0.0, 0.055, 0.03, 0.0, 0.0, 0.03, 0.0, -0.055, 0.03]
+        harvest_order: [2, 1, 3]
         world_frame: base_link
         service_timeout_sec: 12.0
         publish_rate_hz: 50.0

@@ -1,0 +1,13 @@
+# Plan all segments before executing the collision-checked blended trajectory
+moveit_msgs/MotionSequenceRequest request
+bool execute
+---
+bool success
+int32 error_code
+string message
+geometry_msgs/PoseStamped final_pose
+float64[] final_joints
+---
+string stage
+float32 progress
+geometry_msgs/PoseStamped current_pose

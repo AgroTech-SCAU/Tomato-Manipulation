@@ -2,6 +2,7 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit_msgs/msg/robot_trajectory.hpp>
 #include <moveit_msgs/srv/get_planning_scene.hpp>
+#include <moveit_msgs/srv/get_motion_sequence.hpp>
 #include <moveit/planning_scene/planning_scene.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
@@ -12,6 +13,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include "tomato_picker_interfaces/action/move_arm.hpp"
+#include "tomato_picker_interfaces/action/move_arm_sequence.hpp"
 #include "tomato_picker_interfaces/msg/harvest_physics_state.hpp"
 
 #include <algorithm>
@@ -43,6 +45,8 @@ class ArmMotionServer final {
 public:
     using MoveArm = tomato_picker_interfaces::action::MoveArm;
     using GoalHandleMoveArm = rclcpp_action::ServerGoalHandle<MoveArm>;
+    using MoveArmSequence = tomato_picker_interfaces::action::MoveArmSequence;
+    using GoalHandleSequence = rclcpp_action::ServerGoalHandle<MoveArmSequence>;
 
     /**
      * @brief 构造机械臂运动能力服务器
@@ -88,6 +92,9 @@ private:
     bool refresh_fast_scene();
     void shortcut_joint_plan(moveit::planning_interface::MoveGroupInterface::Plan& plan,
                              double velocity_scale, double acceleration_scale);
+    rclcpp_action::GoalResponse sequence_goal(const rclcpp_action::GoalUUID& uuid,
+                                             std::shared_ptr<const MoveArmSequence::Goal> goal);
+    void execute_sequence(const std::shared_ptr<GoalHandleSequence> goal_handle);
     /**
      * @brief 填充 Action 结果中的最终机械臂状态
      * @param result 待写入的结果
@@ -115,6 +122,8 @@ private:
     double joint_shortcut_time_{0.0};
     rclcpp::Client<moveit_msgs::srv::GetPlanningScene>::SharedPtr scene_client_;
     planning_scene::PlanningScenePtr fast_scene_;
+    rclcpp_action::Server<MoveArmSequence>::SharedPtr sequence_server_;
+    rclcpp::Client<moveit_msgs::srv::GetMotionSequence>::SharedPtr sequence_client_;
     std::thread execution_thread_;                                               ///< 单个 goal 执行线程
     std::atomic_bool executing_{ false };                                        ///< 是否存在正在执行的 goal
     std::atomic_bool cancel_requested_{ false };                                 ///< 当前 goal 取消标志
@@ -206,6 +215,8 @@ ArmMotionServer::ArmMotionServer(const rclcpp::Node::SharedPtr& node)
     cartesian_min_fraction_ = node_->declare_parameter<double>("cartesian_min_fraction", 0.95);
 
     move_group_ = std::make_unique<moveit::planning_interface::MoveGroupInterface>(node_, planning_group_);
+    const auto pipeline = node_->declare_parameter<std::string>("planning_pipeline", "");
+    if(!pipeline.empty()) move_group_->setPlanningPipelineId(pipeline);
     move_group_->setPlanningTime(planning_time_);
     const auto planning_attempts = node_->declare_parameter<int>("planning_attempts", 1);
     if(planning_attempts < 1) throw std::invalid_argument("planning_attempts must be positive");
@@ -256,6 +267,23 @@ ArmMotionServer::ArmMotionServer(const rclcpp::Node::SharedPtr& node)
         std::bind(&ArmMotionServer::handle_goal, this, std::placeholders::_1, std::placeholders::_2),
         std::bind(&ArmMotionServer::handle_cancel, this, std::placeholders::_1),
         std::bind(&ArmMotionServer::handle_accepted, this, std::placeholders::_1));
+
+    const auto sequence_action = node_->declare_parameter<std::string>("sequence_action_name", "");
+    if(!sequence_action.empty()) {
+        if(!scene_client_) throw std::invalid_argument("sequence_action_name requires joint_fast_pipeline collision validation");
+        sequence_client_ = node_->create_client<moveit_msgs::srv::GetMotionSequence>("/plan_sequence_path");
+        sequence_server_ = rclcpp_action::create_server<MoveArmSequence>(
+            node_, sequence_action, std::bind(&ArmMotionServer::sequence_goal, this, std::placeholders::_1, std::placeholders::_2),
+            [this](const std::shared_ptr<GoalHandleSequence>) {
+                cancel_requested_.store(true); move_group_->stop();
+                return rclcpp_action::CancelResponse::ACCEPT;
+            },
+            [this](const std::shared_ptr<GoalHandleSequence> handle) {
+                if(execution_thread_.joinable()) execution_thread_.join();
+                execution_thread_ = std::thread([this, handle]() { execute_sequence(handle); });
+            });
+        RCLCPP_INFO(node_->get_logger(), "Continuous sequence action enabled: %s", sequence_action.c_str());
+    }
 
     RCLCPP_INFO(node_->get_logger(), "ArmMotionServer started; action=%s planning_group=%s", action_name_.c_str(), planning_group_.c_str());
 }
@@ -551,6 +579,142 @@ void ArmMotionServer::execute(const std::shared_ptr<GoalHandleMoveArm> goal_hand
     fill_final_state(*result);
     goal_handle->succeed(result);
     executing_.store(false);
+}
+
+rclcpp_action::GoalResponse ArmMotionServer::sequence_goal(const rclcpp_action::GoalUUID& uuid,
+                                                          std::shared_ptr<const MoveArmSequence::Goal> goal) {
+    static_cast<void>(uuid);
+    if(shutting_down_.load() || goal->request.items.empty() || goal->request.items.size() > 16)
+        return rclcpp_action::GoalResponse::REJECT;
+    for(const auto& item : goal->request.items) {
+        const auto& req = item.req;
+        if(req.group_name != planning_group_ || req.pipeline_id != joint_fast_pipeline_ ||
+           (req.planner_id != "PTP" && req.planner_id != "LIN") || req.goal_constraints.empty() ||
+           !std::isfinite(item.blend_radius) || item.blend_radius < 0. ||
+           !std::isfinite(req.max_velocity_scaling_factor) || req.max_velocity_scaling_factor <= 0. || req.max_velocity_scaling_factor > 1. ||
+           !std::isfinite(req.max_acceleration_scaling_factor) || req.max_acceleration_scaling_factor <= 0. || req.max_acceleration_scaling_factor > 1.)
+            return rclcpp_action::GoalResponse::REJECT;
+    }
+    if(goal->request.items.back().blend_radius != 0.) return rclcpp_action::GoalResponse::REJECT;
+    bool expected = false;
+    if(!executing_.compare_exchange_strong(expected, true)) return rclcpp_action::GoalResponse::REJECT;
+    cancel_requested_.store(false);
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+
+void ArmMotionServer::execute_sequence(const std::shared_ptr<GoalHandleSequence> goal_handle) {
+    auto result = std::make_shared<MoveArmSequence::Result>();
+    result->success = false;
+    result->error_code = kPlanningFailed;
+    const auto interrupted = [this]() { return cancel_requested_.load() || shutting_down_.load() || dropped_fruit_.load(); };
+    const auto finish = [&]() {
+        try {
+            result->final_pose = move_group_->getCurrentPose();
+            result->final_joints = move_group_->getCurrentJointValues();
+        } catch(const std::exception& error) {
+            RCLCPP_WARN(node_->get_logger(), "Sequence final feedback unavailable: %s", error.what());
+        }
+        if(goal_handle->is_active()) {
+            if(goal_handle->is_canceling()) goal_handle->canceled(result);
+            else if(result->success) goal_handle->succeed(result);
+            else goal_handle->abort(result);
+        }
+        executing_.store(false);
+    };
+    const auto feedback = [&](const std::string& stage, float progress) {
+        auto value = std::make_shared<MoveArmSequence::Feedback>();
+        value->stage = stage; value->progress = progress;
+        value->current_pose = move_group_->getCurrentPose();
+        goal_handle->publish_feedback(value);
+    };
+    const auto interruption_reason = [&]() {
+        if(const auto fruit = dropped_fruit_.load())
+            return "Fruit " + std::to_string(fruit) + " dropped during transport; arm trajectory stopped";
+        return std::string("continuous motion canceled");
+    };
+    try {
+        const auto started = std::chrono::steady_clock::now();
+        if(interrupted()) { result->message = interruption_reason(); finish(); return; }
+        feedback("PLANNING_SEQUENCE", .1F);
+        if(!sequence_client_->wait_for_service(std::chrono::seconds(1)))
+            throw std::runtime_error("Pilz sequence planning service is unavailable");
+        auto request = std::make_shared<moveit_msgs::srv::GetMotionSequence::Request>();
+        request->request = goal_handle->get_goal()->request;
+        auto future = sequence_client_->async_send_request(request);
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(15);
+        while(future.wait_for(std::chrono::milliseconds(20)) != std::future_status::ready) {
+            if(interrupted() || std::chrono::steady_clock::now() >= deadline) {
+                sequence_client_->remove_pending_request(future);
+                result->message = interrupted() ? interruption_reason() : "continuous motion planning timed out";
+                finish(); return;
+            }
+        }
+        const auto response = future.get()->response;
+        if(response.error_code.val != moveit_msgs::msg::MoveItErrorCodes::SUCCESS || response.planned_trajectories.size() != 1) {
+            result->message = "Pilz sequence planning failed before execution (code=" + std::to_string(response.error_code.val) + ")";
+            finish(); return;
+        }
+        if(interrupted()) { result->message = interruption_reason(); finish(); return; }
+        feedback("VALIDATING_SEQUENCE", .3F);
+        if(!refresh_fast_scene()) throw std::runtime_error("Complete collision scene unavailable for continuous motion");
+        robot_trajectory::RobotTrajectory trajectory(move_group_->getRobotModel(), planning_group_);
+        trajectory.setRobotTrajectoryMsg(fast_scene_->getCurrentState(), response.sequence_start, response.planned_trajectories.front());
+        if(trajectory.getWayPointCount() < 2) throw std::runtime_error("Continuous motion trajectory is empty");
+        const auto* group = move_group_->getRobotModel()->getJointModelGroup(planning_group_);
+        const double step = group->getMaximumExtent() * fast_path_collision_fraction_;
+        auto sample = trajectory.getFirstWayPoint();
+        std::size_t checked = 0;
+        for(std::size_t i = 0; i < trajectory.getWayPointCount(); ++i) {
+            const auto& from = trajectory.getWayPoint(i ? i - 1 : 0);
+            const auto& to = trajectory.getWayPoint(i);
+            const auto segments = std::max<std::size_t>(1, static_cast<std::size_t>(std::ceil(from.distance(to, group) / step)));
+            for(std::size_t j = 0; j <= segments; ++j) {
+                if(interrupted()) { result->message = interruption_reason(); finish(); return; }
+                from.interpolate(to, static_cast<double>(j) / segments, sample, group);
+                sample.update(); ++checked;
+                if(!sample.satisfiesBounds(group) || !fast_scene_->isStateValid(sample, planning_group_))
+                    throw std::runtime_error("Continuous motion failed final dense collision or joint-bound validation; no segment executed");
+            }
+        }
+        moveit::planning_interface::MoveGroupInterface::Plan plan;
+        plan.start_state_ = response.sequence_start;
+        plan.trajectory_ = response.planned_trajectories.front();
+        RCLCPP_INFO(node_->get_logger(), "Continuous sequence ready: %zu segments, %zu collision samples, planning=%.3f s, trajectory=%.3f s",
+                    request->request.items.size(), checked,
+                    std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count(), trajectory.getDuration());
+        if(goal_handle->get_goal()->execute) {
+            if(interrupted()) { result->message = interruption_reason(); finish(); return; }
+            result->error_code = kExecutionFailed;
+            feedback("EXECUTING_SEQUENCE", .6F);
+            std::atomic_bool finished{false};
+            std::thread stop_watch([this, &finished, &interrupted]() {
+                while(!finished.load()) {
+                    if(interrupted()) move_group_->stop();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+                }
+            });
+            moveit::core::MoveItErrorCode status;
+            const auto execution_started = std::chrono::steady_clock::now();
+            try { status = move_group_->execute(plan); }
+            catch(...) { finished.store(true); stop_watch.join(); throw; }
+            finished.store(true); stop_watch.join();
+            RCLCPP_INFO(node_->get_logger(), "Continuous sequence execution: %.3f s, result=%d",
+                        std::chrono::duration<double>(std::chrono::steady_clock::now() - execution_started).count(), status.val);
+            if(status != moveit::core::MoveItErrorCode::SUCCESS || interrupted()) {
+                result->error_code = kExecutionFailed;
+                result->message = interrupted() ? interruption_reason() : "Continuous motion execution failed (code=" + std::to_string(status.val) + ")";
+                finish(); return;
+            }
+        }
+        feedback("DONE", 1.F);
+        result->success = true; result->error_code = kSuccess;
+        result->message = goal_handle->get_goal()->execute ? "continuous motion completed" : "continuous motion planning completed";
+    } catch(const std::exception& error) {
+        move_group_->stop(); result->message = error.what();
+    } catch(...) {
+        move_group_->stop(); result->message = "continuous motion failed with an unknown execution error";
+    }
+    finish();
 }
 
 bool ArmMotionServer::plan_joint_fast(moveit::planning_interface::MoveGroupInterface::Plan& plan) {

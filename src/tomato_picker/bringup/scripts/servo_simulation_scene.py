@@ -136,7 +136,10 @@ class SimulationScene(Node):
         self.timer = self.create_timer(0.2, self.apply_scene)
 
     def receive_physics(self, message):
+        previous = self.latest_physics
         self.latest_physics = message
+        if previous is None or message.revision != previous.revision:
+            self.apply_scene()
 
     def load_collision_matrix(self):
         if self.base_collision_matrix is not None:
@@ -204,27 +207,36 @@ class SimulationScene(Node):
         scene.allowed_collision_matrix = matrix
         return scene, fruit_ids, held_ids
 
+    def scene_applied(self, future):
+        if future is not self.pending:
+            return
+        self.pending = None
+        try:
+            result = future.result()
+        except Exception as error:
+            self.get_logger().error(f'MoveIt scene update failed; retrying on the scene timer: {error}')
+            return
+        if result is None or not result.success:
+            self.get_logger().error('MoveIt rejected the configured simulation scene; retrying on the scene timer')
+            return
+        if self.physics_topic:
+            self.applied_fruit_ids = self.pending_fruit_ids
+            self.applied_attached_ids = self.pending_attached_ids
+            if self.pending_revision != self.last_acknowledged_revision:
+                self.revision_publisher.publish(UInt64(data=self.pending_revision))
+                self.last_acknowledged_revision = self.pending_revision
+        if self.ready_service is None:
+            self.get_logger().info('Simulation collision scene applied')
+            self.ready_service = self.create_service(
+                Trigger, '/tomato_picker/simulation/scene_ready', self.ready)
+        if not self.physics_topic:
+            self.timer.cancel()
+        elif self.latest_physics.revision != self.last_acknowledged_revision:
+            self.apply_scene()
+
     def apply_scene(self):
         if self.pending is not None:
-            if not self.pending.done():
-                return
-            result = self.pending.result()
-            if result is None or not result.success:
-                raise RuntimeError('MoveIt rejected the configured simulation scene')
-            if self.physics_topic:
-                self.applied_fruit_ids = self.pending_fruit_ids
-                self.applied_attached_ids = self.pending_attached_ids
-                if self.pending_revision != self.last_acknowledged_revision:
-                    self.revision_publisher.publish(UInt64(data=self.pending_revision))
-                    self.last_acknowledged_revision = self.pending_revision
-            if self.ready_service is None:
-                self.get_logger().info('Simulation collision scene applied')
-                self.ready_service = self.create_service(
-                    Trigger, '/tomato_picker/simulation/scene_ready', self.ready)
-            self.pending = None
-            if not self.physics_topic:
-                self.timer.cancel()
-                return
+            return
         if self.client.service_is_ready():
             if self.physics_topic:
                 if self.latest_physics is None or not self.load_collision_matrix():
@@ -237,6 +249,7 @@ class SimulationScene(Node):
             else:
                 scene = self.scene
             self.pending = self.client.call_async(ApplyPlanningScene.Request(scene=scene))
+            self.pending.add_done_callback(self.scene_applied)
 
     def ready(self, _request, response):
         response.success = True

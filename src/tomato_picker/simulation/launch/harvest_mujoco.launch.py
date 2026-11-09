@@ -36,6 +36,8 @@ def setup(context):
         'publish_state_updates': True,
         'publish_transforms_updates': True,
         'trajectory_execution.allowed_start_tolerance': .01,
+        'default_planning_pipeline': 'pilz_industrial_motion_planner',
+        'capabilities': 'pilz_industrial_motion_planner/MoveGroupSequenceAction pilz_industrial_motion_planner/MoveGroupSequenceService',
     })
     manager = Node(package='mujoco_ros2_control', executable='ros2_control_node', output='screen',
                    parameters=[description, str(share / 'config/controllers.yaml'),
