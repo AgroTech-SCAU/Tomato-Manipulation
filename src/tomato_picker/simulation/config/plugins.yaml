@@ -1,0 +1,18 @@
+/**:
+  ros__parameters:
+    mujoco_plugins:
+      harvest:
+        type: tomato_picker_mujoco/HarvestScenePlugin
+        fruit_offsets_m: [0.0, 0.055, 0.03, 0.0, 0.0, 0.03, 0.0, -0.055, 0.03]
+        world_frame: base_link
+        service_timeout_sec: 12.0
+        publish_rate_hz: 50.0
+      mujoco_camera_plugin:
+        type: tomato_picker_mujoco/ScopedCameraPlugin
+        camera_publish_rate: 10.0
+        harvest_camera:
+          policy: streaming
+          frame_name: camera_color_optical_frame
+          info_topic: /camera/color/camera_info
+          image_topic: /camera/color/image_raw
+          depth_topic: /camera/aligned_depth_to_color/image_raw

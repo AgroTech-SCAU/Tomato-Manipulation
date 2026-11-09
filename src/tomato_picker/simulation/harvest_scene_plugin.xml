@@ -1,0 +1,12 @@
+<library path="tomato_picker_harvest_scene">
+  <class name="tomato_picker_mujoco/HarvestScenePlugin"
+         type="tomato_picker_mujoco::HarvestScenePlugin"
+         base_class_type="mujoco_ros2_control_plugins::MuJoCoROS2ControlPluginBase">
+    <description>Contact-based fruit harvesting, physical gripper feedback and basket collection</description>
+  </class>
+  <class name="tomato_picker_mujoco/ScopedCameraPlugin"
+         type="tomato_picker_mujoco::ScopedCameraPlugin"
+         base_class_type="mujoco_ros2_control_plugins::MuJoCoROS2ControlPluginBase">
+    <description>Upstream MuJoCo RGB-D renderer with ROS resources destroyed before library unload</description>
+  </class>
+</library>

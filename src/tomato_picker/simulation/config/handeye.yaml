@@ -1,0 +1,74 @@
+handeye_mode: eye_in_hand
+method: all-pairs linear + sample RANSAC + robust nonlinear
+parent_frame: tool0
+child_frame: camera_color_optical_frame
+transform_matrix:
+- - -0.9997819730770653
+  - -0.018537706149377182
+  - 0.009610398579120223
+  - 0.02412912031384577
+- - 0.017984940548433918
+  - -0.9983396058661128
+  - -0.05472269431016617
+  - 0.04479503379135118
+- - 0.010608874756519188
+  - -0.054537920842418805
+  - 0.998455340496803
+  - 0.003637688529501796
+- - 0.0
+  - 0.0
+  - 0.0
+  - 1.0
+translation_m:
+- 0.02412912031384577
+- 0.04479503379135118
+- 0.003637688529501796
+quaternion_xyzw:
+- 0.005056982604394153
+- -0.027326849041509
+- 0.9995720233479903
+- 0.009134571057591547
+rpy_rad:
+- -0.054568067128263224
+- -0.010609073768266683
+- 3.1236057310020557
+translation_rms_mm: 7.310062832409114
+rotation_rms_deg: 2.4411410382096683
+translation_max_mm: 14.067170699187093
+rotation_max_deg: 3.8637205545299724
+inlier_count: 26
+total_samples: 30
+inlier_ratio: 0.8666666666666667
+motion_median_angle_deg: 58.04976978581673
+motion_max_angle_deg: 179.93199030072824
+motion_axis_ratio: 0.11732431767083375
+stored_transform_convention: camera_to_gripper (^gripper T_camera)
+removed_samples:
+- 23
+- 24
+- 27
+- 30
+ba_refined: false
+intrinsics_binding:
+  camera_matrix_data:
+  - 612.2874145507812
+  - 0.0
+  - 638.468505859375
+  - 0.0
+  - 612.2460327148438
+  - 399.9333190917969
+  - 0.0
+  - 0.0
+  - 1.0
+  distortion_data:
+  - -0.031840935349464417
+  - 0.03630813583731651
+  - -0.0001250124187208712
+  - 0.0006337917293421924
+  - -0.01244652271270752
+  - 0.0
+  - 0.0
+  - 0.0
+  image_width: 1280
+  image_height: 800
+  created_at: null

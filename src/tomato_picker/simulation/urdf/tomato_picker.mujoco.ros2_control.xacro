@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Tomato-Picker">
+  <xacro:arg name="headless" default="true"/>
+  <xacro:arg name="mujoco_model" default="$(find tomato_picker_mujoco)/mjcf/tomato_picker.xml"/>
+  <xacro:include filename="$(find tomato_picker_mujoco)/urdf/tomato_picker.physics.urdf"/>
+  <ros2_control name="tomato_picker_physics" type="system">
+    <hardware>
+      <plugin>mujoco_ros2_control/MujocoSystemInterface</plugin>
+      <param name="mujoco_model">$(arg mujoco_model)</param>
+      <param name="auto_register_cameras">false</param>
+      <param name="headless">$(arg headless)</param>
+      <param name="sim_speed_factor">1.0</param>
+    </hardware>
+    <xacro:macro name="physical_joint" params="name commanded:=true">
+      <joint name="${name}">
+        <xacro:if value="${commanded}"><command_interface name="position"/></xacro:if>
+        <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+    </xacro:macro>
+    <xacro:physical_joint name="joint1"/>
+    <xacro:physical_joint name="joint2"/>
+    <xacro:physical_joint name="joint3"/>
+    <xacro:physical_joint name="joint4"/>
+    <xacro:physical_joint name="joint5"/>
+    <xacro:physical_joint name="joint6"/>
+    <xacro:physical_joint name="joint7-1"/>
+    <xacro:physical_joint name="joint7-2" commanded="false"/>
+    <xacro:physical_joint name="joint7" commanded="false"/>
+  </ros2_control>
+</robot>

@@ -1,0 +1,32 @@
+frame_id: base_link
+boxes:
+- id: simulation_obstacle
+  enabled: true
+  position:
+  - 0.65
+  - 0.65
+  - 0.3
+  dimensions:
+  - 0.1
+  - 0.1
+  - 0.5
+basket:
+  id: harvest_basket
+  position:
+  - -0.1475053321089248
+  - -0.102944878235413
+  - 0.16253302739789097
+  dimensions:
+  - 0.11
+  - 0.2
+  - 0.025
+  slot_axis: y_axis
+  slot_spacing_m: 0.055
+  release_clearance_m: 0.06
+  release_orientation_xyzw:
+  - 0.6162950576152825
+  - -0.3830787476254556
+  - -0.46851486744238124
+  - 0.5039096090194509
+  wall_thickness_m: 0.004
+  wall_height_m: 0.025

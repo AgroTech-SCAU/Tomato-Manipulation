@@ -1,0 +1,3 @@
+ompl.path_tolerance: 0.001
+ompl.resample_dt: 0.02
+ompl.handeye_tip.longest_valid_segment_fraction: 0.001

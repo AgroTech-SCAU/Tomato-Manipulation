@@ -1,0 +1,15 @@
+arm_motion_node:
+  ros__parameters:
+    use_sim_time: true
+    action_name: /tomato_picker/servo/move_arm
+    planning_group: handeye_tip
+    home_named_target: home
+    end_effector_link: tip
+    planning_time: 15.0
+    velocity_scale: 0.25
+    acceleration_scale: 0.25
+    cartesian_eef_step: 0.002
+    cartesian_jump_threshold: 2.0
+    cartesian_min_fraction: 1.0
+    goal_joint_tolerance: 0.0001
+    planning_attempts: 10

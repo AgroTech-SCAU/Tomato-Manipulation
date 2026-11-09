@@ -1,0 +1,1895 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="tomato_picker_harvest">
+  <compiler angle="radian" autolimits="true" inertiafromgeom="false" balanceinertia="false" fusestatic="false" />
+  <option timestep="0.001" gravity="0 0 -9.81" integrator="implicitfast" solver="Newton" iterations="80" tolerance="1e-9" cone="elliptic" impratio="10" />
+  <size njmax="6000" nconmax="1500" />
+  <default>
+    <joint armature="0.002" damping="0.1" />
+    <geom friction="1.2 0.01 0.001" condim="4" solref="0.008 1" solimp="0.95 0.99 0.001" margin="0.00001" />
+    <default class="visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="2" density="0" rgba=".70 .72 .74 1" />
+    </default>
+    <default class="collision">
+      <geom type="mesh" group="3" rgba=".3 .6 .3 .15" />
+    </default>
+  </default>
+  <asset>
+    <mesh name="base_link_visual_0" file="../../tomato_picker_description/meshes/solidworks/base_link.STL" />
+    <mesh name="base_link_collision_0" file="assets/collision/base_link__000.obj" />
+    <mesh name="base_link_collision_1" file="assets/collision/base_link__001.obj" />
+    <mesh name="base_link_collision_2" file="assets/collision/base_link__002.obj" />
+    <mesh name="base_link_collision_3" file="assets/collision/base_link__003.obj" />
+    <mesh name="base_link_collision_4" file="assets/collision/base_link__004.obj" />
+    <mesh name="base_link_collision_5" file="assets/collision/base_link__005.obj" />
+    <mesh name="base_link_collision_6" file="assets/collision/base_link__006.obj" />
+    <mesh name="base_link_collision_7" file="assets/collision/base_link__007.obj" />
+    <mesh name="base_link_collision_8" file="assets/collision/base_link__008.obj" />
+    <mesh name="base_link_collision_9" file="assets/collision/base_link__009.obj" />
+    <mesh name="base_link_collision_10" file="assets/collision/base_link__010.obj" />
+    <mesh name="base_link_collision_11" file="assets/collision/base_link__011.obj" />
+    <mesh name="base_link_collision_12" file="assets/collision/base_link__012.obj" />
+    <mesh name="base_link_collision_13" file="assets/collision/base_link__013.obj" />
+    <mesh name="base_link_collision_14" file="assets/collision/base_link__014.obj" />
+    <mesh name="base_link_collision_15" file="assets/collision/base_link__015.obj" />
+    <mesh name="base_link_collision_16" file="assets/collision/base_link__016.obj" />
+    <mesh name="base_link_collision_17" file="assets/collision/base_link__017.obj" />
+    <mesh name="base_link_collision_18" file="assets/collision/base_link__018.obj" />
+    <mesh name="base_link_collision_19" file="assets/collision/base_link__019.obj" />
+    <mesh name="base_link_collision_20" file="assets/collision/base_link__020.obj" />
+    <mesh name="base_link_collision_21" file="assets/collision/base_link__021.obj" />
+    <mesh name="base_link_collision_22" file="assets/collision/base_link__022.obj" />
+    <mesh name="base_link_collision_23" file="assets/collision/base_link__023.obj" />
+    <mesh name="base_link_collision_24" file="assets/collision/base_link__024.obj" />
+    <mesh name="base_link_collision_25" file="assets/collision/base_link__025.obj" />
+    <mesh name="base_link_collision_26" file="assets/collision/base_link__026.obj" />
+    <mesh name="base_link_collision_27" file="assets/collision/base_link__027.obj" />
+    <mesh name="base_link_collision_28" file="assets/collision/base_link__028.obj" />
+    <mesh name="base_link_collision_29" file="assets/collision/base_link__029.obj" />
+    <mesh name="base_link_collision_30" file="assets/collision/base_link__030.obj" />
+    <mesh name="base_link_collision_31" file="assets/collision/base_link__031.obj" />
+    <mesh name="base_link_collision_32" file="assets/collision/base_link__032.obj" />
+    <mesh name="base_link_collision_33" file="assets/collision/base_link__033.obj" />
+    <mesh name="base_link_collision_34" file="assets/collision/base_link__034.obj" />
+    <mesh name="base_link_collision_35" file="assets/collision/base_link__035.obj" />
+    <mesh name="base_link_collision_36" file="assets/collision/base_link__036.obj" />
+    <mesh name="base_link_collision_37" file="assets/collision/base_link__037.obj" />
+    <mesh name="base_link_collision_38" file="assets/collision/base_link__038.obj" />
+    <mesh name="base_link_collision_39" file="assets/collision/base_link__039.obj" />
+    <mesh name="base_link_collision_40" file="assets/collision/base_link__040.obj" />
+    <mesh name="base_link_collision_41" file="assets/collision/base_link__041.obj" />
+    <mesh name="base_link_collision_42" file="assets/collision/base_link__042.obj" />
+    <mesh name="base_link_collision_43" file="assets/collision/base_link__043.obj" />
+    <mesh name="base_link_collision_44" file="assets/collision/base_link__044.obj" />
+    <mesh name="base_link_collision_45" file="assets/collision/base_link__045.obj" />
+    <mesh name="base_link_collision_46" file="assets/collision/base_link__046.obj" />
+    <mesh name="base_link_collision_47" file="assets/collision/base_link__047.obj" />
+    <mesh name="base_link_collision_48" file="assets/collision/base_link__048.obj" />
+    <mesh name="base_link_collision_49" file="assets/collision/base_link__049.obj" />
+    <mesh name="base_link_collision_50" file="assets/collision/base_link__050.obj" />
+    <mesh name="base_link_collision_51" file="assets/collision/base_link__051.obj" />
+    <mesh name="base_link_collision_52" file="assets/collision/base_link__052.obj" />
+    <mesh name="base_link_collision_53" file="assets/collision/base_link__053.obj" />
+    <mesh name="base_link_collision_54" file="assets/collision/base_link__054.obj" />
+    <mesh name="base_link_collision_55" file="assets/collision/base_link__055.obj" />
+    <mesh name="base_link_collision_56" file="assets/collision/base_link__056.obj" />
+    <mesh name="base_link_collision_57" file="assets/collision/base_link__057.obj" />
+    <mesh name="base_link_collision_58" file="assets/collision/base_link__058.obj" />
+    <mesh name="base_link_collision_59" file="assets/collision/base_link__059.obj" />
+    <mesh name="base_link_collision_60" file="assets/collision/base_link__060.obj" />
+    <mesh name="base_link_collision_61" file="assets/collision/base_link__061.obj" />
+    <mesh name="base_link_collision_62" file="assets/collision/base_link__062.obj" />
+    <mesh name="base_link_collision_63" file="assets/collision/base_link__063.obj" />
+    <mesh name="base_link_collision_64" file="assets/collision/base_link__064.obj" />
+    <mesh name="base_link_collision_65" file="assets/collision/base_link__065.obj" />
+    <mesh name="base_link_collision_66" file="assets/collision/base_link__066.obj" />
+    <mesh name="base_link_collision_67" file="assets/collision/base_link__067.obj" />
+    <mesh name="base_link_collision_68" file="assets/collision/base_link__068.obj" />
+    <mesh name="base_link_collision_69" file="assets/collision/base_link__069.obj" />
+    <mesh name="base_link_collision_70" file="assets/collision/base_link__070.obj" />
+    <mesh name="base_link_collision_71" file="assets/collision/base_link__071.obj" />
+    <mesh name="Link1_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link1.STL" />
+    <mesh name="Link1_collision_0" file="assets/collision/Link1__000.obj" />
+    <mesh name="Link1_collision_1" file="assets/collision/Link1__001.obj" />
+    <mesh name="Link1_collision_2" file="assets/collision/Link1__002.obj" />
+    <mesh name="Link1_collision_3" file="assets/collision/Link1__003.obj" />
+    <mesh name="Link1_collision_4" file="assets/collision/Link1__004.obj" />
+    <mesh name="Link1_collision_5" file="assets/collision/Link1__005.obj" />
+    <mesh name="Link1_collision_6" file="assets/collision/Link1__006.obj" />
+    <mesh name="Link1_collision_7" file="assets/collision/Link1__007.obj" />
+    <mesh name="Link1_collision_8" file="assets/collision/Link1__008.obj" />
+    <mesh name="Link1_collision_9" file="assets/collision/Link1__009.obj" />
+    <mesh name="Link1_collision_10" file="assets/collision/Link1__010.obj" />
+    <mesh name="Link1_collision_11" file="assets/collision/Link1__011.obj" />
+    <mesh name="Link1_collision_12" file="assets/collision/Link1__012.obj" />
+    <mesh name="Link1_collision_13" file="assets/collision/Link1__013.obj" />
+    <mesh name="Link1_collision_14" file="assets/collision/Link1__014.obj" />
+    <mesh name="Link1_collision_15" file="assets/collision/Link1__015.obj" />
+    <mesh name="Link1_collision_16" file="assets/collision/Link1__016.obj" />
+    <mesh name="Link1_collision_17" file="assets/collision/Link1__017.obj" />
+    <mesh name="Link1_collision_18" file="assets/collision/Link1__018.obj" />
+    <mesh name="Link1_collision_19" file="assets/collision/Link1__019.obj" />
+    <mesh name="Link1_collision_20" file="assets/collision/Link1__020.obj" />
+    <mesh name="Link1_collision_21" file="assets/collision/Link1__021.obj" />
+    <mesh name="Link1_collision_22" file="assets/collision/Link1__022.obj" />
+    <mesh name="Link1_collision_23" file="assets/collision/Link1__023.obj" />
+    <mesh name="Link1_collision_24" file="assets/collision/Link1__024.obj" />
+    <mesh name="Link1_collision_25" file="assets/collision/Link1__025.obj" />
+    <mesh name="Link1_collision_26" file="assets/collision/Link1__026.obj" />
+    <mesh name="Link1_collision_27" file="assets/collision/Link1__027.obj" />
+    <mesh name="Link1_collision_28" file="assets/collision/Link1__028.obj" />
+    <mesh name="Link1_collision_29" file="assets/collision/Link1__029.obj" />
+    <mesh name="Link1_collision_30" file="assets/collision/Link1__030.obj" />
+    <mesh name="Link1_collision_31" file="assets/collision/Link1__031.obj" />
+    <mesh name="Link1_collision_32" file="assets/collision/Link1__032.obj" />
+    <mesh name="Link1_collision_33" file="assets/collision/Link1__033.obj" />
+    <mesh name="Link1_collision_34" file="assets/collision/Link1__034.obj" />
+    <mesh name="Link1_collision_35" file="assets/collision/Link1__035.obj" />
+    <mesh name="Link2_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link2.STL" />
+    <mesh name="Link2_collision_0" file="assets/collision/Link2__000.obj" />
+    <mesh name="Link2_collision_1" file="assets/collision/Link2__001.obj" />
+    <mesh name="Link2_collision_2" file="assets/collision/Link2__002.obj" />
+    <mesh name="Link2_collision_3" file="assets/collision/Link2__003.obj" />
+    <mesh name="Link2_collision_4" file="assets/collision/Link2__004.obj" />
+    <mesh name="Link2_collision_5" file="assets/collision/Link2__005.obj" />
+    <mesh name="Link2_collision_6" file="assets/collision/Link2__006.obj" />
+    <mesh name="Link2_collision_7" file="assets/collision/Link2__007.obj" />
+    <mesh name="Link2_collision_8" file="assets/collision/Link2__008.obj" />
+    <mesh name="Link2_collision_9" file="assets/collision/Link2__009.obj" />
+    <mesh name="Link2_collision_10" file="assets/collision/Link2__010.obj" />
+    <mesh name="Link2_collision_11" file="assets/collision/Link2__011.obj" />
+    <mesh name="Link2_collision_12" file="assets/collision/Link2__012.obj" />
+    <mesh name="Link2_collision_13" file="assets/collision/Link2__013.obj" />
+    <mesh name="Link2_collision_14" file="assets/collision/Link2__014.obj" />
+    <mesh name="Link2_collision_15" file="assets/collision/Link2__015.obj" />
+    <mesh name="Link2_collision_16" file="assets/collision/Link2__016.obj" />
+    <mesh name="Link2_collision_17" file="assets/collision/Link2__017.obj" />
+    <mesh name="Link2_collision_18" file="assets/collision/Link2__018.obj" />
+    <mesh name="Link2_collision_19" file="assets/collision/Link2__019.obj" />
+    <mesh name="Link2_collision_20" file="assets/collision/Link2__020.obj" />
+    <mesh name="Link2_collision_21" file="assets/collision/Link2__021.obj" />
+    <mesh name="Link2_collision_22" file="assets/collision/Link2__022.obj" />
+    <mesh name="Link2_collision_23" file="assets/collision/Link2__023.obj" />
+    <mesh name="Link2_collision_24" file="assets/collision/Link2__024.obj" />
+    <mesh name="Link2_collision_25" file="assets/collision/Link2__025.obj" />
+    <mesh name="Link2_collision_26" file="assets/collision/Link2__026.obj" />
+    <mesh name="Link2_collision_27" file="assets/collision/Link2__027.obj" />
+    <mesh name="Link2_collision_28" file="assets/collision/Link2__028.obj" />
+    <mesh name="Link2_collision_29" file="assets/collision/Link2__029.obj" />
+    <mesh name="Link2_collision_30" file="assets/collision/Link2__030.obj" />
+    <mesh name="Link2_collision_31" file="assets/collision/Link2__031.obj" />
+    <mesh name="Link2_collision_32" file="assets/collision/Link2__032.obj" />
+    <mesh name="Link2_collision_33" file="assets/collision/Link2__033.obj" />
+    <mesh name="Link2_collision_34" file="assets/collision/Link2__034.obj" />
+    <mesh name="Link2_collision_35" file="assets/collision/Link2__035.obj" />
+    <mesh name="Link2_collision_36" file="assets/collision/Link2__036.obj" />
+    <mesh name="Link2_collision_37" file="assets/collision/Link2__037.obj" />
+    <mesh name="Link2_collision_38" file="assets/collision/Link2__038.obj" />
+    <mesh name="Link2_collision_39" file="assets/collision/Link2__039.obj" />
+    <mesh name="Link2_collision_40" file="assets/collision/Link2__040.obj" />
+    <mesh name="Link2_collision_41" file="assets/collision/Link2__041.obj" />
+    <mesh name="Link2_collision_42" file="assets/collision/Link2__042.obj" />
+    <mesh name="Link2_collision_43" file="assets/collision/Link2__043.obj" />
+    <mesh name="Link2_collision_44" file="assets/collision/Link2__044.obj" />
+    <mesh name="Link2_collision_45" file="assets/collision/Link2__045.obj" />
+    <mesh name="Link2_collision_46" file="assets/collision/Link2__046.obj" />
+    <mesh name="Link2_collision_47" file="assets/collision/Link2__047.obj" />
+    <mesh name="Link2_collision_48" file="assets/collision/Link2__048.obj" />
+    <mesh name="Link2_collision_49" file="assets/collision/Link2__049.obj" />
+    <mesh name="Link2_collision_50" file="assets/collision/Link2__050.obj" />
+    <mesh name="Link2_collision_51" file="assets/collision/Link2__051.obj" />
+    <mesh name="Link2_collision_52" file="assets/collision/Link2__052.obj" />
+    <mesh name="Link2_collision_53" file="assets/collision/Link2__053.obj" />
+    <mesh name="Link2_collision_54" file="assets/collision/Link2__054.obj" />
+    <mesh name="Link2_collision_55" file="assets/collision/Link2__055.obj" />
+    <mesh name="Link2_collision_56" file="assets/collision/Link2__056.obj" />
+    <mesh name="Link2_collision_57" file="assets/collision/Link2__057.obj" />
+    <mesh name="Link2_collision_58" file="assets/collision/Link2__058.obj" />
+    <mesh name="Link2_collision_59" file="assets/collision/Link2__059.obj" />
+    <mesh name="Link2_collision_60" file="assets/collision/Link2__060.obj" />
+    <mesh name="Link2_collision_61" file="assets/collision/Link2__061.obj" />
+    <mesh name="Link2_collision_62" file="assets/collision/Link2__062.obj" />
+    <mesh name="Link2_collision_63" file="assets/collision/Link2__063.obj" />
+    <mesh name="Link2_collision_64" file="assets/collision/Link2__064.obj" />
+    <mesh name="Link2_collision_65" file="assets/collision/Link2__065.obj" />
+    <mesh name="Link2_collision_66" file="assets/collision/Link2__066.obj" />
+    <mesh name="Link2_collision_67" file="assets/collision/Link2__067.obj" />
+    <mesh name="Link2_collision_68" file="assets/collision/Link2__068.obj" />
+    <mesh name="Link2_collision_69" file="assets/collision/Link2__069.obj" />
+    <mesh name="Link2_collision_70" file="assets/collision/Link2__070.obj" />
+    <mesh name="Link2_collision_71" file="assets/collision/Link2__071.obj" />
+    <mesh name="Link2_collision_72" file="assets/collision/Link2__072.obj" />
+    <mesh name="Link2_collision_73" file="assets/collision/Link2__073.obj" />
+    <mesh name="Link2_collision_74" file="assets/collision/Link2__074.obj" />
+    <mesh name="Link2_collision_75" file="assets/collision/Link2__075.obj" />
+    <mesh name="Link2_collision_76" file="assets/collision/Link2__076.obj" />
+    <mesh name="Link2_collision_77" file="assets/collision/Link2__077.obj" />
+    <mesh name="Link2_collision_78" file="assets/collision/Link2__078.obj" />
+    <mesh name="Link2_collision_79" file="assets/collision/Link2__079.obj" />
+    <mesh name="Link2_collision_80" file="assets/collision/Link2__080.obj" />
+    <mesh name="Link2_collision_81" file="assets/collision/Link2__081.obj" />
+    <mesh name="Link2_collision_82" file="assets/collision/Link2__082.obj" />
+    <mesh name="Link2_collision_83" file="assets/collision/Link2__083.obj" />
+    <mesh name="Link2_collision_84" file="assets/collision/Link2__084.obj" />
+    <mesh name="Link2_collision_85" file="assets/collision/Link2__085.obj" />
+    <mesh name="Link2_collision_86" file="assets/collision/Link2__086.obj" />
+    <mesh name="Link2_collision_87" file="assets/collision/Link2__087.obj" />
+    <mesh name="Link2_collision_88" file="assets/collision/Link2__088.obj" />
+    <mesh name="Link2_collision_89" file="assets/collision/Link2__089.obj" />
+    <mesh name="Link2_collision_90" file="assets/collision/Link2__090.obj" />
+    <mesh name="Link2_collision_91" file="assets/collision/Link2__091.obj" />
+    <mesh name="Link2_collision_92" file="assets/collision/Link2__092.obj" />
+    <mesh name="Link2_collision_93" file="assets/collision/Link2__093.obj" />
+    <mesh name="Link2_collision_94" file="assets/collision/Link2__094.obj" />
+    <mesh name="Link2_collision_95" file="assets/collision/Link2__095.obj" />
+    <mesh name="Link2_collision_96" file="assets/collision/Link2__096.obj" />
+    <mesh name="Link2_collision_97" file="assets/collision/Link2__097.obj" />
+    <mesh name="Link2_collision_98" file="assets/collision/Link2__098.obj" />
+    <mesh name="Link2_collision_99" file="assets/collision/Link2__099.obj" />
+    <mesh name="Link2_collision_100" file="assets/collision/Link2__100.obj" />
+    <mesh name="Link2_collision_101" file="assets/collision/Link2__101.obj" />
+    <mesh name="Link2_collision_102" file="assets/collision/Link2__102.obj" />
+    <mesh name="Link2_collision_103" file="assets/collision/Link2__103.obj" />
+    <mesh name="Link2_collision_104" file="assets/collision/Link2__104.obj" />
+    <mesh name="Link2_collision_105" file="assets/collision/Link2__105.obj" />
+    <mesh name="Link2_collision_106" file="assets/collision/Link2__106.obj" />
+    <mesh name="Link2_collision_107" file="assets/collision/Link2__107.obj" />
+    <mesh name="Link2_collision_108" file="assets/collision/Link2__108.obj" />
+    <mesh name="Link2_collision_109" file="assets/collision/Link2__109.obj" />
+    <mesh name="Link2_collision_110" file="assets/collision/Link2__110.obj" />
+    <mesh name="Link2_collision_111" file="assets/collision/Link2__111.obj" />
+    <mesh name="Link2_collision_112" file="assets/collision/Link2__112.obj" />
+    <mesh name="Link2_collision_113" file="assets/collision/Link2__113.obj" />
+    <mesh name="Link2_collision_114" file="assets/collision/Link2__114.obj" />
+    <mesh name="Link2_collision_115" file="assets/collision/Link2__115.obj" />
+    <mesh name="Link2_collision_116" file="assets/collision/Link2__116.obj" />
+    <mesh name="Link2_collision_117" file="assets/collision/Link2__117.obj" />
+    <mesh name="Link2_collision_118" file="assets/collision/Link2__118.obj" />
+    <mesh name="Link2_collision_119" file="assets/collision/Link2__119.obj" />
+    <mesh name="Link2_collision_120" file="assets/collision/Link2__120.obj" />
+    <mesh name="Link2_collision_121" file="assets/collision/Link2__121.obj" />
+    <mesh name="Link2_collision_122" file="assets/collision/Link2__122.obj" />
+    <mesh name="Link2_collision_123" file="assets/collision/Link2__123.obj" />
+    <mesh name="Link2_collision_124" file="assets/collision/Link2__124.obj" />
+    <mesh name="Link2_collision_125" file="assets/collision/Link2__125.obj" />
+    <mesh name="Link2_collision_126" file="assets/collision/Link2__126.obj" />
+    <mesh name="Link2_collision_127" file="assets/collision/Link2__127.obj" />
+    <mesh name="Link2_collision_128" file="assets/collision/Link2__128.obj" />
+    <mesh name="Link2_collision_129" file="assets/collision/Link2__129.obj" />
+    <mesh name="Link2_collision_130" file="assets/collision/Link2__130.obj" />
+    <mesh name="Link2_collision_131" file="assets/collision/Link2__131.obj" />
+    <mesh name="Link2_collision_132" file="assets/collision/Link2__132.obj" />
+    <mesh name="Link2_collision_133" file="assets/collision/Link2__133.obj" />
+    <mesh name="Link2_collision_134" file="assets/collision/Link2__134.obj" />
+    <mesh name="Link2_collision_135" file="assets/collision/Link2__135.obj" />
+    <mesh name="Link2_collision_136" file="assets/collision/Link2__136.obj" />
+    <mesh name="Link2_collision_137" file="assets/collision/Link2__137.obj" />
+    <mesh name="Link2_collision_138" file="assets/collision/Link2__138.obj" />
+    <mesh name="Link2_collision_139" file="assets/collision/Link2__139.obj" />
+    <mesh name="Link2_collision_140" file="assets/collision/Link2__140.obj" />
+    <mesh name="Link2_collision_141" file="assets/collision/Link2__141.obj" />
+    <mesh name="Link2_collision_142" file="assets/collision/Link2__142.obj" />
+    <mesh name="Link2_collision_143" file="assets/collision/Link2__143.obj" />
+    <mesh name="Link2_collision_144" file="assets/collision/Link2__144.obj" />
+    <mesh name="Link2_collision_145" file="assets/collision/Link2__145.obj" />
+    <mesh name="Link2_collision_146" file="assets/collision/Link2__146.obj" />
+    <mesh name="Link2_collision_147" file="assets/collision/Link2__147.obj" />
+    <mesh name="Link2_collision_148" file="assets/collision/Link2__148.obj" />
+    <mesh name="Link2_collision_149" file="assets/collision/Link2__149.obj" />
+    <mesh name="Link2_collision_150" file="assets/collision/Link2__150.obj" />
+    <mesh name="Link2_collision_151" file="assets/collision/Link2__151.obj" />
+    <mesh name="Link2_collision_152" file="assets/collision/Link2__152.obj" />
+    <mesh name="Link2_collision_153" file="assets/collision/Link2__153.obj" />
+    <mesh name="Link3_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link3.STL" />
+    <mesh name="Link3_collision_0" file="assets/collision/Link3__000.obj" />
+    <mesh name="Link3_collision_1" file="assets/collision/Link3__001.obj" />
+    <mesh name="Link3_collision_2" file="assets/collision/Link3__002.obj" />
+    <mesh name="Link3_collision_3" file="assets/collision/Link3__003.obj" />
+    <mesh name="Link3_collision_4" file="assets/collision/Link3__004.obj" />
+    <mesh name="Link3_collision_5" file="assets/collision/Link3__005.obj" />
+    <mesh name="Link3_collision_6" file="assets/collision/Link3__006.obj" />
+    <mesh name="Link3_collision_7" file="assets/collision/Link3__007.obj" />
+    <mesh name="Link3_collision_8" file="assets/collision/Link3__008.obj" />
+    <mesh name="Link3_collision_9" file="assets/collision/Link3__009.obj" />
+    <mesh name="Link3_collision_10" file="assets/collision/Link3__010.obj" />
+    <mesh name="Link3_collision_11" file="assets/collision/Link3__011.obj" />
+    <mesh name="Link3_collision_12" file="assets/collision/Link3__012.obj" />
+    <mesh name="Link3_collision_13" file="assets/collision/Link3__013.obj" />
+    <mesh name="Link3_collision_14" file="assets/collision/Link3__014.obj" />
+    <mesh name="Link3_collision_15" file="assets/collision/Link3__015.obj" />
+    <mesh name="Link3_collision_16" file="assets/collision/Link3__016.obj" />
+    <mesh name="Link3_collision_17" file="assets/collision/Link3__017.obj" />
+    <mesh name="Link3_collision_18" file="assets/collision/Link3__018.obj" />
+    <mesh name="Link3_collision_19" file="assets/collision/Link3__019.obj" />
+    <mesh name="Link3_collision_20" file="assets/collision/Link3__020.obj" />
+    <mesh name="Link3_collision_21" file="assets/collision/Link3__021.obj" />
+    <mesh name="Link3_collision_22" file="assets/collision/Link3__022.obj" />
+    <mesh name="Link3_collision_23" file="assets/collision/Link3__023.obj" />
+    <mesh name="Link3_collision_24" file="assets/collision/Link3__024.obj" />
+    <mesh name="Link3_collision_25" file="assets/collision/Link3__025.obj" />
+    <mesh name="Link3_collision_26" file="assets/collision/Link3__026.obj" />
+    <mesh name="Link3_collision_27" file="assets/collision/Link3__027.obj" />
+    <mesh name="Link3_collision_28" file="assets/collision/Link3__028.obj" />
+    <mesh name="Link3_collision_29" file="assets/collision/Link3__029.obj" />
+    <mesh name="Link3_collision_30" file="assets/collision/Link3__030.obj" />
+    <mesh name="Link3_collision_31" file="assets/collision/Link3__031.obj" />
+    <mesh name="Link3_collision_32" file="assets/collision/Link3__032.obj" />
+    <mesh name="Link3_collision_33" file="assets/collision/Link3__033.obj" />
+    <mesh name="Link3_collision_34" file="assets/collision/Link3__034.obj" />
+    <mesh name="Link3_collision_35" file="assets/collision/Link3__035.obj" />
+    <mesh name="Link3_collision_36" file="assets/collision/Link3__036.obj" />
+    <mesh name="Link3_collision_37" file="assets/collision/Link3__037.obj" />
+    <mesh name="Link3_collision_38" file="assets/collision/Link3__038.obj" />
+    <mesh name="Link3_collision_39" file="assets/collision/Link3__039.obj" />
+    <mesh name="Link3_collision_40" file="assets/collision/Link3__040.obj" />
+    <mesh name="Link3_collision_41" file="assets/collision/Link3__041.obj" />
+    <mesh name="Link3_collision_42" file="assets/collision/Link3__042.obj" />
+    <mesh name="Link3_collision_43" file="assets/collision/Link3__043.obj" />
+    <mesh name="Link3_collision_44" file="assets/collision/Link3__044.obj" />
+    <mesh name="Link3_collision_45" file="assets/collision/Link3__045.obj" />
+    <mesh name="Link3_collision_46" file="assets/collision/Link3__046.obj" />
+    <mesh name="Link3_collision_47" file="assets/collision/Link3__047.obj" />
+    <mesh name="Link3_collision_48" file="assets/collision/Link3__048.obj" />
+    <mesh name="Link3_collision_49" file="assets/collision/Link3__049.obj" />
+    <mesh name="Link3_collision_50" file="assets/collision/Link3__050.obj" />
+    <mesh name="Link3_collision_51" file="assets/collision/Link3__051.obj" />
+    <mesh name="Link3_collision_52" file="assets/collision/Link3__052.obj" />
+    <mesh name="Link3_collision_53" file="assets/collision/Link3__053.obj" />
+    <mesh name="Link3_collision_54" file="assets/collision/Link3__054.obj" />
+    <mesh name="Link3_collision_55" file="assets/collision/Link3__055.obj" />
+    <mesh name="Link3_collision_56" file="assets/collision/Link3__056.obj" />
+    <mesh name="Link3_collision_57" file="assets/collision/Link3__057.obj" />
+    <mesh name="Link3_collision_58" file="assets/collision/Link3__058.obj" />
+    <mesh name="Link3_collision_59" file="assets/collision/Link3__059.obj" />
+    <mesh name="Link3_collision_60" file="assets/collision/Link3__060.obj" />
+    <mesh name="Link3_collision_61" file="assets/collision/Link3__061.obj" />
+    <mesh name="Link3_collision_62" file="assets/collision/Link3__062.obj" />
+    <mesh name="Link3_collision_63" file="assets/collision/Link3__063.obj" />
+    <mesh name="Link3_collision_64" file="assets/collision/Link3__064.obj" />
+    <mesh name="Link3_collision_65" file="assets/collision/Link3__065.obj" />
+    <mesh name="Link3_collision_66" file="assets/collision/Link3__066.obj" />
+    <mesh name="Link3_collision_67" file="assets/collision/Link3__067.obj" />
+    <mesh name="Link3_collision_68" file="assets/collision/Link3__068.obj" />
+    <mesh name="Link3_collision_69" file="assets/collision/Link3__069.obj" />
+    <mesh name="Link3_collision_70" file="assets/collision/Link3__070.obj" />
+    <mesh name="Link3_collision_71" file="assets/collision/Link3__071.obj" />
+    <mesh name="Link3_collision_72" file="assets/collision/Link3__072.obj" />
+    <mesh name="Link3_collision_73" file="assets/collision/Link3__073.obj" />
+    <mesh name="Link3_collision_74" file="assets/collision/Link3__074.obj" />
+    <mesh name="Link3_collision_75" file="assets/collision/Link3__075.obj" />
+    <mesh name="Link3_collision_76" file="assets/collision/Link3__076.obj" />
+    <mesh name="Link3_collision_77" file="assets/collision/Link3__077.obj" />
+    <mesh name="Link3_collision_78" file="assets/collision/Link3__078.obj" />
+    <mesh name="Link3_collision_79" file="assets/collision/Link3__079.obj" />
+    <mesh name="Link3_collision_80" file="assets/collision/Link3__080.obj" />
+    <mesh name="Link3_collision_81" file="assets/collision/Link3__081.obj" />
+    <mesh name="Link3_collision_82" file="assets/collision/Link3__082.obj" />
+    <mesh name="Link3_collision_83" file="assets/collision/Link3__083.obj" />
+    <mesh name="Link3_collision_84" file="assets/collision/Link3__084.obj" />
+    <mesh name="Link3_collision_85" file="assets/collision/Link3__085.obj" />
+    <mesh name="Link3_collision_86" file="assets/collision/Link3__086.obj" />
+    <mesh name="Link3_collision_87" file="assets/collision/Link3__087.obj" />
+    <mesh name="Link3_collision_88" file="assets/collision/Link3__088.obj" />
+    <mesh name="Link3_collision_89" file="assets/collision/Link3__089.obj" />
+    <mesh name="Link3_collision_90" file="assets/collision/Link3__090.obj" />
+    <mesh name="Link3_collision_91" file="assets/collision/Link3__091.obj" />
+    <mesh name="Link3_collision_92" file="assets/collision/Link3__092.obj" />
+    <mesh name="Link3_collision_93" file="assets/collision/Link3__093.obj" />
+    <mesh name="Link3_collision_94" file="assets/collision/Link3__094.obj" />
+    <mesh name="Link3_collision_95" file="assets/collision/Link3__095.obj" />
+    <mesh name="Link3_collision_96" file="assets/collision/Link3__096.obj" />
+    <mesh name="Link3_collision_97" file="assets/collision/Link3__097.obj" />
+    <mesh name="Link3_collision_98" file="assets/collision/Link3__098.obj" />
+    <mesh name="Link3_collision_99" file="assets/collision/Link3__099.obj" />
+    <mesh name="Link3_collision_100" file="assets/collision/Link3__100.obj" />
+    <mesh name="Link3_collision_101" file="assets/collision/Link3__101.obj" />
+    <mesh name="Link3_collision_102" file="assets/collision/Link3__102.obj" />
+    <mesh name="Link3_collision_103" file="assets/collision/Link3__103.obj" />
+    <mesh name="Link3_collision_104" file="assets/collision/Link3__104.obj" />
+    <mesh name="Link3_collision_105" file="assets/collision/Link3__105.obj" />
+    <mesh name="Link3_collision_106" file="assets/collision/Link3__106.obj" />
+    <mesh name="Link3_collision_107" file="assets/collision/Link3__107.obj" />
+    <mesh name="Link3_collision_108" file="assets/collision/Link3__108.obj" />
+    <mesh name="Link3_collision_109" file="assets/collision/Link3__109.obj" />
+    <mesh name="Link3_collision_110" file="assets/collision/Link3__110.obj" />
+    <mesh name="Link3_collision_111" file="assets/collision/Link3__111.obj" />
+    <mesh name="Link3_collision_112" file="assets/collision/Link3__112.obj" />
+    <mesh name="Link3_collision_113" file="assets/collision/Link3__113.obj" />
+    <mesh name="Link3_collision_114" file="assets/collision/Link3__114.obj" />
+    <mesh name="Link3_collision_115" file="assets/collision/Link3__115.obj" />
+    <mesh name="Link3_collision_116" file="assets/collision/Link3__116.obj" />
+    <mesh name="Link3_collision_117" file="assets/collision/Link3__117.obj" />
+    <mesh name="Link3_collision_118" file="assets/collision/Link3__118.obj" />
+    <mesh name="Link3_collision_119" file="assets/collision/Link3__119.obj" />
+    <mesh name="Link3_collision_120" file="assets/collision/Link3__120.obj" />
+    <mesh name="Link3_collision_121" file="assets/collision/Link3__121.obj" />
+    <mesh name="Link3_collision_122" file="assets/collision/Link3__122.obj" />
+    <mesh name="Link3_collision_123" file="assets/collision/Link3__123.obj" />
+    <mesh name="Link3_collision_124" file="assets/collision/Link3__124.obj" />
+    <mesh name="Link3_collision_125" file="assets/collision/Link3__125.obj" />
+    <mesh name="Link3_collision_126" file="assets/collision/Link3__126.obj" />
+    <mesh name="Link3_collision_127" file="assets/collision/Link3__127.obj" />
+    <mesh name="Link3_collision_128" file="assets/collision/Link3__128.obj" />
+    <mesh name="Link3_collision_129" file="assets/collision/Link3__129.obj" />
+    <mesh name="Link3_collision_130" file="assets/collision/Link3__130.obj" />
+    <mesh name="Link3_collision_131" file="assets/collision/Link3__131.obj" />
+    <mesh name="Link3_collision_132" file="assets/collision/Link3__132.obj" />
+    <mesh name="Link3_collision_133" file="assets/collision/Link3__133.obj" />
+    <mesh name="Link3_collision_134" file="assets/collision/Link3__134.obj" />
+    <mesh name="Link3_collision_135" file="assets/collision/Link3__135.obj" />
+    <mesh name="Link3_collision_136" file="assets/collision/Link3__136.obj" />
+    <mesh name="Link3_collision_137" file="assets/collision/Link3__137.obj" />
+    <mesh name="Link3_collision_138" file="assets/collision/Link3__138.obj" />
+    <mesh name="Link3_collision_139" file="assets/collision/Link3__139.obj" />
+    <mesh name="Link3_collision_140" file="assets/collision/Link3__140.obj" />
+    <mesh name="Link3_collision_141" file="assets/collision/Link3__141.obj" />
+    <mesh name="Link3_collision_142" file="assets/collision/Link3__142.obj" />
+    <mesh name="Link3_collision_143" file="assets/collision/Link3__143.obj" />
+    <mesh name="Link3_collision_144" file="assets/collision/Link3__144.obj" />
+    <mesh name="Link3_collision_145" file="assets/collision/Link3__145.obj" />
+    <mesh name="Link3_collision_146" file="assets/collision/Link3__146.obj" />
+    <mesh name="Link3_collision_147" file="assets/collision/Link3__147.obj" />
+    <mesh name="Link3_collision_148" file="assets/collision/Link3__148.obj" />
+    <mesh name="Link3_collision_149" file="assets/collision/Link3__149.obj" />
+    <mesh name="Link3_collision_150" file="assets/collision/Link3__150.obj" />
+    <mesh name="Link3_collision_151" file="assets/collision/Link3__151.obj" />
+    <mesh name="Link3_collision_152" file="assets/collision/Link3__152.obj" />
+    <mesh name="Link3_collision_153" file="assets/collision/Link3__153.obj" />
+    <mesh name="Link3_collision_154" file="assets/collision/Link3__154.obj" />
+    <mesh name="Link3_collision_155" file="assets/collision/Link3__155.obj" />
+    <mesh name="Link3_collision_156" file="assets/collision/Link3__156.obj" />
+    <mesh name="Link3_collision_157" file="assets/collision/Link3__157.obj" />
+    <mesh name="Link3_collision_158" file="assets/collision/Link3__158.obj" />
+    <mesh name="Link3_collision_159" file="assets/collision/Link3__159.obj" />
+    <mesh name="Link3_collision_160" file="assets/collision/Link3__160.obj" />
+    <mesh name="Link3_collision_161" file="assets/collision/Link3__161.obj" />
+    <mesh name="Link3_collision_162" file="assets/collision/Link3__162.obj" />
+    <mesh name="Link3_collision_163" file="assets/collision/Link3__163.obj" />
+    <mesh name="Link3_collision_164" file="assets/collision/Link3__164.obj" />
+    <mesh name="Link3_collision_165" file="assets/collision/Link3__165.obj" />
+    <mesh name="Link3_collision_166" file="assets/collision/Link3__166.obj" />
+    <mesh name="Link3_collision_167" file="assets/collision/Link3__167.obj" />
+    <mesh name="Link3_collision_168" file="assets/collision/Link3__168.obj" />
+    <mesh name="Link3_collision_169" file="assets/collision/Link3__169.obj" />
+    <mesh name="Link3_collision_170" file="assets/collision/Link3__170.obj" />
+    <mesh name="Link3_collision_171" file="assets/collision/Link3__171.obj" />
+    <mesh name="Link3_collision_172" file="assets/collision/Link3__172.obj" />
+    <mesh name="Link3_collision_173" file="assets/collision/Link3__173.obj" />
+    <mesh name="Link3_collision_174" file="assets/collision/Link3__174.obj" />
+    <mesh name="Link3_collision_175" file="assets/collision/Link3__175.obj" />
+    <mesh name="Link3_collision_176" file="assets/collision/Link3__176.obj" />
+    <mesh name="Link3_collision_177" file="assets/collision/Link3__177.obj" />
+    <mesh name="Link3_collision_178" file="assets/collision/Link3__178.obj" />
+    <mesh name="Link3_collision_179" file="assets/collision/Link3__179.obj" />
+    <mesh name="Link3_collision_180" file="assets/collision/Link3__180.obj" />
+    <mesh name="Link3_collision_181" file="assets/collision/Link3__181.obj" />
+    <mesh name="Link3_collision_182" file="assets/collision/Link3__182.obj" />
+    <mesh name="Link3_collision_183" file="assets/collision/Link3__183.obj" />
+    <mesh name="Link3_collision_184" file="assets/collision/Link3__184.obj" />
+    <mesh name="Link3_collision_185" file="assets/collision/Link3__185.obj" />
+    <mesh name="Link3_collision_186" file="assets/collision/Link3__186.obj" />
+    <mesh name="Link3_collision_187" file="assets/collision/Link3__187.obj" />
+    <mesh name="Link3_collision_188" file="assets/collision/Link3__188.obj" />
+    <mesh name="Link3_collision_189" file="assets/collision/Link3__189.obj" />
+    <mesh name="Link3_collision_190" file="assets/collision/Link3__190.obj" />
+    <mesh name="Link3_collision_191" file="assets/collision/Link3__191.obj" />
+    <mesh name="Link4_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link4.STL" />
+    <mesh name="Link4_collision_0" file="assets/collision/Link4__000.obj" />
+    <mesh name="Link4_collision_1" file="assets/collision/Link4__001.obj" />
+    <mesh name="Link4_collision_2" file="assets/collision/Link4__002.obj" />
+    <mesh name="Link4_collision_3" file="assets/collision/Link4__003.obj" />
+    <mesh name="Link4_collision_4" file="assets/collision/Link4__004.obj" />
+    <mesh name="Link4_collision_5" file="assets/collision/Link4__005.obj" />
+    <mesh name="Link4_collision_6" file="assets/collision/Link4__006.obj" />
+    <mesh name="Link4_collision_7" file="assets/collision/Link4__007.obj" />
+    <mesh name="Link4_collision_8" file="assets/collision/Link4__008.obj" />
+    <mesh name="Link4_collision_9" file="assets/collision/Link4__009.obj" />
+    <mesh name="Link4_collision_10" file="assets/collision/Link4__010.obj" />
+    <mesh name="Link4_collision_11" file="assets/collision/Link4__011.obj" />
+    <mesh name="Link4_collision_12" file="assets/collision/Link4__012.obj" />
+    <mesh name="Link4_collision_13" file="assets/collision/Link4__013.obj" />
+    <mesh name="Link4_collision_14" file="assets/collision/Link4__014.obj" />
+    <mesh name="Link4_collision_15" file="assets/collision/Link4__015.obj" />
+    <mesh name="Link4_collision_16" file="assets/collision/Link4__016.obj" />
+    <mesh name="Link4_collision_17" file="assets/collision/Link4__017.obj" />
+    <mesh name="Link4_collision_18" file="assets/collision/Link4__018.obj" />
+    <mesh name="Link4_collision_19" file="assets/collision/Link4__019.obj" />
+    <mesh name="Link4_collision_20" file="assets/collision/Link4__020.obj" />
+    <mesh name="Link4_collision_21" file="assets/collision/Link4__021.obj" />
+    <mesh name="Link4_collision_22" file="assets/collision/Link4__022.obj" />
+    <mesh name="Link4_collision_23" file="assets/collision/Link4__023.obj" />
+    <mesh name="Link4_collision_24" file="assets/collision/Link4__024.obj" />
+    <mesh name="Link4_collision_25" file="assets/collision/Link4__025.obj" />
+    <mesh name="Link4_collision_26" file="assets/collision/Link4__026.obj" />
+    <mesh name="Link4_collision_27" file="assets/collision/Link4__027.obj" />
+    <mesh name="Link4_collision_28" file="assets/collision/Link4__028.obj" />
+    <mesh name="Link4_collision_29" file="assets/collision/Link4__029.obj" />
+    <mesh name="Link4_collision_30" file="assets/collision/Link4__030.obj" />
+    <mesh name="Link4_collision_31" file="assets/collision/Link4__031.obj" />
+    <mesh name="Link4_collision_32" file="assets/collision/Link4__032.obj" />
+    <mesh name="Link4_collision_33" file="assets/collision/Link4__033.obj" />
+    <mesh name="Link4_collision_34" file="assets/collision/Link4__034.obj" />
+    <mesh name="Link4_collision_35" file="assets/collision/Link4__035.obj" />
+    <mesh name="Link4_collision_36" file="assets/collision/Link4__036.obj" />
+    <mesh name="Link4_collision_37" file="assets/collision/Link4__037.obj" />
+    <mesh name="Link4_collision_38" file="assets/collision/Link4__038.obj" />
+    <mesh name="Link4_collision_39" file="assets/collision/Link4__039.obj" />
+    <mesh name="Link4_collision_40" file="assets/collision/Link4__040.obj" />
+    <mesh name="Link4_collision_41" file="assets/collision/Link4__041.obj" />
+    <mesh name="Link4_collision_42" file="assets/collision/Link4__042.obj" />
+    <mesh name="Link5_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link5.STL" />
+    <mesh name="Link5_collision_0" file="assets/collision/Link5__000.obj" />
+    <mesh name="Link5_collision_1" file="assets/collision/Link5__001.obj" />
+    <mesh name="Link5_collision_2" file="assets/collision/Link5__002.obj" />
+    <mesh name="Link5_collision_3" file="assets/collision/Link5__003.obj" />
+    <mesh name="Link5_collision_4" file="assets/collision/Link5__004.obj" />
+    <mesh name="Link5_collision_5" file="assets/collision/Link5__005.obj" />
+    <mesh name="Link5_collision_6" file="assets/collision/Link5__006.obj" />
+    <mesh name="Link5_collision_7" file="assets/collision/Link5__007.obj" />
+    <mesh name="Link5_collision_8" file="assets/collision/Link5__008.obj" />
+    <mesh name="Link5_collision_9" file="assets/collision/Link5__009.obj" />
+    <mesh name="Link5_collision_10" file="assets/collision/Link5__010.obj" />
+    <mesh name="Link5_collision_11" file="assets/collision/Link5__011.obj" />
+    <mesh name="Link5_collision_12" file="assets/collision/Link5__012.obj" />
+    <mesh name="Link5_collision_13" file="assets/collision/Link5__013.obj" />
+    <mesh name="Link5_collision_14" file="assets/collision/Link5__014.obj" />
+    <mesh name="Link5_collision_15" file="assets/collision/Link5__015.obj" />
+    <mesh name="Link5_collision_16" file="assets/collision/Link5__016.obj" />
+    <mesh name="Link5_collision_17" file="assets/collision/Link5__017.obj" />
+    <mesh name="Link5_collision_18" file="assets/collision/Link5__018.obj" />
+    <mesh name="Link5_collision_19" file="assets/collision/Link5__019.obj" />
+    <mesh name="Link5_collision_20" file="assets/collision/Link5__020.obj" />
+    <mesh name="Link5_collision_21" file="assets/collision/Link5__021.obj" />
+    <mesh name="Link5_collision_22" file="assets/collision/Link5__022.obj" />
+    <mesh name="Link5_collision_23" file="assets/collision/Link5__023.obj" />
+    <mesh name="Link5_collision_24" file="assets/collision/Link5__024.obj" />
+    <mesh name="Link5_collision_25" file="assets/collision/Link5__025.obj" />
+    <mesh name="Link5_collision_26" file="assets/collision/Link5__026.obj" />
+    <mesh name="Link5_collision_27" file="assets/collision/Link5__027.obj" />
+    <mesh name="Link5_collision_28" file="assets/collision/Link5__028.obj" />
+    <mesh name="Link5_collision_29" file="assets/collision/Link5__029.obj" />
+    <mesh name="Link5_collision_30" file="assets/collision/Link5__030.obj" />
+    <mesh name="Link5_collision_31" file="assets/collision/Link5__031.obj" />
+    <mesh name="Link5_collision_32" file="assets/collision/Link5__032.obj" />
+    <mesh name="Link5_collision_33" file="assets/collision/Link5__033.obj" />
+    <mesh name="Link5_collision_34" file="assets/collision/Link5__034.obj" />
+    <mesh name="Link5_collision_35" file="assets/collision/Link5__035.obj" />
+    <mesh name="Link5_collision_36" file="assets/collision/Link5__036.obj" />
+    <mesh name="Link5_collision_37" file="assets/collision/Link5__037.obj" />
+    <mesh name="Link5_collision_38" file="assets/collision/Link5__038.obj" />
+    <mesh name="Link5_collision_39" file="assets/collision/Link5__039.obj" />
+    <mesh name="Link5_collision_40" file="assets/collision/Link5__040.obj" />
+    <mesh name="Link5_collision_41" file="assets/collision/Link5__041.obj" />
+    <mesh name="Link6_visual_0" file="assets/visual/Link6__0.stl" />
+    <mesh name="Link6_visual_1" file="assets/visual/Link6__1.stl" />
+    <mesh name="Link6_collision_0" file="assets/collision/Link6__000.obj" />
+    <mesh name="Link6_collision_1" file="assets/collision/Link6__001.obj" />
+    <mesh name="Link6_collision_2" file="assets/collision/Link6__002.obj" />
+    <mesh name="Link6_collision_3" file="assets/collision/Link6__003.obj" />
+    <mesh name="Link6_collision_4" file="assets/collision/Link6__004.obj" />
+    <mesh name="Link6_collision_5" file="assets/collision/Link6__005.obj" />
+    <mesh name="Link6_collision_6" file="assets/collision/Link6__006.obj" />
+    <mesh name="Link6_collision_7" file="assets/collision/Link6__007.obj" />
+    <mesh name="Link6_collision_8" file="assets/collision/Link6__008.obj" />
+    <mesh name="Link6_collision_9" file="assets/collision/Link6__009.obj" />
+    <mesh name="Link6_collision_10" file="assets/collision/Link6__010.obj" />
+    <mesh name="Link6_collision_11" file="assets/collision/Link6__011.obj" />
+    <mesh name="Link6_collision_12" file="assets/collision/Link6__012.obj" />
+    <mesh name="Link6_collision_13" file="assets/collision/Link6__013.obj" />
+    <mesh name="Link6_collision_14" file="assets/collision/Link6__014.obj" />
+    <mesh name="Link6_collision_15" file="assets/collision/Link6__015.obj" />
+    <mesh name="Link6_collision_16" file="assets/collision/Link6__016.obj" />
+    <mesh name="Link6_collision_17" file="assets/collision/Link6__017.obj" />
+    <mesh name="Link6_collision_18" file="assets/collision/Link6__018.obj" />
+    <mesh name="Link6_collision_19" file="assets/collision/Link6__019.obj" />
+    <mesh name="Link6_collision_20" file="assets/collision/Link6__020.obj" />
+    <mesh name="Link6_collision_21" file="assets/collision/Link6__021.obj" />
+    <mesh name="Link6_collision_22" file="assets/collision/Link6__022.obj" />
+    <mesh name="Link6_collision_23" file="assets/collision/Link6__023.obj" />
+    <mesh name="Link6_collision_24" file="assets/collision/Link6__024.obj" />
+    <mesh name="Link6_collision_25" file="assets/collision/Link6__025.obj" />
+    <mesh name="Link6_collision_26" file="assets/collision/Link6__026.obj" />
+    <mesh name="Link6_collision_27" file="assets/collision/Link6__027.obj" />
+    <mesh name="Link6_collision_28" file="assets/collision/Link6__028.obj" />
+    <mesh name="Link6_collision_29" file="assets/collision/Link6__029.obj" />
+    <mesh name="Link6_collision_30" file="assets/collision/Link6__030.obj" />
+    <mesh name="Link6_collision_31" file="assets/collision/Link6__031.obj" />
+    <mesh name="Link6_collision_32" file="assets/collision/Link6__032.obj" />
+    <mesh name="Link6_collision_33" file="assets/collision/Link6__033.obj" />
+    <mesh name="Link6_collision_34" file="assets/collision/Link6__034.obj" />
+    <mesh name="Link6_collision_35" file="assets/collision/Link6__035.obj" />
+    <mesh name="Link6_collision_36" file="assets/collision/Link6__036.obj" />
+    <mesh name="Link6_collision_37" file="assets/collision/Link6__037.obj" />
+    <mesh name="Link6_collision_38" file="assets/collision/Link6__038.obj" />
+    <mesh name="Link6_collision_39" file="assets/collision/Link6__039.obj" />
+    <mesh name="Link6_collision_40" file="assets/collision/Link6__040.obj" />
+    <mesh name="Link6_collision_41" file="assets/collision/Link6__041.obj" />
+    <mesh name="Link6_collision_42" file="assets/collision/Link6__042.obj" />
+    <mesh name="Link6_collision_43" file="assets/collision/Link6__043.obj" />
+    <mesh name="Link6_collision_44" file="assets/collision/Link6__044.obj" />
+    <mesh name="Link6_collision_45" file="assets/collision/Link6__045.obj" />
+    <mesh name="Link6_collision_46" file="assets/collision/Link6__046.obj" />
+    <mesh name="Link6_collision_47" file="assets/collision/Link6__047.obj" />
+    <mesh name="Link6_collision_48" file="assets/collision/Link6__048.obj" />
+    <mesh name="Link6_collision_49" file="assets/collision/Link6__049.obj" />
+    <mesh name="Link6_collision_50" file="assets/collision/Link6__050.obj" />
+    <mesh name="Link6_collision_51" file="assets/collision/Link6__051.obj" />
+    <mesh name="Link6_collision_52" file="assets/collision/Link6__052.obj" />
+    <mesh name="Link6_collision_53" file="assets/collision/Link6__053.obj" />
+    <mesh name="Link6_collision_54" file="assets/collision/Link6__054.obj" />
+    <mesh name="Link6_collision_55" file="assets/collision/Link6__055.obj" />
+    <mesh name="Link6_collision_56" file="assets/collision/Link6__056.obj" />
+    <mesh name="Link6_collision_57" file="assets/collision/Link6__057.obj" />
+    <mesh name="Link6_collision_58" file="assets/collision/Link6__058.obj" />
+    <mesh name="Link6_collision_59" file="assets/collision/Link6__059.obj" />
+    <mesh name="Link6_collision_60" file="assets/collision/Link6__060.obj" />
+    <mesh name="Link6_collision_61" file="assets/collision/Link6__061.obj" />
+    <mesh name="Link6_collision_62" file="assets/collision/Link6__062.obj" />
+    <mesh name="Link6_collision_63" file="assets/collision/Link6__063.obj" />
+    <mesh name="Link6_collision_64" file="assets/collision/Link6__064.obj" />
+    <mesh name="Link6_collision_65" file="assets/collision/Link6__065.obj" />
+    <mesh name="Link6_collision_66" file="assets/collision/Link6__066.obj" />
+    <mesh name="Link6_collision_67" file="assets/collision/Link6__067.obj" />
+    <mesh name="Link6_collision_68" file="assets/collision/Link6__068.obj" />
+    <mesh name="Link6_collision_69" file="assets/collision/Link6__069.obj" />
+    <mesh name="Link6_collision_70" file="assets/collision/Link6__070.obj" />
+    <mesh name="Link6_collision_71" file="assets/collision/Link6__071.obj" />
+    <mesh name="Link6_collision_72" file="assets/collision/Link6__072.obj" />
+    <mesh name="Link6_collision_73" file="assets/collision/Link6__073.obj" />
+    <mesh name="Link6_collision_74" file="assets/collision/Link6__074.obj" />
+    <mesh name="Link6_collision_75" file="assets/collision/Link6__075.obj" />
+    <mesh name="Link6_collision_76" file="assets/collision/Link6__076.obj" />
+    <mesh name="Link6_collision_77" file="assets/collision/Link6__077.obj" />
+    <mesh name="Link6_collision_78" file="assets/collision/Link6__078.obj" />
+    <mesh name="Link6_collision_79" file="assets/collision/Link6__079.obj" />
+    <mesh name="Link6_collision_80" file="assets/collision/Link6__080.obj" />
+    <mesh name="Link6_collision_81" file="assets/collision/Link6__081.obj" />
+    <mesh name="Link6_collision_82" file="assets/collision/Link6__082.obj" />
+    <mesh name="Link6_collision_83" file="assets/collision/Link6__083.obj" />
+    <mesh name="Link6_collision_84" file="assets/collision/Link6__084.obj" />
+    <mesh name="Link6_collision_85" file="assets/collision/Link6__085.obj" />
+    <mesh name="Link6_collision_86" file="assets/collision/Link6__086.obj" />
+    <mesh name="Link6_collision_87" file="assets/collision/Link6__087.obj" />
+    <mesh name="Link6_collision_88" file="assets/collision/Link6__088.obj" />
+    <mesh name="Link6_collision_89" file="assets/collision/Link6__089.obj" />
+    <mesh name="Link6_collision_90" file="assets/collision/Link6__090.obj" />
+    <mesh name="Link6_collision_91" file="assets/collision/Link6__091.obj" />
+    <mesh name="Link6_collision_92" file="assets/collision/Link6__092.obj" />
+    <mesh name="Link6_collision_93" file="assets/collision/Link6__093.obj" />
+    <mesh name="Link6_collision_94" file="assets/collision/Link6__094.obj" />
+    <mesh name="Link6_collision_95" file="assets/collision/Link6__095.obj" />
+    <mesh name="Link6_collision_96" file="assets/collision/Link6__096.obj" />
+    <mesh name="Link6_collision_97" file="assets/collision/Link6__097.obj" />
+    <mesh name="Link6_collision_98" file="assets/collision/Link6__098.obj" />
+    <mesh name="Link6_collision_99" file="assets/collision/Link6__099.obj" />
+    <mesh name="Link6_collision_100" file="assets/collision/Link6__100.obj" />
+    <mesh name="Link6_collision_101" file="assets/collision/Link6__101.obj" />
+    <mesh name="Link6_collision_102" file="assets/collision/Link6__102.obj" />
+    <mesh name="Link6_collision_103" file="assets/collision/Link6__103.obj" />
+    <mesh name="Link6_collision_104" file="assets/collision/Link6__104.obj" />
+    <mesh name="Link6_collision_105" file="assets/collision/Link6__105.obj" />
+    <mesh name="Link6_collision_106" file="assets/collision/Link6__106.obj" />
+    <mesh name="Link6_collision_107" file="assets/collision/Link6__107.obj" />
+    <mesh name="Link6_collision_108" file="assets/collision/Link6__108.obj" />
+    <mesh name="Link6_collision_109" file="assets/collision/Link6__109.obj" />
+    <mesh name="Link6_collision_110" file="assets/collision/Link6__110.obj" />
+    <mesh name="Link6_collision_111" file="assets/collision/Link6__111.obj" />
+    <mesh name="Link6_collision_112" file="assets/collision/Link6__112.obj" />
+    <mesh name="Link6_collision_113" file="assets/collision/Link6__113.obj" />
+    <mesh name="Link6_collision_114" file="assets/collision/Link6__114.obj" />
+    <mesh name="Link6_collision_115" file="assets/collision/Link6__115.obj" />
+    <mesh name="Link6_collision_116" file="assets/collision/Link6__116.obj" />
+    <mesh name="Link6_collision_117" file="assets/collision/Link6__117.obj" />
+    <mesh name="Link6_collision_118" file="assets/collision/Link6__118.obj" />
+    <mesh name="Link6_collision_119" file="assets/collision/Link6__119.obj" />
+    <mesh name="Link6_collision_120" file="assets/collision/Link6__120.obj" />
+    <mesh name="Link6_collision_121" file="assets/collision/Link6__121.obj" />
+    <mesh name="Link6_collision_122" file="assets/collision/Link6__122.obj" />
+    <mesh name="Link6_collision_123" file="assets/collision/Link6__123.obj" />
+    <mesh name="Link6_collision_124" file="assets/collision/Link6__124.obj" />
+    <mesh name="Link6_collision_125" file="assets/collision/Link6__125.obj" />
+    <mesh name="Link6_collision_126" file="assets/collision/Link6__126.obj" />
+    <mesh name="Link6_collision_127" file="assets/collision/Link6__127.obj" />
+    <mesh name="Link6_collision_128" file="assets/collision/Link6__128.obj" />
+    <mesh name="Link6_collision_129" file="assets/collision/Link6__129.obj" />
+    <mesh name="Link6_collision_130" file="assets/collision/Link6__130.obj" />
+    <mesh name="Link6_collision_131" file="assets/collision/Link6__131.obj" />
+    <mesh name="Link7_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link7.STL" />
+    <mesh name="Link7_collision_0" file="assets/collision/Link7__000.obj" />
+    <mesh name="Link7-1_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link7-1.STL" />
+    <mesh name="Link7-1_collision_0" file="assets/collision/Link7-1__000.obj" />
+    <mesh name="Link7-1_collision_1" file="assets/collision/Link7-1__001.obj" />
+    <mesh name="Link7-1_collision_2" file="assets/collision/Link7-1__002.obj" />
+    <mesh name="Link7-1_collision_3" file="assets/collision/Link7-1__003.obj" />
+    <mesh name="Link7-1_collision_4" file="assets/collision/Link7-1__004.obj" />
+    <mesh name="Link7-1_collision_5" file="assets/collision/Link7-1__005.obj" />
+    <mesh name="Link7-1_collision_6" file="assets/collision/Link7-1__006.obj" />
+    <mesh name="Link7-1_collision_7" file="assets/collision/Link7-1__007.obj" />
+    <mesh name="Link7-1_collision_8" file="assets/collision/Link7-1__008.obj" />
+    <mesh name="Link7-1_collision_9" file="assets/collision/Link7-1__009.obj" />
+    <mesh name="Link7-1_collision_10" file="assets/collision/Link7-1__010.obj" />
+    <mesh name="Link7-1_collision_11" file="assets/collision/Link7-1__011.obj" />
+    <mesh name="Link7-1_collision_12" file="assets/collision/Link7-1__012.obj" />
+    <mesh name="Link7-1_collision_13" file="assets/collision/Link7-1__013.obj" />
+    <mesh name="Link7-1_collision_14" file="assets/collision/Link7-1__014.obj" />
+    <mesh name="Link7-1_collision_15" file="assets/collision/Link7-1__015.obj" />
+    <mesh name="Link7-1_collision_16" file="assets/collision/Link7-1__016.obj" />
+    <mesh name="Link7-1_collision_17" file="assets/collision/Link7-1__017.obj" />
+    <mesh name="Link7-1_collision_18" file="assets/collision/Link7-1__018.obj" />
+    <mesh name="Link7-1_collision_19" file="assets/collision/Link7-1__019.obj" />
+    <mesh name="Link7-1_collision_20" file="assets/collision/Link7-1__020.obj" />
+    <mesh name="Link7-1_collision_21" file="assets/collision/Link7-1__021.obj" />
+    <mesh name="Link7-1_collision_22" file="assets/collision/Link7-1__022.obj" />
+    <mesh name="Link7-1_collision_23" file="assets/collision/Link7-1__023.obj" />
+    <mesh name="Link7-1_collision_24" file="assets/collision/Link7-1__024.obj" />
+    <mesh name="Link7-1_collision_25" file="assets/collision/Link7-1__025.obj" />
+    <mesh name="Link7-1_collision_26" file="assets/collision/Link7-1__026.obj" />
+    <mesh name="Link7-1_collision_27" file="assets/collision/Link7-1__027.obj" />
+    <mesh name="Link7-1_collision_28" file="assets/collision/Link7-1__028.obj" />
+    <mesh name="Link7-1_collision_29" file="assets/collision/Link7-1__029.obj" />
+    <mesh name="Link7-1_collision_30" file="assets/collision/Link7-1__030.obj" />
+    <mesh name="Link7-1_collision_31" file="assets/collision/Link7-1__031.obj" />
+    <mesh name="Link7-1_collision_32" file="assets/collision/Link7-1__032.obj" />
+    <mesh name="Link7-1_collision_33" file="assets/collision/Link7-1__033.obj" />
+    <mesh name="Link7-1_collision_34" file="assets/collision/Link7-1__034.obj" />
+    <mesh name="Link7-1_collision_35" file="assets/collision/Link7-1__035.obj" />
+    <mesh name="Link7-1_collision_36" file="assets/collision/Link7-1__036.obj" />
+    <mesh name="Link7-1_collision_37" file="assets/collision/Link7-1__037.obj" />
+    <mesh name="Link7-1_collision_38" file="assets/collision/Link7-1__038.obj" />
+    <mesh name="Link7-1_collision_39" file="assets/collision/Link7-1__039.obj" />
+    <mesh name="Link7-1_collision_40" file="assets/collision/Link7-1__040.obj" />
+    <mesh name="Link7-1_collision_41" file="assets/collision/Link7-1__041.obj" />
+    <mesh name="Link7-1_collision_42" file="assets/collision/Link7-1__042.obj" />
+    <mesh name="Link7-1_collision_43" file="assets/collision/Link7-1__043.obj" />
+    <mesh name="Link7-1_collision_44" file="assets/collision/Link7-1__044.obj" />
+    <mesh name="Link7-1_collision_45" file="assets/collision/Link7-1__045.obj" />
+    <mesh name="Link7-1_collision_46" file="assets/collision/Link7-1__046.obj" />
+    <mesh name="Link7-1_collision_47" file="assets/collision/Link7-1__047.obj" />
+    <mesh name="Link7-1_collision_48" file="assets/collision/Link7-1__048.obj" />
+    <mesh name="Link7-1_collision_49" file="assets/collision/Link7-1__049.obj" />
+    <mesh name="Link7-1_collision_50" file="assets/collision/Link7-1__050.obj" />
+    <mesh name="Link7-1_collision_51" file="assets/collision/Link7-1__051.obj" />
+    <mesh name="Link7-1_collision_52" file="assets/collision/Link7-1__052.obj" />
+    <mesh name="Link7-1_collision_53" file="assets/collision/Link7-1__053.obj" />
+    <mesh name="Link7-1_collision_54" file="assets/collision/Link7-1__054.obj" />
+    <mesh name="Link7-1_collision_55" file="assets/collision/Link7-1__055.obj" />
+    <mesh name="Link7-1_collision_56" file="assets/collision/Link7-1__056.obj" />
+    <mesh name="Link7-1_collision_57" file="assets/collision/Link7-1__057.obj" />
+    <mesh name="Link7-1_collision_58" file="assets/collision/Link7-1__058.obj" />
+    <mesh name="Link7-1_collision_59" file="assets/collision/Link7-1__059.obj" />
+    <mesh name="Link7-1_collision_60" file="assets/collision/Link7-1__060.obj" />
+    <mesh name="Link7-1_collision_61" file="assets/collision/Link7-1__061.obj" />
+    <mesh name="Link7-1_collision_62" file="assets/collision/Link7-1__062.obj" />
+    <mesh name="Link7-1_collision_63" file="assets/collision/Link7-1__063.obj" />
+    <mesh name="Link7-1_collision_64" file="assets/collision/Link7-1__064.obj" />
+    <mesh name="Link7-1_collision_65" file="assets/collision/Link7-1__065.obj" />
+    <mesh name="Link7-1_collision_66" file="assets/collision/Link7-1__066.obj" />
+    <mesh name="Link7-1_collision_67" file="assets/collision/Link7-1__067.obj" />
+    <mesh name="Link7-1_collision_68" file="assets/collision/Link7-1__068.obj" />
+    <mesh name="Link7-1_collision_69" file="assets/collision/Link7-1__069.obj" />
+    <mesh name="Link7-1_collision_70" file="assets/collision/Link7-1__070.obj" />
+    <mesh name="Link7-1_collision_71" file="assets/collision/Link7-1__071.obj" />
+    <mesh name="Link7-1_collision_72" file="assets/collision/Link7-1__072.obj" />
+    <mesh name="Link7-1_collision_73" file="assets/collision/Link7-1__073.obj" />
+    <mesh name="Link7-1_collision_74" file="assets/collision/Link7-1__074.obj" />
+    <mesh name="Link7-1_collision_75" file="assets/collision/Link7-1__075.obj" />
+    <mesh name="Link7-1_collision_76" file="assets/collision/Link7-1__076.obj" />
+    <mesh name="Link7-1_collision_77" file="assets/collision/Link7-1__077.obj" />
+    <mesh name="Link7-1_collision_78" file="assets/collision/Link7-1__078.obj" />
+    <mesh name="Link7-1_collision_79" file="assets/collision/Link7-1__079.obj" />
+    <mesh name="Link7-1_collision_80" file="assets/collision/Link7-1__080.obj" />
+    <mesh name="Link7-1_collision_81" file="assets/collision/Link7-1__081.obj" />
+    <mesh name="Link7-1_collision_82" file="assets/collision/Link7-1__082.obj" />
+    <mesh name="Link7-1_collision_83" file="assets/collision/Link7-1__083.obj" />
+    <mesh name="Link7-1_collision_84" file="assets/collision/Link7-1__084.obj" />
+    <mesh name="Link7-2_visual_0" file="../../tomato_picker_description/meshes/solidworks/Link7-2.STL" />
+    <mesh name="Link7-2_collision_0" file="assets/collision/Link7-2__000.obj" />
+    <mesh name="Link7-2_collision_1" file="assets/collision/Link7-2__001.obj" />
+    <mesh name="Link7-2_collision_2" file="assets/collision/Link7-2__002.obj" />
+    <mesh name="Link7-2_collision_3" file="assets/collision/Link7-2__003.obj" />
+    <mesh name="Link7-2_collision_4" file="assets/collision/Link7-2__004.obj" />
+    <mesh name="Link7-2_collision_5" file="assets/collision/Link7-2__005.obj" />
+    <mesh name="Link7-2_collision_6" file="assets/collision/Link7-2__006.obj" />
+    <mesh name="Link7-2_collision_7" file="assets/collision/Link7-2__007.obj" />
+    <mesh name="Link7-2_collision_8" file="assets/collision/Link7-2__008.obj" />
+    <mesh name="Link7-2_collision_9" file="assets/collision/Link7-2__009.obj" />
+    <mesh name="Link7-2_collision_10" file="assets/collision/Link7-2__010.obj" />
+    <mesh name="Link7-2_collision_11" file="assets/collision/Link7-2__011.obj" />
+    <mesh name="Link7-2_collision_12" file="assets/collision/Link7-2__012.obj" />
+    <mesh name="Link7-2_collision_13" file="assets/collision/Link7-2__013.obj" />
+    <mesh name="Link7-2_collision_14" file="assets/collision/Link7-2__014.obj" />
+    <mesh name="Link7-2_collision_15" file="assets/collision/Link7-2__015.obj" />
+    <mesh name="Link7-2_collision_16" file="assets/collision/Link7-2__016.obj" />
+    <mesh name="Link7-2_collision_17" file="assets/collision/Link7-2__017.obj" />
+    <mesh name="Link7-2_collision_18" file="assets/collision/Link7-2__018.obj" />
+    <mesh name="Link7-2_collision_19" file="assets/collision/Link7-2__019.obj" />
+    <mesh name="Link7-2_collision_20" file="assets/collision/Link7-2__020.obj" />
+    <mesh name="Link7-2_collision_21" file="assets/collision/Link7-2__021.obj" />
+    <mesh name="Link7-2_collision_22" file="assets/collision/Link7-2__022.obj" />
+    <mesh name="Link7-2_collision_23" file="assets/collision/Link7-2__023.obj" />
+    <mesh name="Link7-2_collision_24" file="assets/collision/Link7-2__024.obj" />
+    <mesh name="Link7-2_collision_25" file="assets/collision/Link7-2__025.obj" />
+    <mesh name="Link7-2_collision_26" file="assets/collision/Link7-2__026.obj" />
+    <mesh name="Link7-2_collision_27" file="assets/collision/Link7-2__027.obj" />
+    <mesh name="Link7-2_collision_28" file="assets/collision/Link7-2__028.obj" />
+    <mesh name="Link7-2_collision_29" file="assets/collision/Link7-2__029.obj" />
+    <mesh name="Link7-2_collision_30" file="assets/collision/Link7-2__030.obj" />
+    <mesh name="Link7-2_collision_31" file="assets/collision/Link7-2__031.obj" />
+    <mesh name="Link7-2_collision_32" file="assets/collision/Link7-2__032.obj" />
+    <mesh name="Link7-2_collision_33" file="assets/collision/Link7-2__033.obj" />
+    <mesh name="Link7-2_collision_34" file="assets/collision/Link7-2__034.obj" />
+    <mesh name="Link7-2_collision_35" file="assets/collision/Link7-2__035.obj" />
+    <mesh name="Link7-2_collision_36" file="assets/collision/Link7-2__036.obj" />
+    <mesh name="Link7-2_collision_37" file="assets/collision/Link7-2__037.obj" />
+    <mesh name="Link7-2_collision_38" file="assets/collision/Link7-2__038.obj" />
+    <mesh name="Link7-2_collision_39" file="assets/collision/Link7-2__039.obj" />
+    <mesh name="Link7-2_collision_40" file="assets/collision/Link7-2__040.obj" />
+    <mesh name="Link7-2_collision_41" file="assets/collision/Link7-2__041.obj" />
+    <mesh name="Link7-2_collision_42" file="assets/collision/Link7-2__042.obj" />
+    <mesh name="Link7-2_collision_43" file="assets/collision/Link7-2__043.obj" />
+    <mesh name="Link7-2_collision_44" file="assets/collision/Link7-2__044.obj" />
+    <mesh name="Link7-2_collision_45" file="assets/collision/Link7-2__045.obj" />
+    <mesh name="Link7-2_collision_46" file="assets/collision/Link7-2__046.obj" />
+    <mesh name="Link7-2_collision_47" file="assets/collision/Link7-2__047.obj" />
+    <mesh name="Link7-2_collision_48" file="assets/collision/Link7-2__048.obj" />
+    <mesh name="Link7-2_collision_49" file="assets/collision/Link7-2__049.obj" />
+    <mesh name="Link7-2_collision_50" file="assets/collision/Link7-2__050.obj" />
+    <mesh name="Link7-2_collision_51" file="assets/collision/Link7-2__051.obj" />
+    <mesh name="Link7-2_collision_52" file="assets/collision/Link7-2__052.obj" />
+    <mesh name="Link7-2_collision_53" file="assets/collision/Link7-2__053.obj" />
+    <mesh name="Link7-2_collision_54" file="assets/collision/Link7-2__054.obj" />
+    <mesh name="Link7-2_collision_55" file="assets/collision/Link7-2__055.obj" />
+    <mesh name="Link7-2_collision_56" file="assets/collision/Link7-2__056.obj" />
+    <mesh name="Link7-2_collision_57" file="assets/collision/Link7-2__057.obj" />
+    <mesh name="Link7-2_collision_58" file="assets/collision/Link7-2__058.obj" />
+    <mesh name="Link7-2_collision_59" file="assets/collision/Link7-2__059.obj" />
+    <mesh name="Link7-2_collision_60" file="assets/collision/Link7-2__060.obj" />
+    <mesh name="Link7-2_collision_61" file="assets/collision/Link7-2__061.obj" />
+    <mesh name="Link7-2_collision_62" file="assets/collision/Link7-2__062.obj" />
+    <mesh name="Link7-2_collision_63" file="assets/collision/Link7-2__063.obj" />
+    <mesh name="Link7-2_collision_64" file="assets/collision/Link7-2__064.obj" />
+    <mesh name="Link7-2_collision_65" file="assets/collision/Link7-2__065.obj" />
+    <mesh name="Link7-2_collision_66" file="assets/collision/Link7-2__066.obj" />
+    <mesh name="Link7-2_collision_67" file="assets/collision/Link7-2__067.obj" />
+    <mesh name="Link7-2_collision_68" file="assets/collision/Link7-2__068.obj" />
+    <mesh name="Link7-2_collision_69" file="assets/collision/Link7-2__069.obj" />
+    <mesh name="Link7-2_collision_70" file="assets/collision/Link7-2__070.obj" />
+    <mesh name="Link7-2_collision_71" file="assets/collision/Link7-2__071.obj" />
+    <mesh name="Link7-2_collision_72" file="assets/collision/Link7-2__072.obj" />
+    <mesh name="Link7-2_collision_73" file="assets/collision/Link7-2__073.obj" />
+    <mesh name="Link7-2_collision_74" file="assets/collision/Link7-2__074.obj" />
+    <mesh name="Link7-2_collision_75" file="assets/collision/Link7-2__075.obj" />
+    <mesh name="Link7-2_collision_76" file="assets/collision/Link7-2__076.obj" />
+    <mesh name="Link7-2_collision_77" file="assets/collision/Link7-2__077.obj" />
+    <mesh name="Link7-2_collision_78" file="assets/collision/Link7-2__078.obj" />
+    <mesh name="Link7-2_collision_79" file="assets/collision/Link7-2__079.obj" />
+    <mesh name="Link7-2_collision_80" file="assets/collision/Link7-2__080.obj" />
+    <mesh name="Link7-2_collision_81" file="assets/collision/Link7-2__081.obj" />
+    <mesh name="Link7-2_collision_82" file="assets/collision/Link7-2__082.obj" />
+    <mesh name="Link7-2_collision_83" file="assets/collision/Link7-2__083.obj" />
+    <mesh name="Link7-2_collision_84" file="assets/collision/Link7-2__084.obj" />
+    <mesh name="Link7-2_collision_85" file="assets/collision/Link7-2__085.obj" />
+    <mesh name="Link7-2_collision_86" file="assets/collision/Link7-2__086.obj" />
+    <mesh name="Link7-2_collision_87" file="assets/collision/Link7-2__087.obj" />
+    <mesh name="Link7-2_collision_88" file="assets/collision/Link7-2__088.obj" />
+    <mesh name="Link7-2_collision_89" file="assets/collision/Link7-2__089.obj" />
+    <mesh name="Link7-2_collision_90" file="assets/collision/Link7-2__090.obj" />
+    <mesh name="Link7-2_collision_91" file="assets/collision/Link7-2__091.obj" />
+    <mesh name="Link7-2_collision_92" file="assets/collision/Link7-2__092.obj" />
+    <mesh name="Link7-2_collision_93" file="assets/collision/Link7-2__093.obj" />
+    <mesh name="Link7-2_collision_94" file="assets/collision/Link7-2__094.obj" />
+    <mesh name="Link7-2_collision_95" file="assets/collision/Link7-2__095.obj" />
+    <mesh name="Link7-2_collision_96" file="assets/collision/Link7-2__096.obj" />
+    <mesh name="Link7-2_collision_97" file="assets/collision/Link7-2__097.obj" />
+    <mesh name="Link7-2_collision_98" file="assets/collision/Link7-2__098.obj" />
+    <mesh name="Link7-2_collision_99" file="assets/collision/Link7-2__099.obj" />
+    <mesh name="Link7-2_collision_100" file="assets/collision/Link7-2__100.obj" />
+    <mesh name="Link7-2_collision_101" file="assets/collision/Link7-2__101.obj" />
+    <mesh name="Link7-2_collision_102" file="assets/collision/Link7-2__102.obj" />
+    <mesh name="Link7-2_collision_103" file="assets/collision/Link7-2__103.obj" />
+    <mesh name="Link7-2_collision_104" file="assets/collision/Link7-2__104.obj" />
+    <mesh name="Link7-2_collision_105" file="assets/collision/Link7-2__105.obj" />
+    <mesh name="Link7-2_collision_106" file="assets/collision/Link7-2__106.obj" />
+    <mesh name="Link7-2_collision_107" file="assets/collision/Link7-2__107.obj" />
+    <mesh name="Link7-2_collision_108" file="assets/collision/Link7-2__108.obj" />
+    <mesh name="Link7-2_collision_109" file="assets/collision/Link7-2__109.obj" />
+    <mesh name="Link7-2_collision_110" file="assets/collision/Link7-2__110.obj" />
+    <mesh name="Link7-2_collision_111" file="assets/collision/Link7-2__111.obj" />
+    <mesh name="Link7-2_collision_112" file="assets/collision/Link7-2__112.obj" />
+    <mesh name="Link7-2_collision_113" file="assets/collision/Link7-2__113.obj" />
+    <mesh name="Link7-2_collision_114" file="assets/collision/Link7-2__114.obj" />
+    <mesh name="Link7-2_collision_115" file="assets/collision/Link7-2__115.obj" />
+    <mesh name="Link7-2_collision_116" file="assets/collision/Link7-2__116.obj" />
+  </asset>
+  <worldbody>
+    <light pos="0 -1 2" dir="0 .4 -1" directional="true" />
+    <geom name="ground" type="plane" size="2 2 .05" pos="0 0 -0.0001" rgba=".2 .24 .2 1" />
+    <body name="base_link">
+      <inertial pos="-2.11501490959799E-05 -0.00144740826715667 0.0322476465058773" mass="0.415436775501409" fullinertia="0.000171085646209 0.000239490231217 0.00024602101749 6.22226960351e-08 -6.93646963143e-08 -3.14714208414e-07" />
+      <geom class="visual" mesh="base_link_visual_0" />
+      <geom class="collision" name="base_link_collision_0" mesh="base_link_collision_0" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_1" mesh="base_link_collision_1" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_2" mesh="base_link_collision_2" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_3" mesh="base_link_collision_3" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_4" mesh="base_link_collision_4" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_5" mesh="base_link_collision_5" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_6" mesh="base_link_collision_6" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_7" mesh="base_link_collision_7" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_8" mesh="base_link_collision_8" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_9" mesh="base_link_collision_9" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_10" mesh="base_link_collision_10" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_11" mesh="base_link_collision_11" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_12" mesh="base_link_collision_12" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_13" mesh="base_link_collision_13" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_14" mesh="base_link_collision_14" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_15" mesh="base_link_collision_15" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_16" mesh="base_link_collision_16" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_17" mesh="base_link_collision_17" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_18" mesh="base_link_collision_18" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_19" mesh="base_link_collision_19" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_20" mesh="base_link_collision_20" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_21" mesh="base_link_collision_21" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_22" mesh="base_link_collision_22" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_23" mesh="base_link_collision_23" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_24" mesh="base_link_collision_24" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_25" mesh="base_link_collision_25" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_26" mesh="base_link_collision_26" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_27" mesh="base_link_collision_27" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_28" mesh="base_link_collision_28" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_29" mesh="base_link_collision_29" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_30" mesh="base_link_collision_30" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_31" mesh="base_link_collision_31" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_32" mesh="base_link_collision_32" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_33" mesh="base_link_collision_33" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_34" mesh="base_link_collision_34" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_35" mesh="base_link_collision_35" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_36" mesh="base_link_collision_36" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_37" mesh="base_link_collision_37" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_38" mesh="base_link_collision_38" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_39" mesh="base_link_collision_39" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_40" mesh="base_link_collision_40" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_41" mesh="base_link_collision_41" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_42" mesh="base_link_collision_42" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_43" mesh="base_link_collision_43" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_44" mesh="base_link_collision_44" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_45" mesh="base_link_collision_45" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_46" mesh="base_link_collision_46" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_47" mesh="base_link_collision_47" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_48" mesh="base_link_collision_48" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_49" mesh="base_link_collision_49" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_50" mesh="base_link_collision_50" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_51" mesh="base_link_collision_51" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_52" mesh="base_link_collision_52" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_53" mesh="base_link_collision_53" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_54" mesh="base_link_collision_54" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_55" mesh="base_link_collision_55" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_56" mesh="base_link_collision_56" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_57" mesh="base_link_collision_57" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_58" mesh="base_link_collision_58" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_59" mesh="base_link_collision_59" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_60" mesh="base_link_collision_60" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_61" mesh="base_link_collision_61" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_62" mesh="base_link_collision_62" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_63" mesh="base_link_collision_63" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_64" mesh="base_link_collision_64" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_65" mesh="base_link_collision_65" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_66" mesh="base_link_collision_66" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_67" mesh="base_link_collision_67" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_68" mesh="base_link_collision_68" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_69" mesh="base_link_collision_69" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_70" mesh="base_link_collision_70" margin="-0.00022" gap="0.00023" />
+      <geom class="collision" name="base_link_collision_71" mesh="base_link_collision_71" margin="-0.00022" gap="0.00023" />
+      <body name="Link1" pos="0 0 0.0583" quat="1 0 0 0">
+        <inertial pos="0.00013120256340471 -0.00462996763909915 0.0160551324398064" mass="0.0898108036954061" fullinertia="3.01458023182e-05 9.43703947706e-05 8.98769673067e-05 -3.08627645782e-13 5.74928138136e-14 7.14014503784e-06" />
+        <geom class="visual" mesh="Link1_visual_0" />
+        <geom class="collision" name="Link1_collision_0" mesh="Link1_collision_0" />
+        <geom class="collision" name="Link1_collision_1" mesh="Link1_collision_1" />
+        <geom class="collision" name="Link1_collision_2" mesh="Link1_collision_2" />
+        <geom class="collision" name="Link1_collision_3" mesh="Link1_collision_3" />
+        <geom class="collision" name="Link1_collision_4" mesh="Link1_collision_4" />
+        <geom class="collision" name="Link1_collision_5" mesh="Link1_collision_5" />
+        <geom class="collision" name="Link1_collision_6" mesh="Link1_collision_6" />
+        <geom class="collision" name="Link1_collision_7" mesh="Link1_collision_7" />
+        <geom class="collision" name="Link1_collision_8" mesh="Link1_collision_8" />
+        <geom class="collision" name="Link1_collision_9" mesh="Link1_collision_9" />
+        <geom class="collision" name="Link1_collision_10" mesh="Link1_collision_10" />
+        <geom class="collision" name="Link1_collision_11" mesh="Link1_collision_11" />
+        <geom class="collision" name="Link1_collision_12" mesh="Link1_collision_12" />
+        <geom class="collision" name="Link1_collision_13" mesh="Link1_collision_13" />
+        <geom class="collision" name="Link1_collision_14" mesh="Link1_collision_14" />
+        <geom class="collision" name="Link1_collision_15" mesh="Link1_collision_15" />
+        <geom class="collision" name="Link1_collision_16" mesh="Link1_collision_16" />
+        <geom class="collision" name="Link1_collision_17" mesh="Link1_collision_17" />
+        <geom class="collision" name="Link1_collision_18" mesh="Link1_collision_18" />
+        <geom class="collision" name="Link1_collision_19" mesh="Link1_collision_19" />
+        <geom class="collision" name="Link1_collision_20" mesh="Link1_collision_20" />
+        <geom class="collision" name="Link1_collision_21" mesh="Link1_collision_21" />
+        <geom class="collision" name="Link1_collision_22" mesh="Link1_collision_22" />
+        <geom class="collision" name="Link1_collision_23" mesh="Link1_collision_23" />
+        <geom class="collision" name="Link1_collision_24" mesh="Link1_collision_24" />
+        <geom class="collision" name="Link1_collision_25" mesh="Link1_collision_25" />
+        <geom class="collision" name="Link1_collision_26" mesh="Link1_collision_26" />
+        <geom class="collision" name="Link1_collision_27" mesh="Link1_collision_27" />
+        <geom class="collision" name="Link1_collision_28" mesh="Link1_collision_28" />
+        <geom class="collision" name="Link1_collision_29" mesh="Link1_collision_29" />
+        <geom class="collision" name="Link1_collision_30" mesh="Link1_collision_30" />
+        <geom class="collision" name="Link1_collision_31" mesh="Link1_collision_31" />
+        <geom class="collision" name="Link1_collision_32" mesh="Link1_collision_32" />
+        <geom class="collision" name="Link1_collision_33" mesh="Link1_collision_33" />
+        <geom class="collision" name="Link1_collision_34" mesh="Link1_collision_34" />
+        <geom class="collision" name="Link1_collision_35" mesh="Link1_collision_35" />
+        <body name="Link2" pos="-0.03165 -0.02 0.0385" quat="0.499998163397 0.499999999997 -0.500001836603 -0.499999999997">
+          <inertial pos="-0.130492286618881 0.000407835462289008 -0.0275973532245003" mass="1.07002287894776" fullinertia="0.000394252333266 0.00265034639626 0.00274195695948 -4.30832258752e-05 -8.72337224305e-10 1.38746676463e-07" />
+          <geom class="visual" mesh="Link2_visual_0" />
+          <geom class="collision" name="Link2_collision_0" mesh="Link2_collision_0" />
+          <geom class="collision" name="Link2_collision_1" mesh="Link2_collision_1" />
+          <geom class="collision" name="Link2_collision_2" mesh="Link2_collision_2" />
+          <geom class="collision" name="Link2_collision_3" mesh="Link2_collision_3" />
+          <geom class="collision" name="Link2_collision_4" mesh="Link2_collision_4" />
+          <geom class="collision" name="Link2_collision_5" mesh="Link2_collision_5" />
+          <geom class="collision" name="Link2_collision_6" mesh="Link2_collision_6" />
+          <geom class="collision" name="Link2_collision_7" mesh="Link2_collision_7" />
+          <geom class="collision" name="Link2_collision_8" mesh="Link2_collision_8" />
+          <geom class="collision" name="Link2_collision_9" mesh="Link2_collision_9" />
+          <geom class="collision" name="Link2_collision_10" mesh="Link2_collision_10" />
+          <geom class="collision" name="Link2_collision_11" mesh="Link2_collision_11" />
+          <geom class="collision" name="Link2_collision_12" mesh="Link2_collision_12" />
+          <geom class="collision" name="Link2_collision_13" mesh="Link2_collision_13" />
+          <geom class="collision" name="Link2_collision_14" mesh="Link2_collision_14" />
+          <geom class="collision" name="Link2_collision_15" mesh="Link2_collision_15" />
+          <geom class="collision" name="Link2_collision_16" mesh="Link2_collision_16" />
+          <geom class="collision" name="Link2_collision_17" mesh="Link2_collision_17" />
+          <geom class="collision" name="Link2_collision_18" mesh="Link2_collision_18" />
+          <geom class="collision" name="Link2_collision_19" mesh="Link2_collision_19" />
+          <geom class="collision" name="Link2_collision_20" mesh="Link2_collision_20" />
+          <geom class="collision" name="Link2_collision_21" mesh="Link2_collision_21" />
+          <geom class="collision" name="Link2_collision_22" mesh="Link2_collision_22" />
+          <geom class="collision" name="Link2_collision_23" mesh="Link2_collision_23" />
+          <geom class="collision" name="Link2_collision_24" mesh="Link2_collision_24" />
+          <geom class="collision" name="Link2_collision_25" mesh="Link2_collision_25" />
+          <geom class="collision" name="Link2_collision_26" mesh="Link2_collision_26" />
+          <geom class="collision" name="Link2_collision_27" mesh="Link2_collision_27" />
+          <geom class="collision" name="Link2_collision_28" mesh="Link2_collision_28" />
+          <geom class="collision" name="Link2_collision_29" mesh="Link2_collision_29" />
+          <geom class="collision" name="Link2_collision_30" mesh="Link2_collision_30" />
+          <geom class="collision" name="Link2_collision_31" mesh="Link2_collision_31" />
+          <geom class="collision" name="Link2_collision_32" mesh="Link2_collision_32" />
+          <geom class="collision" name="Link2_collision_33" mesh="Link2_collision_33" />
+          <geom class="collision" name="Link2_collision_34" mesh="Link2_collision_34" />
+          <geom class="collision" name="Link2_collision_35" mesh="Link2_collision_35" />
+          <geom class="collision" name="Link2_collision_36" mesh="Link2_collision_36" />
+          <geom class="collision" name="Link2_collision_37" mesh="Link2_collision_37" />
+          <geom class="collision" name="Link2_collision_38" mesh="Link2_collision_38" />
+          <geom class="collision" name="Link2_collision_39" mesh="Link2_collision_39" />
+          <geom class="collision" name="Link2_collision_40" mesh="Link2_collision_40" />
+          <geom class="collision" name="Link2_collision_41" mesh="Link2_collision_41" />
+          <geom class="collision" name="Link2_collision_42" mesh="Link2_collision_42" />
+          <geom class="collision" name="Link2_collision_43" mesh="Link2_collision_43" />
+          <geom class="collision" name="Link2_collision_44" mesh="Link2_collision_44" />
+          <geom class="collision" name="Link2_collision_45" mesh="Link2_collision_45" />
+          <geom class="collision" name="Link2_collision_46" mesh="Link2_collision_46" />
+          <geom class="collision" name="Link2_collision_47" mesh="Link2_collision_47" />
+          <geom class="collision" name="Link2_collision_48" mesh="Link2_collision_48" />
+          <geom class="collision" name="Link2_collision_49" mesh="Link2_collision_49" />
+          <geom class="collision" name="Link2_collision_50" mesh="Link2_collision_50" />
+          <geom class="collision" name="Link2_collision_51" mesh="Link2_collision_51" />
+          <geom class="collision" name="Link2_collision_52" mesh="Link2_collision_52" />
+          <geom class="collision" name="Link2_collision_53" mesh="Link2_collision_53" />
+          <geom class="collision" name="Link2_collision_54" mesh="Link2_collision_54" />
+          <geom class="collision" name="Link2_collision_55" mesh="Link2_collision_55" />
+          <geom class="collision" name="Link2_collision_56" mesh="Link2_collision_56" />
+          <geom class="collision" name="Link2_collision_57" mesh="Link2_collision_57" />
+          <geom class="collision" name="Link2_collision_58" mesh="Link2_collision_58" />
+          <geom class="collision" name="Link2_collision_59" mesh="Link2_collision_59" />
+          <geom class="collision" name="Link2_collision_60" mesh="Link2_collision_60" />
+          <geom class="collision" name="Link2_collision_61" mesh="Link2_collision_61" />
+          <geom class="collision" name="Link2_collision_62" mesh="Link2_collision_62" />
+          <geom class="collision" name="Link2_collision_63" mesh="Link2_collision_63" />
+          <geom class="collision" name="Link2_collision_64" mesh="Link2_collision_64" />
+          <geom class="collision" name="Link2_collision_65" mesh="Link2_collision_65" />
+          <geom class="collision" name="Link2_collision_66" mesh="Link2_collision_66" />
+          <geom class="collision" name="Link2_collision_67" mesh="Link2_collision_67" />
+          <geom class="collision" name="Link2_collision_68" mesh="Link2_collision_68" />
+          <geom class="collision" name="Link2_collision_69" mesh="Link2_collision_69" />
+          <geom class="collision" name="Link2_collision_70" mesh="Link2_collision_70" />
+          <geom class="collision" name="Link2_collision_71" mesh="Link2_collision_71" />
+          <geom class="collision" name="Link2_collision_72" mesh="Link2_collision_72" />
+          <geom class="collision" name="Link2_collision_73" mesh="Link2_collision_73" />
+          <geom class="collision" name="Link2_collision_74" mesh="Link2_collision_74" />
+          <geom class="collision" name="Link2_collision_75" mesh="Link2_collision_75" />
+          <geom class="collision" name="Link2_collision_76" mesh="Link2_collision_76" />
+          <geom class="collision" name="Link2_collision_77" mesh="Link2_collision_77" />
+          <geom class="collision" name="Link2_collision_78" mesh="Link2_collision_78" />
+          <geom class="collision" name="Link2_collision_79" mesh="Link2_collision_79" />
+          <geom class="collision" name="Link2_collision_80" mesh="Link2_collision_80" />
+          <geom class="collision" name="Link2_collision_81" mesh="Link2_collision_81" />
+          <geom class="collision" name="Link2_collision_82" mesh="Link2_collision_82" />
+          <geom class="collision" name="Link2_collision_83" mesh="Link2_collision_83" />
+          <geom class="collision" name="Link2_collision_84" mesh="Link2_collision_84" />
+          <geom class="collision" name="Link2_collision_85" mesh="Link2_collision_85" />
+          <geom class="collision" name="Link2_collision_86" mesh="Link2_collision_86" />
+          <geom class="collision" name="Link2_collision_87" mesh="Link2_collision_87" />
+          <geom class="collision" name="Link2_collision_88" mesh="Link2_collision_88" />
+          <geom class="collision" name="Link2_collision_89" mesh="Link2_collision_89" />
+          <geom class="collision" name="Link2_collision_90" mesh="Link2_collision_90" />
+          <geom class="collision" name="Link2_collision_91" mesh="Link2_collision_91" />
+          <geom class="collision" name="Link2_collision_92" mesh="Link2_collision_92" />
+          <geom class="collision" name="Link2_collision_93" mesh="Link2_collision_93" />
+          <geom class="collision" name="Link2_collision_94" mesh="Link2_collision_94" />
+          <geom class="collision" name="Link2_collision_95" mesh="Link2_collision_95" />
+          <geom class="collision" name="Link2_collision_96" mesh="Link2_collision_96" />
+          <geom class="collision" name="Link2_collision_97" mesh="Link2_collision_97" />
+          <geom class="collision" name="Link2_collision_98" mesh="Link2_collision_98" />
+          <geom class="collision" name="Link2_collision_99" mesh="Link2_collision_99" />
+          <geom class="collision" name="Link2_collision_100" mesh="Link2_collision_100" />
+          <geom class="collision" name="Link2_collision_101" mesh="Link2_collision_101" />
+          <geom class="collision" name="Link2_collision_102" mesh="Link2_collision_102" />
+          <geom class="collision" name="Link2_collision_103" mesh="Link2_collision_103" />
+          <geom class="collision" name="Link2_collision_104" mesh="Link2_collision_104" />
+          <geom class="collision" name="Link2_collision_105" mesh="Link2_collision_105" />
+          <geom class="collision" name="Link2_collision_106" mesh="Link2_collision_106" />
+          <geom class="collision" name="Link2_collision_107" mesh="Link2_collision_107" />
+          <geom class="collision" name="Link2_collision_108" mesh="Link2_collision_108" />
+          <geom class="collision" name="Link2_collision_109" mesh="Link2_collision_109" />
+          <geom class="collision" name="Link2_collision_110" mesh="Link2_collision_110" />
+          <geom class="collision" name="Link2_collision_111" mesh="Link2_collision_111" />
+          <geom class="collision" name="Link2_collision_112" mesh="Link2_collision_112" />
+          <geom class="collision" name="Link2_collision_113" mesh="Link2_collision_113" />
+          <geom class="collision" name="Link2_collision_114" mesh="Link2_collision_114" />
+          <geom class="collision" name="Link2_collision_115" mesh="Link2_collision_115" />
+          <geom class="collision" name="Link2_collision_116" mesh="Link2_collision_116" />
+          <geom class="collision" name="Link2_collision_117" mesh="Link2_collision_117" />
+          <geom class="collision" name="Link2_collision_118" mesh="Link2_collision_118" />
+          <geom class="collision" name="Link2_collision_119" mesh="Link2_collision_119" />
+          <geom class="collision" name="Link2_collision_120" mesh="Link2_collision_120" />
+          <geom class="collision" name="Link2_collision_121" mesh="Link2_collision_121" />
+          <geom class="collision" name="Link2_collision_122" mesh="Link2_collision_122" />
+          <geom class="collision" name="Link2_collision_123" mesh="Link2_collision_123" />
+          <geom class="collision" name="Link2_collision_124" mesh="Link2_collision_124" />
+          <geom class="collision" name="Link2_collision_125" mesh="Link2_collision_125" />
+          <geom class="collision" name="Link2_collision_126" mesh="Link2_collision_126" />
+          <geom class="collision" name="Link2_collision_127" mesh="Link2_collision_127" />
+          <geom class="collision" name="Link2_collision_128" mesh="Link2_collision_128" />
+          <geom class="collision" name="Link2_collision_129" mesh="Link2_collision_129" />
+          <geom class="collision" name="Link2_collision_130" mesh="Link2_collision_130" />
+          <geom class="collision" name="Link2_collision_131" mesh="Link2_collision_131" />
+          <geom class="collision" name="Link2_collision_132" mesh="Link2_collision_132" />
+          <geom class="collision" name="Link2_collision_133" mesh="Link2_collision_133" />
+          <geom class="collision" name="Link2_collision_134" mesh="Link2_collision_134" />
+          <geom class="collision" name="Link2_collision_135" mesh="Link2_collision_135" />
+          <geom class="collision" name="Link2_collision_136" mesh="Link2_collision_136" />
+          <geom class="collision" name="Link2_collision_137" mesh="Link2_collision_137" />
+          <geom class="collision" name="Link2_collision_138" mesh="Link2_collision_138" />
+          <geom class="collision" name="Link2_collision_139" mesh="Link2_collision_139" />
+          <geom class="collision" name="Link2_collision_140" mesh="Link2_collision_140" />
+          <geom class="collision" name="Link2_collision_141" mesh="Link2_collision_141" />
+          <geom class="collision" name="Link2_collision_142" mesh="Link2_collision_142" />
+          <geom class="collision" name="Link2_collision_143" mesh="Link2_collision_143" />
+          <geom class="collision" name="Link2_collision_144" mesh="Link2_collision_144" />
+          <geom class="collision" name="Link2_collision_145" mesh="Link2_collision_145" />
+          <geom class="collision" name="Link2_collision_146" mesh="Link2_collision_146" />
+          <geom class="collision" name="Link2_collision_147" mesh="Link2_collision_147" />
+          <geom class="collision" name="Link2_collision_148" mesh="Link2_collision_148" />
+          <geom class="collision" name="Link2_collision_149" mesh="Link2_collision_149" />
+          <geom class="collision" name="Link2_collision_150" mesh="Link2_collision_150" />
+          <geom class="collision" name="Link2_collision_151" mesh="Link2_collision_151" />
+          <geom class="collision" name="Link2_collision_152" mesh="Link2_collision_152" />
+          <geom class="collision" name="Link2_collision_153" mesh="Link2_collision_153" />
+          <body name="Link3" pos="-0.264 0 0.005" quat="1 0 0 0">
+            <inertial pos="0.185431979030311 0.0568085470529543 -0.0343115814536119" mass="0.610419134840687" fullinertia="0.000182726875118 0.000929390568352 0.00101290819921 -2.07251991294e-05 1.71553098185e-09 1.22228764877e-07" />
+            <geom class="visual" mesh="Link3_visual_0" />
+            <geom class="collision" name="Link3_collision_0" mesh="Link3_collision_0" />
+            <geom class="collision" name="Link3_collision_1" mesh="Link3_collision_1" />
+            <geom class="collision" name="Link3_collision_2" mesh="Link3_collision_2" />
+            <geom class="collision" name="Link3_collision_3" mesh="Link3_collision_3" />
+            <geom class="collision" name="Link3_collision_4" mesh="Link3_collision_4" />
+            <geom class="collision" name="Link3_collision_5" mesh="Link3_collision_5" />
+            <geom class="collision" name="Link3_collision_6" mesh="Link3_collision_6" />
+            <geom class="collision" name="Link3_collision_7" mesh="Link3_collision_7" />
+            <geom class="collision" name="Link3_collision_8" mesh="Link3_collision_8" />
+            <geom class="collision" name="Link3_collision_9" mesh="Link3_collision_9" />
+            <geom class="collision" name="Link3_collision_10" mesh="Link3_collision_10" />
+            <geom class="collision" name="Link3_collision_11" mesh="Link3_collision_11" />
+            <geom class="collision" name="Link3_collision_12" mesh="Link3_collision_12" />
+            <geom class="collision" name="Link3_collision_13" mesh="Link3_collision_13" />
+            <geom class="collision" name="Link3_collision_14" mesh="Link3_collision_14" />
+            <geom class="collision" name="Link3_collision_15" mesh="Link3_collision_15" />
+            <geom class="collision" name="Link3_collision_16" mesh="Link3_collision_16" />
+            <geom class="collision" name="Link3_collision_17" mesh="Link3_collision_17" />
+            <geom class="collision" name="Link3_collision_18" mesh="Link3_collision_18" />
+            <geom class="collision" name="Link3_collision_19" mesh="Link3_collision_19" />
+            <geom class="collision" name="Link3_collision_20" mesh="Link3_collision_20" />
+            <geom class="collision" name="Link3_collision_21" mesh="Link3_collision_21" />
+            <geom class="collision" name="Link3_collision_22" mesh="Link3_collision_22" />
+            <geom class="collision" name="Link3_collision_23" mesh="Link3_collision_23" />
+            <geom class="collision" name="Link3_collision_24" mesh="Link3_collision_24" />
+            <geom class="collision" name="Link3_collision_25" mesh="Link3_collision_25" />
+            <geom class="collision" name="Link3_collision_26" mesh="Link3_collision_26" />
+            <geom class="collision" name="Link3_collision_27" mesh="Link3_collision_27" />
+            <geom class="collision" name="Link3_collision_28" mesh="Link3_collision_28" />
+            <geom class="collision" name="Link3_collision_29" mesh="Link3_collision_29" />
+            <geom class="collision" name="Link3_collision_30" mesh="Link3_collision_30" />
+            <geom class="collision" name="Link3_collision_31" mesh="Link3_collision_31" />
+            <geom class="collision" name="Link3_collision_32" mesh="Link3_collision_32" />
+            <geom class="collision" name="Link3_collision_33" mesh="Link3_collision_33" />
+            <geom class="collision" name="Link3_collision_34" mesh="Link3_collision_34" />
+            <geom class="collision" name="Link3_collision_35" mesh="Link3_collision_35" />
+            <geom class="collision" name="Link3_collision_36" mesh="Link3_collision_36" />
+            <geom class="collision" name="Link3_collision_37" mesh="Link3_collision_37" />
+            <geom class="collision" name="Link3_collision_38" mesh="Link3_collision_38" />
+            <geom class="collision" name="Link3_collision_39" mesh="Link3_collision_39" />
+            <geom class="collision" name="Link3_collision_40" mesh="Link3_collision_40" />
+            <geom class="collision" name="Link3_collision_41" mesh="Link3_collision_41" />
+            <geom class="collision" name="Link3_collision_42" mesh="Link3_collision_42" />
+            <geom class="collision" name="Link3_collision_43" mesh="Link3_collision_43" />
+            <geom class="collision" name="Link3_collision_44" mesh="Link3_collision_44" />
+            <geom class="collision" name="Link3_collision_45" mesh="Link3_collision_45" />
+            <geom class="collision" name="Link3_collision_46" mesh="Link3_collision_46" />
+            <geom class="collision" name="Link3_collision_47" mesh="Link3_collision_47" />
+            <geom class="collision" name="Link3_collision_48" mesh="Link3_collision_48" />
+            <geom class="collision" name="Link3_collision_49" mesh="Link3_collision_49" />
+            <geom class="collision" name="Link3_collision_50" mesh="Link3_collision_50" />
+            <geom class="collision" name="Link3_collision_51" mesh="Link3_collision_51" />
+            <geom class="collision" name="Link3_collision_52" mesh="Link3_collision_52" />
+            <geom class="collision" name="Link3_collision_53" mesh="Link3_collision_53" />
+            <geom class="collision" name="Link3_collision_54" mesh="Link3_collision_54" />
+            <geom class="collision" name="Link3_collision_55" mesh="Link3_collision_55" />
+            <geom class="collision" name="Link3_collision_56" mesh="Link3_collision_56" />
+            <geom class="collision" name="Link3_collision_57" mesh="Link3_collision_57" />
+            <geom class="collision" name="Link3_collision_58" mesh="Link3_collision_58" />
+            <geom class="collision" name="Link3_collision_59" mesh="Link3_collision_59" />
+            <geom class="collision" name="Link3_collision_60" mesh="Link3_collision_60" />
+            <geom class="collision" name="Link3_collision_61" mesh="Link3_collision_61" />
+            <geom class="collision" name="Link3_collision_62" mesh="Link3_collision_62" />
+            <geom class="collision" name="Link3_collision_63" mesh="Link3_collision_63" />
+            <geom class="collision" name="Link3_collision_64" mesh="Link3_collision_64" />
+            <geom class="collision" name="Link3_collision_65" mesh="Link3_collision_65" />
+            <geom class="collision" name="Link3_collision_66" mesh="Link3_collision_66" />
+            <geom class="collision" name="Link3_collision_67" mesh="Link3_collision_67" />
+            <geom class="collision" name="Link3_collision_68" mesh="Link3_collision_68" />
+            <geom class="collision" name="Link3_collision_69" mesh="Link3_collision_69" />
+            <geom class="collision" name="Link3_collision_70" mesh="Link3_collision_70" />
+            <geom class="collision" name="Link3_collision_71" mesh="Link3_collision_71" />
+            <geom class="collision" name="Link3_collision_72" mesh="Link3_collision_72" />
+            <geom class="collision" name="Link3_collision_73" mesh="Link3_collision_73" />
+            <geom class="collision" name="Link3_collision_74" mesh="Link3_collision_74" />
+            <geom class="collision" name="Link3_collision_75" mesh="Link3_collision_75" />
+            <geom class="collision" name="Link3_collision_76" mesh="Link3_collision_76" />
+            <geom class="collision" name="Link3_collision_77" mesh="Link3_collision_77" />
+            <geom class="collision" name="Link3_collision_78" mesh="Link3_collision_78" />
+            <geom class="collision" name="Link3_collision_79" mesh="Link3_collision_79" />
+            <geom class="collision" name="Link3_collision_80" mesh="Link3_collision_80" />
+            <geom class="collision" name="Link3_collision_81" mesh="Link3_collision_81" />
+            <geom class="collision" name="Link3_collision_82" mesh="Link3_collision_82" />
+            <geom class="collision" name="Link3_collision_83" mesh="Link3_collision_83" />
+            <geom class="collision" name="Link3_collision_84" mesh="Link3_collision_84" />
+            <geom class="collision" name="Link3_collision_85" mesh="Link3_collision_85" />
+            <geom class="collision" name="Link3_collision_86" mesh="Link3_collision_86" />
+            <geom class="collision" name="Link3_collision_87" mesh="Link3_collision_87" />
+            <geom class="collision" name="Link3_collision_88" mesh="Link3_collision_88" />
+            <geom class="collision" name="Link3_collision_89" mesh="Link3_collision_89" />
+            <geom class="collision" name="Link3_collision_90" mesh="Link3_collision_90" />
+            <geom class="collision" name="Link3_collision_91" mesh="Link3_collision_91" />
+            <geom class="collision" name="Link3_collision_92" mesh="Link3_collision_92" />
+            <geom class="collision" name="Link3_collision_93" mesh="Link3_collision_93" />
+            <geom class="collision" name="Link3_collision_94" mesh="Link3_collision_94" />
+            <geom class="collision" name="Link3_collision_95" mesh="Link3_collision_95" />
+            <geom class="collision" name="Link3_collision_96" mesh="Link3_collision_96" />
+            <geom class="collision" name="Link3_collision_97" mesh="Link3_collision_97" />
+            <geom class="collision" name="Link3_collision_98" mesh="Link3_collision_98" />
+            <geom class="collision" name="Link3_collision_99" mesh="Link3_collision_99" />
+            <geom class="collision" name="Link3_collision_100" mesh="Link3_collision_100" />
+            <geom class="collision" name="Link3_collision_101" mesh="Link3_collision_101" />
+            <geom class="collision" name="Link3_collision_102" mesh="Link3_collision_102" />
+            <geom class="collision" name="Link3_collision_103" mesh="Link3_collision_103" />
+            <geom class="collision" name="Link3_collision_104" mesh="Link3_collision_104" />
+            <geom class="collision" name="Link3_collision_105" mesh="Link3_collision_105" />
+            <geom class="collision" name="Link3_collision_106" mesh="Link3_collision_106" />
+            <geom class="collision" name="Link3_collision_107" mesh="Link3_collision_107" />
+            <geom class="collision" name="Link3_collision_108" mesh="Link3_collision_108" />
+            <geom class="collision" name="Link3_collision_109" mesh="Link3_collision_109" />
+            <geom class="collision" name="Link3_collision_110" mesh="Link3_collision_110" />
+            <geom class="collision" name="Link3_collision_111" mesh="Link3_collision_111" />
+            <geom class="collision" name="Link3_collision_112" mesh="Link3_collision_112" />
+            <geom class="collision" name="Link3_collision_113" mesh="Link3_collision_113" />
+            <geom class="collision" name="Link3_collision_114" mesh="Link3_collision_114" />
+            <geom class="collision" name="Link3_collision_115" mesh="Link3_collision_115" />
+            <geom class="collision" name="Link3_collision_116" mesh="Link3_collision_116" />
+            <geom class="collision" name="Link3_collision_117" mesh="Link3_collision_117" />
+            <geom class="collision" name="Link3_collision_118" mesh="Link3_collision_118" />
+            <geom class="collision" name="Link3_collision_119" mesh="Link3_collision_119" />
+            <geom class="collision" name="Link3_collision_120" mesh="Link3_collision_120" />
+            <geom class="collision" name="Link3_collision_121" mesh="Link3_collision_121" />
+            <geom class="collision" name="Link3_collision_122" mesh="Link3_collision_122" />
+            <geom class="collision" name="Link3_collision_123" mesh="Link3_collision_123" />
+            <geom class="collision" name="Link3_collision_124" mesh="Link3_collision_124" />
+            <geom class="collision" name="Link3_collision_125" mesh="Link3_collision_125" />
+            <geom class="collision" name="Link3_collision_126" mesh="Link3_collision_126" />
+            <geom class="collision" name="Link3_collision_127" mesh="Link3_collision_127" />
+            <geom class="collision" name="Link3_collision_128" mesh="Link3_collision_128" />
+            <geom class="collision" name="Link3_collision_129" mesh="Link3_collision_129" />
+            <geom class="collision" name="Link3_collision_130" mesh="Link3_collision_130" />
+            <geom class="collision" name="Link3_collision_131" mesh="Link3_collision_131" />
+            <geom class="collision" name="Link3_collision_132" mesh="Link3_collision_132" />
+            <geom class="collision" name="Link3_collision_133" mesh="Link3_collision_133" />
+            <geom class="collision" name="Link3_collision_134" mesh="Link3_collision_134" />
+            <geom class="collision" name="Link3_collision_135" mesh="Link3_collision_135" />
+            <geom class="collision" name="Link3_collision_136" mesh="Link3_collision_136" />
+            <geom class="collision" name="Link3_collision_137" mesh="Link3_collision_137" />
+            <geom class="collision" name="Link3_collision_138" mesh="Link3_collision_138" />
+            <geom class="collision" name="Link3_collision_139" mesh="Link3_collision_139" />
+            <geom class="collision" name="Link3_collision_140" mesh="Link3_collision_140" />
+            <geom class="collision" name="Link3_collision_141" mesh="Link3_collision_141" />
+            <geom class="collision" name="Link3_collision_142" mesh="Link3_collision_142" />
+            <geom class="collision" name="Link3_collision_143" mesh="Link3_collision_143" />
+            <geom class="collision" name="Link3_collision_144" mesh="Link3_collision_144" />
+            <geom class="collision" name="Link3_collision_145" mesh="Link3_collision_145" />
+            <geom class="collision" name="Link3_collision_146" mesh="Link3_collision_146" />
+            <geom class="collision" name="Link3_collision_147" mesh="Link3_collision_147" />
+            <geom class="collision" name="Link3_collision_148" mesh="Link3_collision_148" />
+            <geom class="collision" name="Link3_collision_149" mesh="Link3_collision_149" />
+            <geom class="collision" name="Link3_collision_150" mesh="Link3_collision_150" />
+            <geom class="collision" name="Link3_collision_151" mesh="Link3_collision_151" />
+            <geom class="collision" name="Link3_collision_152" mesh="Link3_collision_152" />
+            <geom class="collision" name="Link3_collision_153" mesh="Link3_collision_153" />
+            <geom class="collision" name="Link3_collision_154" mesh="Link3_collision_154" />
+            <geom class="collision" name="Link3_collision_155" mesh="Link3_collision_155" />
+            <geom class="collision" name="Link3_collision_156" mesh="Link3_collision_156" />
+            <geom class="collision" name="Link3_collision_157" mesh="Link3_collision_157" />
+            <geom class="collision" name="Link3_collision_158" mesh="Link3_collision_158" />
+            <geom class="collision" name="Link3_collision_159" mesh="Link3_collision_159" />
+            <geom class="collision" name="Link3_collision_160" mesh="Link3_collision_160" />
+            <geom class="collision" name="Link3_collision_161" mesh="Link3_collision_161" />
+            <geom class="collision" name="Link3_collision_162" mesh="Link3_collision_162" />
+            <geom class="collision" name="Link3_collision_163" mesh="Link3_collision_163" />
+            <geom class="collision" name="Link3_collision_164" mesh="Link3_collision_164" />
+            <geom class="collision" name="Link3_collision_165" mesh="Link3_collision_165" />
+            <geom class="collision" name="Link3_collision_166" mesh="Link3_collision_166" />
+            <geom class="collision" name="Link3_collision_167" mesh="Link3_collision_167" />
+            <geom class="collision" name="Link3_collision_168" mesh="Link3_collision_168" />
+            <geom class="collision" name="Link3_collision_169" mesh="Link3_collision_169" />
+            <geom class="collision" name="Link3_collision_170" mesh="Link3_collision_170" />
+            <geom class="collision" name="Link3_collision_171" mesh="Link3_collision_171" />
+            <geom class="collision" name="Link3_collision_172" mesh="Link3_collision_172" />
+            <geom class="collision" name="Link3_collision_173" mesh="Link3_collision_173" />
+            <geom class="collision" name="Link3_collision_174" mesh="Link3_collision_174" />
+            <geom class="collision" name="Link3_collision_175" mesh="Link3_collision_175" />
+            <geom class="collision" name="Link3_collision_176" mesh="Link3_collision_176" />
+            <geom class="collision" name="Link3_collision_177" mesh="Link3_collision_177" />
+            <geom class="collision" name="Link3_collision_178" mesh="Link3_collision_178" />
+            <geom class="collision" name="Link3_collision_179" mesh="Link3_collision_179" />
+            <geom class="collision" name="Link3_collision_180" mesh="Link3_collision_180" />
+            <geom class="collision" name="Link3_collision_181" mesh="Link3_collision_181" />
+            <geom class="collision" name="Link3_collision_182" mesh="Link3_collision_182" />
+            <geom class="collision" name="Link3_collision_183" mesh="Link3_collision_183" />
+            <geom class="collision" name="Link3_collision_184" mesh="Link3_collision_184" />
+            <geom class="collision" name="Link3_collision_185" mesh="Link3_collision_185" />
+            <geom class="collision" name="Link3_collision_186" mesh="Link3_collision_186" />
+            <geom class="collision" name="Link3_collision_187" mesh="Link3_collision_187" />
+            <geom class="collision" name="Link3_collision_188" mesh="Link3_collision_188" />
+            <geom class="collision" name="Link3_collision_189" mesh="Link3_collision_189" />
+            <geom class="collision" name="Link3_collision_190" mesh="Link3_collision_190" />
+            <geom class="collision" name="Link3_collision_191" mesh="Link3_collision_191" />
+            <body name="Link4" pos="0.244 0.06 -0.00365" quat="1 0 0 0">
+              <inertial pos="0.0564499043576966 0.0570692664532358 -0.0330551416377494" mass="0.345655632636913" fullinertia="0.000136025053273 0.000174765863063 0.000116240155815 -1.03835224723e-05 6.66423885846e-08 6.24564278353e-08" />
+              <geom class="visual" mesh="Link4_visual_0" />
+              <geom class="collision" name="Link4_collision_0" mesh="Link4_collision_0" />
+              <geom class="collision" name="Link4_collision_1" mesh="Link4_collision_1" />
+              <geom class="collision" name="Link4_collision_2" mesh="Link4_collision_2" />
+              <geom class="collision" name="Link4_collision_3" mesh="Link4_collision_3" />
+              <geom class="collision" name="Link4_collision_4" mesh="Link4_collision_4" />
+              <geom class="collision" name="Link4_collision_5" mesh="Link4_collision_5" />
+              <geom class="collision" name="Link4_collision_6" mesh="Link4_collision_6" />
+              <geom class="collision" name="Link4_collision_7" mesh="Link4_collision_7" />
+              <geom class="collision" name="Link4_collision_8" mesh="Link4_collision_8" />
+              <geom class="collision" name="Link4_collision_9" mesh="Link4_collision_9" />
+              <geom class="collision" name="Link4_collision_10" mesh="Link4_collision_10" />
+              <geom class="collision" name="Link4_collision_11" mesh="Link4_collision_11" />
+              <geom class="collision" name="Link4_collision_12" mesh="Link4_collision_12" />
+              <geom class="collision" name="Link4_collision_13" mesh="Link4_collision_13" />
+              <geom class="collision" name="Link4_collision_14" mesh="Link4_collision_14" />
+              <geom class="collision" name="Link4_collision_15" mesh="Link4_collision_15" />
+              <geom class="collision" name="Link4_collision_16" mesh="Link4_collision_16" />
+              <geom class="collision" name="Link4_collision_17" mesh="Link4_collision_17" />
+              <geom class="collision" name="Link4_collision_18" mesh="Link4_collision_18" />
+              <geom class="collision" name="Link4_collision_19" mesh="Link4_collision_19" />
+              <geom class="collision" name="Link4_collision_20" mesh="Link4_collision_20" />
+              <geom class="collision" name="Link4_collision_21" mesh="Link4_collision_21" />
+              <geom class="collision" name="Link4_collision_22" mesh="Link4_collision_22" />
+              <geom class="collision" name="Link4_collision_23" mesh="Link4_collision_23" />
+              <geom class="collision" name="Link4_collision_24" mesh="Link4_collision_24" />
+              <geom class="collision" name="Link4_collision_25" mesh="Link4_collision_25" />
+              <geom class="collision" name="Link4_collision_26" mesh="Link4_collision_26" />
+              <geom class="collision" name="Link4_collision_27" mesh="Link4_collision_27" />
+              <geom class="collision" name="Link4_collision_28" mesh="Link4_collision_28" />
+              <geom class="collision" name="Link4_collision_29" mesh="Link4_collision_29" />
+              <geom class="collision" name="Link4_collision_30" mesh="Link4_collision_30" />
+              <geom class="collision" name="Link4_collision_31" mesh="Link4_collision_31" />
+              <geom class="collision" name="Link4_collision_32" mesh="Link4_collision_32" />
+              <geom class="collision" name="Link4_collision_33" mesh="Link4_collision_33" />
+              <geom class="collision" name="Link4_collision_34" mesh="Link4_collision_34" />
+              <geom class="collision" name="Link4_collision_35" mesh="Link4_collision_35" />
+              <geom class="collision" name="Link4_collision_36" mesh="Link4_collision_36" />
+              <geom class="collision" name="Link4_collision_37" mesh="Link4_collision_37" />
+              <geom class="collision" name="Link4_collision_38" mesh="Link4_collision_38" />
+              <geom class="collision" name="Link4_collision_39" mesh="Link4_collision_39" />
+              <geom class="collision" name="Link4_collision_40" mesh="Link4_collision_40" />
+              <geom class="collision" name="Link4_collision_41" mesh="Link4_collision_41" />
+              <geom class="collision" name="Link4_collision_42" mesh="Link4_collision_42" />
+              <body name="Link5" pos="0.0619999999999999 0.036 -0.0330000000000007" quat="0.5 0.5 -0.5 0.5">
+                <inertial pos="-7.24577946950743E-05 -0.00748437321301255 0.0351576574526748" mass="0.373823984061805" fullinertia="9.19669607946e-05 0.000127034350651 9.03001414232e-05 1.22227734965e-07 7.94676694572e-08 -8.23091733611e-07" />
+                <geom class="visual" mesh="Link5_visual_0" />
+                <geom class="collision" name="Link5_collision_0" mesh="Link5_collision_0" />
+                <geom class="collision" name="Link5_collision_1" mesh="Link5_collision_1" />
+                <geom class="collision" name="Link5_collision_2" mesh="Link5_collision_2" />
+                <geom class="collision" name="Link5_collision_3" mesh="Link5_collision_3" />
+                <geom class="collision" name="Link5_collision_4" mesh="Link5_collision_4" />
+                <geom class="collision" name="Link5_collision_5" mesh="Link5_collision_5" />
+                <geom class="collision" name="Link5_collision_6" mesh="Link5_collision_6" />
+                <geom class="collision" name="Link5_collision_7" mesh="Link5_collision_7" />
+                <geom class="collision" name="Link5_collision_8" mesh="Link5_collision_8" />
+                <geom class="collision" name="Link5_collision_9" mesh="Link5_collision_9" />
+                <geom class="collision" name="Link5_collision_10" mesh="Link5_collision_10" />
+                <geom class="collision" name="Link5_collision_11" mesh="Link5_collision_11" />
+                <geom class="collision" name="Link5_collision_12" mesh="Link5_collision_12" />
+                <geom class="collision" name="Link5_collision_13" mesh="Link5_collision_13" />
+                <geom class="collision" name="Link5_collision_14" mesh="Link5_collision_14" />
+                <geom class="collision" name="Link5_collision_15" mesh="Link5_collision_15" />
+                <geom class="collision" name="Link5_collision_16" mesh="Link5_collision_16" />
+                <geom class="collision" name="Link5_collision_17" mesh="Link5_collision_17" />
+                <geom class="collision" name="Link5_collision_18" mesh="Link5_collision_18" />
+                <geom class="collision" name="Link5_collision_19" mesh="Link5_collision_19" />
+                <geom class="collision" name="Link5_collision_20" mesh="Link5_collision_20" />
+                <geom class="collision" name="Link5_collision_21" mesh="Link5_collision_21" />
+                <geom class="collision" name="Link5_collision_22" mesh="Link5_collision_22" />
+                <geom class="collision" name="Link5_collision_23" mesh="Link5_collision_23" />
+                <geom class="collision" name="Link5_collision_24" mesh="Link5_collision_24" />
+                <geom class="collision" name="Link5_collision_25" mesh="Link5_collision_25" />
+                <geom class="collision" name="Link5_collision_26" mesh="Link5_collision_26" />
+                <geom class="collision" name="Link5_collision_27" mesh="Link5_collision_27" />
+                <geom class="collision" name="Link5_collision_28" mesh="Link5_collision_28" />
+                <geom class="collision" name="Link5_collision_29" mesh="Link5_collision_29" />
+                <geom class="collision" name="Link5_collision_30" mesh="Link5_collision_30" />
+                <geom class="collision" name="Link5_collision_31" mesh="Link5_collision_31" />
+                <geom class="collision" name="Link5_collision_32" mesh="Link5_collision_32" />
+                <geom class="collision" name="Link5_collision_33" mesh="Link5_collision_33" />
+                <geom class="collision" name="Link5_collision_34" mesh="Link5_collision_34" />
+                <geom class="collision" name="Link5_collision_35" mesh="Link5_collision_35" />
+                <geom class="collision" name="Link5_collision_36" mesh="Link5_collision_36" />
+                <geom class="collision" name="Link5_collision_37" mesh="Link5_collision_37" />
+                <geom class="collision" name="Link5_collision_38" mesh="Link5_collision_38" />
+                <geom class="collision" name="Link5_collision_39" mesh="Link5_collision_39" />
+                <geom class="collision" name="Link5_collision_40" mesh="Link5_collision_40" />
+                <geom class="collision" name="Link5_collision_41" mesh="Link5_collision_41" />
+                <body name="Link6" pos="0 -0.035 0.036" quat="-2.59734346696e-06 2.59735300756e-06 -0.707108079855 0.707105482506">
+                  <inertial pos="0.000949845843049 -0.00724726249031 0.0280370075459" mass="0.774251897736" fullinertia="0.000125066292327 0.000594493708837 0.000638314910848 1.64279447954e-06 -5.35093272843e-06 5.93121308364e-07" />
+                  <geom class="visual" mesh="Link6_visual_0" />
+                  <geom class="visual" mesh="Link6_visual_1" />
+                  <geom class="collision" name="Link6_collision_0" mesh="Link6_collision_0" />
+                  <geom class="collision" name="Link6_collision_1" mesh="Link6_collision_1" />
+                  <geom class="collision" name="Link6_collision_2" mesh="Link6_collision_2" />
+                  <geom class="collision" name="Link6_collision_3" mesh="Link6_collision_3" />
+                  <geom class="collision" name="Link6_collision_4" mesh="Link6_collision_4" />
+                  <geom class="collision" name="Link6_collision_5" mesh="Link6_collision_5" />
+                  <geom class="collision" name="Link6_collision_6" mesh="Link6_collision_6" />
+                  <geom class="collision" name="Link6_collision_7" mesh="Link6_collision_7" />
+                  <geom class="collision" name="Link6_collision_8" mesh="Link6_collision_8" />
+                  <geom class="collision" name="Link6_collision_9" mesh="Link6_collision_9" />
+                  <geom class="collision" name="Link6_collision_10" mesh="Link6_collision_10" />
+                  <geom class="collision" name="Link6_collision_11" mesh="Link6_collision_11" />
+                  <geom class="collision" name="Link6_collision_12" mesh="Link6_collision_12" />
+                  <geom class="collision" name="Link6_collision_13" mesh="Link6_collision_13" />
+                  <geom class="collision" name="Link6_collision_14" mesh="Link6_collision_14" />
+                  <geom class="collision" name="Link6_collision_15" mesh="Link6_collision_15" />
+                  <geom class="collision" name="Link6_collision_16" mesh="Link6_collision_16" />
+                  <geom class="collision" name="Link6_collision_17" mesh="Link6_collision_17" />
+                  <geom class="collision" name="Link6_collision_18" mesh="Link6_collision_18" />
+                  <geom class="collision" name="Link6_collision_19" mesh="Link6_collision_19" />
+                  <geom class="collision" name="Link6_collision_20" mesh="Link6_collision_20" />
+                  <geom class="collision" name="Link6_collision_21" mesh="Link6_collision_21" />
+                  <geom class="collision" name="Link6_collision_22" mesh="Link6_collision_22" />
+                  <geom class="collision" name="Link6_collision_23" mesh="Link6_collision_23" />
+                  <geom class="collision" name="Link6_collision_24" mesh="Link6_collision_24" />
+                  <geom class="collision" name="Link6_collision_25" mesh="Link6_collision_25" />
+                  <geom class="collision" name="Link6_collision_26" mesh="Link6_collision_26" />
+                  <geom class="collision" name="Link6_collision_27" mesh="Link6_collision_27" />
+                  <geom class="collision" name="Link6_collision_28" mesh="Link6_collision_28" />
+                  <geom class="collision" name="Link6_collision_29" mesh="Link6_collision_29" />
+                  <geom class="collision" name="Link6_collision_30" mesh="Link6_collision_30" />
+                  <geom class="collision" name="Link6_collision_31" mesh="Link6_collision_31" />
+                  <geom class="collision" name="Link6_collision_32" mesh="Link6_collision_32" />
+                  <geom class="collision" name="Link6_collision_33" mesh="Link6_collision_33" />
+                  <geom class="collision" name="Link6_collision_34" mesh="Link6_collision_34" />
+                  <geom class="collision" name="Link6_collision_35" mesh="Link6_collision_35" />
+                  <geom class="collision" name="Link6_collision_36" mesh="Link6_collision_36" />
+                  <geom class="collision" name="Link6_collision_37" mesh="Link6_collision_37" />
+                  <geom class="collision" name="Link6_collision_38" mesh="Link6_collision_38" />
+                  <geom class="collision" name="Link6_collision_39" mesh="Link6_collision_39" />
+                  <geom class="collision" name="Link6_collision_40" mesh="Link6_collision_40" />
+                  <geom class="collision" name="Link6_collision_41" mesh="Link6_collision_41" />
+                  <geom class="collision" name="Link6_collision_42" mesh="Link6_collision_42" />
+                  <geom class="collision" name="Link6_collision_43" mesh="Link6_collision_43" />
+                  <geom class="collision" name="Link6_collision_44" mesh="Link6_collision_44" />
+                  <geom class="collision" name="Link6_collision_45" mesh="Link6_collision_45" />
+                  <geom class="collision" name="Link6_collision_46" mesh="Link6_collision_46" />
+                  <geom class="collision" name="Link6_collision_47" mesh="Link6_collision_47" />
+                  <geom class="collision" name="Link6_collision_48" mesh="Link6_collision_48" />
+                  <geom class="collision" name="Link6_collision_49" mesh="Link6_collision_49" />
+                  <geom class="collision" name="Link6_collision_50" mesh="Link6_collision_50" />
+                  <geom class="collision" name="Link6_collision_51" mesh="Link6_collision_51" />
+                  <geom class="collision" name="Link6_collision_52" mesh="Link6_collision_52" />
+                  <geom class="collision" name="Link6_collision_53" mesh="Link6_collision_53" />
+                  <geom class="collision" name="Link6_collision_54" mesh="Link6_collision_54" />
+                  <geom class="collision" name="Link6_collision_55" mesh="Link6_collision_55" />
+                  <geom class="collision" name="Link6_collision_56" mesh="Link6_collision_56" />
+                  <geom class="collision" name="Link6_collision_57" mesh="Link6_collision_57" />
+                  <geom class="collision" name="Link6_collision_58" mesh="Link6_collision_58" />
+                  <geom class="collision" name="Link6_collision_59" mesh="Link6_collision_59" />
+                  <geom class="collision" name="Link6_collision_60" mesh="Link6_collision_60" />
+                  <geom class="collision" name="Link6_collision_61" mesh="Link6_collision_61" />
+                  <geom class="collision" name="Link6_collision_62" mesh="Link6_collision_62" />
+                  <geom class="collision" name="Link6_collision_63" mesh="Link6_collision_63" />
+                  <geom class="collision" name="Link6_collision_64" mesh="Link6_collision_64" />
+                  <geom class="collision" name="Link6_collision_65" mesh="Link6_collision_65" />
+                  <geom class="collision" name="Link6_collision_66" mesh="Link6_collision_66" />
+                  <geom class="collision" name="Link6_collision_67" mesh="Link6_collision_67" />
+                  <geom class="collision" name="Link6_collision_68" mesh="Link6_collision_68" />
+                  <geom class="collision" name="Link6_collision_69" mesh="Link6_collision_69" />
+                  <geom class="collision" name="Link6_collision_70" mesh="Link6_collision_70" />
+                  <geom class="collision" name="Link6_collision_71" mesh="Link6_collision_71" />
+                  <geom class="collision" name="Link6_collision_72" mesh="Link6_collision_72" />
+                  <geom class="collision" name="Link6_collision_73" mesh="Link6_collision_73" />
+                  <geom class="collision" name="Link6_collision_74" mesh="Link6_collision_74" />
+                  <geom class="collision" name="Link6_collision_75" mesh="Link6_collision_75" />
+                  <geom class="collision" name="Link6_collision_76" mesh="Link6_collision_76" />
+                  <geom class="collision" name="Link6_collision_77" mesh="Link6_collision_77" />
+                  <geom class="collision" name="Link6_collision_78" mesh="Link6_collision_78" />
+                  <geom class="collision" name="Link6_collision_79" mesh="Link6_collision_79" />
+                  <geom class="collision" name="Link6_collision_80" mesh="Link6_collision_80" />
+                  <geom class="collision" name="Link6_collision_81" mesh="Link6_collision_81" />
+                  <geom class="collision" name="Link6_collision_82" mesh="Link6_collision_82" />
+                  <geom class="collision" name="Link6_collision_83" mesh="Link6_collision_83" />
+                  <geom class="collision" name="Link6_collision_84" mesh="Link6_collision_84" />
+                  <geom class="collision" name="Link6_collision_85" mesh="Link6_collision_85" />
+                  <geom class="collision" name="Link6_collision_86" mesh="Link6_collision_86" />
+                  <geom class="collision" name="Link6_collision_87" mesh="Link6_collision_87" />
+                  <geom class="collision" name="Link6_collision_88" mesh="Link6_collision_88" />
+                  <geom class="collision" name="Link6_collision_89" mesh="Link6_collision_89" />
+                  <geom class="collision" name="Link6_collision_90" mesh="Link6_collision_90" />
+                  <geom class="collision" name="Link6_collision_91" mesh="Link6_collision_91" />
+                  <geom class="collision" name="Link6_collision_92" mesh="Link6_collision_92" />
+                  <geom class="collision" name="Link6_collision_93" mesh="Link6_collision_93" />
+                  <geom class="collision" name="Link6_collision_94" mesh="Link6_collision_94" />
+                  <geom class="collision" name="Link6_collision_95" mesh="Link6_collision_95" />
+                  <geom class="collision" name="Link6_collision_96" mesh="Link6_collision_96" />
+                  <geom class="collision" name="Link6_collision_97" mesh="Link6_collision_97" />
+                  <geom class="collision" name="Link6_collision_98" mesh="Link6_collision_98" />
+                  <geom class="collision" name="Link6_collision_99" mesh="Link6_collision_99" />
+                  <geom class="collision" name="Link6_collision_100" mesh="Link6_collision_100" />
+                  <geom class="collision" name="Link6_collision_101" mesh="Link6_collision_101" />
+                  <geom class="collision" name="Link6_collision_102" mesh="Link6_collision_102" />
+                  <geom class="collision" name="Link6_collision_103" mesh="Link6_collision_103" />
+                  <geom class="collision" name="Link6_collision_104" mesh="Link6_collision_104" />
+                  <geom class="collision" name="Link6_collision_105" mesh="Link6_collision_105" />
+                  <geom class="collision" name="Link6_collision_106" mesh="Link6_collision_106" />
+                  <geom class="collision" name="Link6_collision_107" mesh="Link6_collision_107" />
+                  <geom class="collision" name="Link6_collision_108" mesh="Link6_collision_108" />
+                  <geom class="collision" name="Link6_collision_109" mesh="Link6_collision_109" />
+                  <geom class="collision" name="Link6_collision_110" mesh="Link6_collision_110" />
+                  <geom class="collision" name="Link6_collision_111" mesh="Link6_collision_111" />
+                  <geom class="collision" name="Link6_collision_112" mesh="Link6_collision_112" />
+                  <geom class="collision" name="Link6_collision_113" mesh="Link6_collision_113" />
+                  <geom class="collision" name="Link6_collision_114" mesh="Link6_collision_114" />
+                  <geom class="collision" name="Link6_collision_115" mesh="Link6_collision_115" />
+                  <geom class="collision" name="Link6_collision_116" mesh="Link6_collision_116" />
+                  <geom class="collision" name="Link6_collision_117" mesh="Link6_collision_117" />
+                  <geom class="collision" name="Link6_collision_118" mesh="Link6_collision_118" />
+                  <geom class="collision" name="Link6_collision_119" mesh="Link6_collision_119" />
+                  <geom class="collision" name="Link6_collision_120" mesh="Link6_collision_120" />
+                  <geom class="collision" name="Link6_collision_121" mesh="Link6_collision_121" />
+                  <geom class="collision" name="Link6_collision_122" mesh="Link6_collision_122" />
+                  <geom class="collision" name="Link6_collision_123" mesh="Link6_collision_123" />
+                  <geom class="collision" name="Link6_collision_124" mesh="Link6_collision_124" />
+                  <geom class="collision" name="Link6_collision_125" mesh="Link6_collision_125" />
+                  <geom class="collision" name="Link6_collision_126" mesh="Link6_collision_126" />
+                  <geom class="collision" name="Link6_collision_127" mesh="Link6_collision_127" />
+                  <geom class="collision" name="Link6_collision_128" mesh="Link6_collision_128" />
+                  <geom class="collision" name="Link6_collision_129" mesh="Link6_collision_129" />
+                  <geom class="collision" name="Link6_collision_130" mesh="Link6_collision_130" />
+                  <geom class="collision" name="Link6_collision_131" mesh="Link6_collision_131" />
+                  <body name="tool0" pos="0 0 0.051" quat="1 0 0 0">
+                    <site name="tool0" size=".002" />
+                    <body name="camera_color_optical_frame" pos="0.0241291203138 0.0447950337914 0.0036376885295" quat="0.00913457105759 0.00505698260439 -0.0273268490415 0.999572023348">
+                      <site name="camera_color_optical_frame" size=".001" />
+                      <camera name="harvest_camera" quat="0 1 0 0" fovy="66.3" resolution="640 400" />
+                    </body>
+                    <body name="tip" pos="-0.0039 0.0083 0.066" quat="1 0 0 0">
+                      <site name="tip" size=".002" rgba="0 1 1 1" />
+                    </body>
+                  </body>
+                  <body name="Link7" pos="0 0 0.051" quat="1 0 0 0">
+                    <inertial pos="7.37257477290143E-17 -3.88578058618805E-16 0.00328598692804025" mass="0.00643315957914466" fullinertia="3.53348528819e-07 3.53348528819e-07 6.3785366072e-07 -5.93152738511e-23 -6.12950015023e-22 2.75012621945e-22" />
+                    <geom class="visual" mesh="Link7_visual_0" />
+                    <geom class="collision" name="Link7_collision_0" mesh="Link7_collision_0" />
+                    <joint name="joint7" type="hinge" axis="0 0 -1" range="0 9.7674" armature="1e-7" damping="1e-5" />
+                  </body>
+                  <body name="Link7-1" pos="-0.068092 0.019092 0.068" quat="0.707105482511 -0.707108079859 0 0">
+                    <inertial pos="0.0214114983616174 -0.0213844568962843 -0.0178005213090296" mass="0.0946406383916538" fullinertia="3.65759984293e-05 1.71537184683e-05 3.54005904232e-05 5.58767011346e-06 -4.39180078309e-08 9.52553839575e-07" />
+                    <geom class="visual" mesh="Link7-1_visual_0" />
+                    <geom class="collision" name="Link7-1_collision_0" mesh="Link7-1_collision_0" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_1" mesh="Link7-1_collision_1" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_2" mesh="Link7-1_collision_2" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_3" mesh="Link7-1_collision_3" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_4" mesh="Link7-1_collision_4" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_5" mesh="Link7-1_collision_5" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_6" mesh="Link7-1_collision_6" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_7" mesh="Link7-1_collision_7" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_8" mesh="Link7-1_collision_8" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_9" mesh="Link7-1_collision_9" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_10" mesh="Link7-1_collision_10" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_11" mesh="Link7-1_collision_11" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_12" mesh="Link7-1_collision_12" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_13" mesh="Link7-1_collision_13" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_14" mesh="Link7-1_collision_14" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_15" mesh="Link7-1_collision_15" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_16" mesh="Link7-1_collision_16" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_17" mesh="Link7-1_collision_17" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_18" mesh="Link7-1_collision_18" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_19" mesh="Link7-1_collision_19" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_20" mesh="Link7-1_collision_20" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_21" mesh="Link7-1_collision_21" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_22" mesh="Link7-1_collision_22" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_23" mesh="Link7-1_collision_23" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_24" mesh="Link7-1_collision_24" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_25" mesh="Link7-1_collision_25" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_26" mesh="Link7-1_collision_26" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_27" mesh="Link7-1_collision_27" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_28" mesh="Link7-1_collision_28" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_29" mesh="Link7-1_collision_29" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_30" mesh="Link7-1_collision_30" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_31" mesh="Link7-1_collision_31" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_32" mesh="Link7-1_collision_32" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_33" mesh="Link7-1_collision_33" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_34" mesh="Link7-1_collision_34" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_35" mesh="Link7-1_collision_35" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_36" mesh="Link7-1_collision_36" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_37" mesh="Link7-1_collision_37" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_38" mesh="Link7-1_collision_38" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_39" mesh="Link7-1_collision_39" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_40" mesh="Link7-1_collision_40" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_41" mesh="Link7-1_collision_41" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_42" mesh="Link7-1_collision_42" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_43" mesh="Link7-1_collision_43" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_44" mesh="Link7-1_collision_44" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_45" mesh="Link7-1_collision_45" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_46" mesh="Link7-1_collision_46" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_47" mesh="Link7-1_collision_47" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_48" mesh="Link7-1_collision_48" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_49" mesh="Link7-1_collision_49" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_50" mesh="Link7-1_collision_50" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_51" mesh="Link7-1_collision_51" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_52" mesh="Link7-1_collision_52" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_53" mesh="Link7-1_collision_53" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_54" mesh="Link7-1_collision_54" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_55" mesh="Link7-1_collision_55" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_56" mesh="Link7-1_collision_56" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_57" mesh="Link7-1_collision_57" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_58" mesh="Link7-1_collision_58" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_59" mesh="Link7-1_collision_59" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_60" mesh="Link7-1_collision_60" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_61" mesh="Link7-1_collision_61" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_62" mesh="Link7-1_collision_62" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_63" mesh="Link7-1_collision_63" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_64" mesh="Link7-1_collision_64" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_65" mesh="Link7-1_collision_65" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_66" mesh="Link7-1_collision_66" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_67" mesh="Link7-1_collision_67" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_68" mesh="Link7-1_collision_68" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_69" mesh="Link7-1_collision_69" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_70" mesh="Link7-1_collision_70" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_71" mesh="Link7-1_collision_71" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_72" mesh="Link7-1_collision_72" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_73" mesh="Link7-1_collision_73" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_74" mesh="Link7-1_collision_74" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_75" mesh="Link7-1_collision_75" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_76" mesh="Link7-1_collision_76" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_77" mesh="Link7-1_collision_77" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_78" mesh="Link7-1_collision_78" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_79" mesh="Link7-1_collision_79" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_80" mesh="Link7-1_collision_80" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_81" mesh="Link7-1_collision_81" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_82" mesh="Link7-1_collision_82" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_83" mesh="Link7-1_collision_83" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-1_collision_84" mesh="Link7-1_collision_84" friction="2.0 .02 .002" condim="6" />
+                    <joint name="joint7-1" type="slide" axis="-1 0 0" range="-0.009 0.042" armature=".001" damping="2" />
+                  </body>
+                  <body name="Link7-2" pos="0.0686415494309188 0.0190915494308821 0.0695000000001406" quat="1.14236252389e-15 1.14236252389e-15 -0.707106781187 -0.707106781187">
+                    <inertial pos="0.022383049367254 0.02134017927956 -0.019540160279556" mass="0.0949054800343942" fullinertia="3.73735382445e-05 1.6811260154e-05 3.6867327607e-05 -5.5019627144e-06 9.55698005263e-08 -6.63336745217e-07" />
+                    <geom class="visual" mesh="Link7-2_visual_0" />
+                    <geom class="collision" name="Link7-2_collision_0" mesh="Link7-2_collision_0" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_1" mesh="Link7-2_collision_1" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_2" mesh="Link7-2_collision_2" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_3" mesh="Link7-2_collision_3" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_4" mesh="Link7-2_collision_4" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_5" mesh="Link7-2_collision_5" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_6" mesh="Link7-2_collision_6" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_7" mesh="Link7-2_collision_7" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_8" mesh="Link7-2_collision_8" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_9" mesh="Link7-2_collision_9" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_10" mesh="Link7-2_collision_10" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_11" mesh="Link7-2_collision_11" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_12" mesh="Link7-2_collision_12" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_13" mesh="Link7-2_collision_13" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_14" mesh="Link7-2_collision_14" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_15" mesh="Link7-2_collision_15" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_16" mesh="Link7-2_collision_16" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_17" mesh="Link7-2_collision_17" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_18" mesh="Link7-2_collision_18" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_19" mesh="Link7-2_collision_19" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_20" mesh="Link7-2_collision_20" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_21" mesh="Link7-2_collision_21" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_22" mesh="Link7-2_collision_22" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_23" mesh="Link7-2_collision_23" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_24" mesh="Link7-2_collision_24" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_25" mesh="Link7-2_collision_25" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_26" mesh="Link7-2_collision_26" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_27" mesh="Link7-2_collision_27" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_28" mesh="Link7-2_collision_28" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_29" mesh="Link7-2_collision_29" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_30" mesh="Link7-2_collision_30" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_31" mesh="Link7-2_collision_31" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_32" mesh="Link7-2_collision_32" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_33" mesh="Link7-2_collision_33" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_34" mesh="Link7-2_collision_34" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_35" mesh="Link7-2_collision_35" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_36" mesh="Link7-2_collision_36" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_37" mesh="Link7-2_collision_37" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_38" mesh="Link7-2_collision_38" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_39" mesh="Link7-2_collision_39" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_40" mesh="Link7-2_collision_40" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_41" mesh="Link7-2_collision_41" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_42" mesh="Link7-2_collision_42" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_43" mesh="Link7-2_collision_43" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_44" mesh="Link7-2_collision_44" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_45" mesh="Link7-2_collision_45" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_46" mesh="Link7-2_collision_46" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_47" mesh="Link7-2_collision_47" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_48" mesh="Link7-2_collision_48" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_49" mesh="Link7-2_collision_49" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_50" mesh="Link7-2_collision_50" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_51" mesh="Link7-2_collision_51" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_52" mesh="Link7-2_collision_52" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_53" mesh="Link7-2_collision_53" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_54" mesh="Link7-2_collision_54" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_55" mesh="Link7-2_collision_55" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_56" mesh="Link7-2_collision_56" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_57" mesh="Link7-2_collision_57" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_58" mesh="Link7-2_collision_58" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_59" mesh="Link7-2_collision_59" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_60" mesh="Link7-2_collision_60" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_61" mesh="Link7-2_collision_61" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_62" mesh="Link7-2_collision_62" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_63" mesh="Link7-2_collision_63" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_64" mesh="Link7-2_collision_64" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_65" mesh="Link7-2_collision_65" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_66" mesh="Link7-2_collision_66" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_67" mesh="Link7-2_collision_67" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_68" mesh="Link7-2_collision_68" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_69" mesh="Link7-2_collision_69" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_70" mesh="Link7-2_collision_70" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_71" mesh="Link7-2_collision_71" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_72" mesh="Link7-2_collision_72" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_73" mesh="Link7-2_collision_73" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_74" mesh="Link7-2_collision_74" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_75" mesh="Link7-2_collision_75" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_76" mesh="Link7-2_collision_76" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_77" mesh="Link7-2_collision_77" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_78" mesh="Link7-2_collision_78" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_79" mesh="Link7-2_collision_79" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_80" mesh="Link7-2_collision_80" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_81" mesh="Link7-2_collision_81" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_82" mesh="Link7-2_collision_82" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_83" mesh="Link7-2_collision_83" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_84" mesh="Link7-2_collision_84" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_85" mesh="Link7-2_collision_85" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_86" mesh="Link7-2_collision_86" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_87" mesh="Link7-2_collision_87" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_88" mesh="Link7-2_collision_88" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_89" mesh="Link7-2_collision_89" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_90" mesh="Link7-2_collision_90" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_91" mesh="Link7-2_collision_91" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_92" mesh="Link7-2_collision_92" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_93" mesh="Link7-2_collision_93" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_94" mesh="Link7-2_collision_94" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_95" mesh="Link7-2_collision_95" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_96" mesh="Link7-2_collision_96" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_97" mesh="Link7-2_collision_97" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_98" mesh="Link7-2_collision_98" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_99" mesh="Link7-2_collision_99" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_100" mesh="Link7-2_collision_100" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_101" mesh="Link7-2_collision_101" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_102" mesh="Link7-2_collision_102" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_103" mesh="Link7-2_collision_103" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_104" mesh="Link7-2_collision_104" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_105" mesh="Link7-2_collision_105" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_106" mesh="Link7-2_collision_106" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_107" mesh="Link7-2_collision_107" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_108" mesh="Link7-2_collision_108" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_109" mesh="Link7-2_collision_109" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_110" mesh="Link7-2_collision_110" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_111" mesh="Link7-2_collision_111" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_112" mesh="Link7-2_collision_112" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_113" mesh="Link7-2_collision_113" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_114" mesh="Link7-2_collision_114" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_115" mesh="Link7-2_collision_115" friction="2.0 .02 .002" condim="6" />
+                    <geom class="collision" name="Link7-2_collision_116" mesh="Link7-2_collision_116" friction="2.0 .02 .002" condim="6" />
+                    <joint name="joint7-2" type="slide" axis="-1 0 0" range="-0.009 0.042" armature=".001" damping="2" />
+                  </body>
+                  <joint name="joint6" type="hinge" axis="0 0 1" range="-2.0944 2.0944" armature=".01" damping=".2" />
+                </body>
+                <joint name="joint5" type="hinge" axis="0 0 1" range="-1.5708 1.5708" armature=".01" damping=".2" />
+              </body>
+              <joint name="joint4" type="hinge" axis="0 0 1" range="-1.95 1.5708" armature=".01" damping=".2" />
+            </body>
+            <joint name="joint3" type="hinge" axis="0 0 1" range="-0.087266 4.7124" armature=".01" damping=".2" />
+          </body>
+          <joint name="joint2" type="hinge" axis="0 0 -1" range="-0.087266 3.1416" armature=".01" damping=".2" />
+        </body>
+        <joint name="joint1" type="hinge" axis="0 0 1" range="-2.0944 2.0944" armature=".01" damping=".2" />
+      </body>
+    </body>
+    <body name="stem_1" mocap="true" pos="0.3 -0.1 0.35" />
+    <body name="fruit_1" pos="0.3 -0.1 0.35">
+      <freejoint name="fruit_1_freejoint" />
+      <inertial pos="0 0 0" mass=".06" diaginertia=".000015 .000015 .000015" />
+      <geom name="fruit_geom_1" type="sphere" size=".025" rgba=".85 .06 .025 1" friction="2 .02 .002" condim="6" />
+    </body>
+    <body name="stem_2" mocap="true" pos="0.3 -0.045 0.35" />
+    <body name="fruit_2" pos="0.3 -0.045 0.35">
+      <freejoint name="fruit_2_freejoint" />
+      <inertial pos="0 0 0" mass=".06" diaginertia=".000015 .000015 .000015" />
+      <geom name="fruit_geom_2" type="sphere" size=".025" rgba=".85 .06 .025 1" friction="2 .02 .002" condim="6" />
+    </body>
+    <body name="stem_3" mocap="true" pos="0.3 0.01 0.35" />
+    <body name="fruit_3" pos="0.3 0.01 0.35">
+      <freejoint name="fruit_3_freejoint" />
+      <inertial pos="0 0 0" mass=".06" diaginertia=".000015 .000015 .000015" />
+      <geom name="fruit_geom_3" type="sphere" size=".025" rgba=".85 .06 .025 1" friction="2 .02 .002" condim="6" />
+    </body>
+    <geom name="basket_floor" type="box" pos="-0.147505332109 -0.102944878235 0.162533027398" size="0.055 0.1 0.0125" rgba=".15 .45 .20 1" />
+    <geom name="basket_left" type="box" pos="-0.204505332109 -0.102944878235 0.187533027398" size="0.002 0.104 0.0125" rgba=".15 .45 .20 1" />
+    <geom name="basket_right" type="box" pos="-0.0905053321089 -0.102944878235 0.187533027398" size="0.002 0.104 0.0125" rgba=".15 .45 .20 1" />
+    <geom name="basket_front" type="box" pos="-0.147505332109 -0.204944878235 0.187533027398" size="0.055 0.002 0.0125" rgba=".15 .45 .20 1" />
+    <geom name="basket_rear" type="box" pos="-0.147505332109 -0.000944878235413 0.187533027398" size="0.055 0.002 0.0125" rgba=".15 .45 .20 1" />
+    <geom name="simulation_obstacle" type="box" pos="0.65 0.65 0.3" size="0.05 0.05 0.25" rgba=".25 .5 .25 1" />
+  </worldbody>
+  <equality>
+    <joint name="pinion_rack" joint1="joint7" joint2="joint7-1" polycoef="0 -232.558139535 0 0 0" solref=".002 1" solimp=".999 .9999 .0001" />
+    <joint name="parallel_fingers" joint1="joint7-2" joint2="joint7-1" polycoef="0 1 0 0 0" solref=".002 1" solimp=".999 .9999 .0001" />
+    <weld name="stem_weld_1" body1="fruit_1" body2="stem_1" relpose="0 0 0 1 0 0 0" solref=".002 1" />
+    <weld name="stem_weld_2" body1="fruit_2" body2="stem_2" relpose="0 0 0 1 0 0 0" solref=".002 1" />
+    <weld name="stem_weld_3" body1="fruit_3" body2="stem_3" relpose="0 0 0 1 0 0 0" solref=".002 1" />
+  </equality>
+  <contact>
+    <exclude body1="base_link" body2="Link1" />
+    <exclude body1="Link1" body2="Link2" />
+    <exclude body1="Link2" body2="Link3" />
+    <exclude body1="Link3" body2="Link4" />
+    <exclude body1="Link4" body2="Link5" />
+    <exclude body1="Link5" body2="Link6" />
+    <exclude body1="Link6" body2="Link7" />
+    <exclude body1="Link6" body2="Link7-1" />
+    <exclude body1="Link6" body2="Link7-2" />
+    <exclude body1="Link7" body2="Link7-1" />
+    <exclude body1="Link7" body2="Link7-2" />
+  </contact>
+  <actuator>
+    <position name="joint1" joint="joint1" kp="9000" dampratio="1" ctrlrange="-2.0944 2.0944" forcerange="-100 100" />
+    <position name="joint2" joint="joint2" kp="15000" dampratio="1" ctrlrange="-0.087266 3.1416" forcerange="-100 100" />
+    <position name="joint3" joint="joint3" kp="15000" dampratio="1" ctrlrange="-0.087266 4.7124" forcerange="-100 100" />
+    <position name="joint4" joint="joint4" kp="6000" dampratio="1" ctrlrange="-1.95 1.5708" forcerange="-20 20" />
+    <position name="joint5" joint="joint5" kp="3600" dampratio="1" ctrlrange="-1.5708 1.5708" forcerange="-20 20" />
+    <position name="joint6" joint="joint6" kp="2400" dampratio="1" ctrlrange="-2.0944 2.0944" forcerange="-20 20" />
+    <position name="joint7-1" joint="joint7-1" kp="6000" dampratio="1" ctrlrange="-0.009 0.042" forcerange="-20 20" />
+  </actuator>
+  <statistic center=".1 -.05 .25" extent=".9" />
+</mujoco>
